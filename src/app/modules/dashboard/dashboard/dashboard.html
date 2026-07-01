@@ -1,53 +1,36 @@
 <div class="layout">
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="logo-container">
       <img src="assets/images/revHub.jpeg" alt="RevHub Logo">
     </div>
 
     <ul>
-      <li
-        (click)="setActive('dashboard')"
-        [class.active]="activeView === 'dashboard'">
-        Dashboard
+      <li (click)="setActive('dashboard')" [class.active]="activeView === 'dashboard'">
+        <fa-icon [icon]="faDashboard"></fa-icon> Dashboard
       </li>
-
-      <li
-        (click)="setActive('jobCards')"
-        [class.active]="activeView === 'jobCards'">
-        Job Cards
+      <li (click)="setActive('jobCards')" [class.active]="activeView === 'jobCards'">
+        <fa-icon [icon]="faXRay"></fa-icon> Job Cards
       </li>
-
-      <li
-        (click)="setActive('invoices')"
-        [class.active]="activeView === 'invoices'">
-        Invoices
+      <li (click)="setActive('invoices')" [class.active]="activeView === 'invoices'">
+        <fa-icon [icon]="faFileLines"></fa-icon> Invoices
       </li>
-
-      <li
-        (click)="setActive('customers')"
-        [class.active]="activeView === 'customers'">
-        Customers
+      <li (click)="setActive('customers')" [class.active]="activeView === 'customers'">
+        <fa-icon [icon]="faUsers"></fa-icon> Customers
       </li>
-
-      <li
-        (click)="setActive('technicians')"
-        [class.active]="activeView === 'technicians'">
-        Technicians
+      <li (click)="setActive('technicians')" [class.active]="activeView === 'technicians'">
+        <fa-icon [icon]="faWrench"></fa-icon> Technicians
       </li>
-
-      <li
-        (click)="setActive('vehicles')"
-        [class.active]="activeView === 'vehicles'">
-        Vehicles
+      <li (click)="setActive('vehicles')" [class.active]="activeView === 'vehicles'">
+        <fa-icon [icon]="faCar"></fa-icon> Vehicles
       </li>
-      <li>Reports</li>
-      <li>Settings</li>
-      <li>Users</li>
+      <li><fa-icon [icon]="faReports"></fa-icon> Reports</li>
+      <li><fa-icon [icon]="faSettings"></fa-icon> Settings</li>
+      <li><fa-icon [icon]="faUsers"></fa-icon> Users</li>
     </ul>
     <div class="navigation-container">
-      <img src="assets/images/car.png" alt="carImage">
+      <img src="assets/images/cara1.jpg" alt="carImage">
     </div>
   </div>
 
@@ -56,12 +39,28 @@
 
     <!-- TOP BAR -->
     <div class="topbar">
-      <h1>{{ pageTitle }}</h1>
-
+      <div class="menu-icon" (click)="toggleSidebar()">
+        <fa-icon [icon]="faBars"></fa-icon>
+      </div>
+      <h1 style="margin: 0;">{{ pageTitle }}</h1> <div class="right"></div>
       <div class="right">
         <span>📅 20 May 2024</span>
         <span>🔔 3</span>
-        <div class="user">Admin</div>
+        <div class="user-profile" (click)="toggleDropdown()">
+          <div class="user-avatar">
+            <fa-icon [icon]="faUser"></fa-icon>
+          </div>
+          <span class="username">Admin</span>
+          <fa-icon [icon]="faChevronDown"></fa-icon>
+
+          <div class="dropdown-menu" *ngIf="isDropdownOpen">
+            <ul>
+              <li>Profile</li>
+              <li>Settings</li>
+              <li (click)="logout()">Logout</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -148,6 +147,7 @@
             <apx-chart
               [series]="chartOptions.series!"
               [chart]="chartOptions.chart!"
+              [legend]="chartOptions.legend!"
               [stroke]="chartOptions.stroke!"
               [dataLabels]="chartOptions.dataLabels!"
               [colors]="chartOptions.colors!"
@@ -210,17 +210,19 @@
           </div>
 
           <div id="chart" *ngIf="revenueChartOptions && revenueChartOptions.series">
+            <!-- Remove the title and subtitle attributes if they aren't used -->
             <apx-chart
               [series]="revenueChartOptions.series!"
               [chart]="revenueChartOptions.chart!"
               [dataLabels]="revenueChartOptions.dataLabels!"
               [stroke]="revenueChartOptions.stroke!"
-              [title]="revenueChartOptions.title!"
-              [subtitle]="revenueChartOptions.subtitle!"
               [labels]="revenueChartOptions.labels!"
               [xaxis]="revenueChartOptions.xaxis!"
               [yaxis]="revenueChartOptions.yaxis!"
               [legend]="revenueChartOptions.legend!"
+              [colors]="revenueChartOptions.colors!"
+              [fill]="revenueChartOptions.fill!"
+              [grid]="revenueChartOptions.grid!"
             ></apx-chart>
           </div>
         </div>
@@ -269,8 +271,8 @@
             <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
             <div class="service-item"><span><i class="fa fa-circle-notch"></i> Brake Service</span> <span>15</span></div>
             <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
-            <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
-            <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
+            <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
+            <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
           </div>
 
           <div class="car-illustration"></div>
