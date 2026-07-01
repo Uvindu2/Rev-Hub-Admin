@@ -1,0 +1,221 @@
+<div class="modal-overlay">
+  <div class="revhub-builder-card">
+    <div class="form-title-bar">
+      <h2>CREATE INVOICE</h2>
+      <span class="actor-tag">Actor</span>
+    </div>
+
+    <form [formGroup]="invoiceForm">
+      <div class="split-workspace">
+
+        <div class="left-panel">
+          <div class="search-box">
+            <input type="text" formControlName="jobCardSearch" placeholder="[ SEARCH LABOR TASKS BY JOB ID...]">
+            <i class="search-icon" (click)="onJobCardSearchClick()">🔍</i>
+          </div>
+
+          <div class="sidebar-list" formArrayName="laborActivities">
+            <div *ngFor="let labor of laborActivities.controls; let i = index"
+                 [formGroupName]="i"
+                 class="task-item"
+                 [class.active]="i === selectedLaborIndex"
+                 (click)="selectLaborTask(i)">
+              <div class="task-details">
+                <span class="title">
+                  🔧 [{{ i + 1 }}] {{ getLaborActivityName(labor.get('name')?.value) || 'Select New Labor Activity...' }}
+                </span>
+                <span class="type-tag">
+                  {{ labor.get('isAutoFetched')?.value ? '(Auto-Fetched)' : '(Manual)' }}
+                </span>
+              </div>
+              <div class="task-actions">
+                <button type="button"
+                        class="task-delete-btn"
+                        title="Delete Task"
+                        (click)="removeLaborActivity(i, $event)">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="add-labor-btn" (click)="addLaborActivity('', false, 0)">
+            ➕ ADD ADDITIONAL LABOR
+          </button>
+        </div>
+
+        <div class="right-panel" *ngIf="laborActivities.length > 0" [formGroup]="$any(laborActivities.at(selectedLaborIndex))">
+          <div class="active-workspace-header">
+            <div class="task-field">
+              <label>🔧 Active Task:</label>
+              <ng-container *ngIf="laborActivities.at(selectedLaborIndex).get('isAutoFetched')?.value; else dynamicDropdown">
+                <span class="static-label">
+                  {{ getLaborActivityName(laborActivities.at(selectedLaborIndex).get('name')?.value) }}
+                </span>
+              </ng-container>
+              <ng-template #dynamicDropdown>
+                <div class="dropdown-container custom-labor-dropdown">
+                  <div class="dropdown-input-wrapper"
+                       [class.invalid-border]="laborActivities.at(selectedLaborIndex).get('name')?.invalid && laborActivities.at(selectedLaborIndex).get('name')?.touched"
+                       (click)="toggleDropdown($event)">
+                    <span class="dropdown-selected-value-text">
+                      {{ getLaborActivityName(laborActivities.at(selectedLaborIndex).get('name')?.value) || 'Select New Labor Activity...' }}
+                    </span>
+                    <span class="dropdown-toggle">
+                      {{ isDropdownOpen ? '▲' : '▼' }}
+                    </span>
+                  </div>
+
+                  <div class="dropdown-options-box" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
+                    <div class="dropdown-search-wrapper">
+                      <input
+                        type="text"
+                        placeholder="Type to filter tasks... 🔍"
+                        class="dropdown-search-input"
+                        (input)="onSearchLaborDropdown($event)"
+                      />
+                    </div>
+
+                    <ul class="dropdown-results-list">
+                      <li *ngFor="let act of filteredLaborActivities"
+                          [class.selected]="laborActivities.at(selectedLaborIndex).get('name')?.value === act.laborActivityId"
+                          (click)="selectActivityOption(act.laborActivityId)">
+                        {{ act.activityName }}
+                      </li>
+                      <li *ngIf="filteredLaborActivities.length === 0" class="no-results">
+                        No matching items found
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="fee-field">
+              <label>Labor Fee: LKR</label>
+              <input type="number" formControlName="laborFee" class="dark-input" placeholder="Enter fee...">
+            </div>
+          </div>
+
+          <div class="parts-container">
+            <table class="matrix-table">
+              <thead>
+              <tr>
+                <th width="40">#</th>
+                <th>Service Item / Part</th>
+                <th width="100">Qty</th>
+                <th width="120">Unit Price</th>
+                <th width="140">Total</th>
+                <th width="60">Actions</th>
+              </tr>
+              </thead>
+              <tbody formArrayName="parts">
+              <tr *ngFor="let part of getPartControls(selectedLaborIndex); let j = index" [formGroupName]="j">
+                <td>{{ j + 1 }}</td>
+                <td>
+                  <div class="custom-matrix-dropdown">
+                    <div class="dropdown-input-wrapper"
+                         [class.invalid-border]="part.get('name')?.invalid && part.get('name')?.touched"
+                         (click)="togglePartDropdown($event, j)">
+                      <span class="dropdown-selected-value-text">
+                        {{ part.get('name')?.value || 'Select Item / Part...' }}
+                      </span>
+                      <span class="dropdown-toggle">
+                        {{ partDropdownOpenRowIndex === j ? '▲' : '▼' }}
+                      </span>
+                    </div>
+
+                    <div class="dropdown-options-box" *ngIf="partDropdownOpenRowIndex === j" (click)="$event.stopPropagation()">
+                      <div class="dropdown-search-wrapper">
+                        <input
+                          type="text"
+                          placeholder="Type to filter parts... 🔍"
+                          class="dropdown-search-input"
+                          (input)="onSearchPartsDropdown($event)"
+                        />
+                      </div>
+
+                      <ul class="dropdown-results-list">
+                        <li *ngFor="let p of filteredItemParts"
+                            [class.selected]="part.get('name')?.value === p.itemName"
+                            (click)="selectPartOption(j, p)">  {{ p.itemName }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" formControlName="qty" class="dark-input cell-input">
+                </td>
+                <td>
+                  <input type="number" formControlName="unitPrice" class="dark-input cell-input">
+                </td>
+                <td class="total-output">
+                  LKR {{ part.get('total')?.value | number : '1.2-2' }}
+                </td>
+                <td>
+                  <button type="button" class="row-delete-btn" (click)="removePart(selectedLaborIndex, j)">🗑️</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+            <button type="button" class="add-part-link" (click)="addPartToLabor(selectedLaborIndex)">
+              ➕ Add Part to this Task
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="summary-footer-bar">
+        <div class="payment-selection-container">
+          <label class="section-label">💳 Select Payment Method:</label>
+          <div class="payment-options">
+            <label class="payment-radio-tile">
+              <input type="radio" formControlName="paymentMethod" value="Cash">
+              <span class="tile-icon">💵</span>
+              <span class="tile-text">Cash</span>
+            </label>
+
+            <label class="payment-radio-tile">
+              <input type="radio" formControlName="paymentMethod" value="Card">
+              <span class="tile-icon">💳</span>
+              <span class="tile-text">Card</span>
+            </label>
+
+            <label class="payment-radio-tile">
+              <input type="radio" formControlName="paymentMethod" value="Bank Transfer">
+              <span class="tile-icon">🏛️</span>
+              <span class="tile-text">Bank Transfer</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-node">
+            <label>Total Parts:</label>
+            <span>LKR {{ totalPartsCost | number : '1.2-2' }}</span>
+          </div>
+          <div class="summary-node">
+            <label>Total Labor Fees:</label>
+            <span>LKR {{ totalLaborCost | number : '1.2-2' }}</span>
+          </div>
+          <div class="summary-node inline-input-node">
+            <label>Additional Fees:</label>
+            <input type="number" formControlName="additionalFees" class="dark-input summary-input">
+          </div>
+          <div class="summary-node accent-total">
+            <label>Grand Total:</label>
+            <span>LKR {{ grandTotal | number : '1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancel.emit()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="invoiceForm.invalid" (click)="onSubmit()">Generate & Post Invoice</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

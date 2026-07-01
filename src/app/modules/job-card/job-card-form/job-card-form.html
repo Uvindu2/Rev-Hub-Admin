@@ -1,0 +1,169 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <h2>CREATE NEW JOB CARD</h2>
+    <button class="close-btn" (click)="onCancel()">&times;</button>
+  </div>
+
+  <form [formGroup]="jobCardForm" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+
+      <div class="form-column">
+
+        <section class="form-section">
+          <h3>1. VEHICLE ENTRY TYPE</h3>
+
+          <div class="form-group search-transition">
+            <label>Search Vehicle:</label>
+            <div class="search-input-wrapper">
+              <input type="text" formControlName="vehicleSearch" placeholder="Type Vehicle Reg No...">
+              <i class="search-icon" (click)="onVehicleSearchClick()">🔍</i>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>3. VEHICLE SPECS</h3>
+          <div class="grid-2-col">
+
+            <div class="form-group">
+              <label>Vehicle Reg No. <span class="required">*</span></label>
+              <input type="text" formControlName="vehicleRegNo" placeholder="CBN-9081" [readonly]="isExistingVehicle">
+              <div *ngIf="isInvalid('vehicleRegNo')" class="error-msg">Vehicle registration number is required.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Make <span class="required">*</span></label>
+              <input type="text" formControlName="make" placeholder="Toyota" [readonly]="isExistingVehicle">
+              <div *ngIf="isInvalid('make')" class="error-msg">Vehicle make is required.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Model <span class="required">*</span></label>
+              <input type="text" formControlName="model" placeholder="Premio" [readonly]="isExistingVehicle">
+              <div *ngIf="isInvalid('model')" class="error-msg">Vehicle model is required.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Year <span class="required">*</span></label>
+              <input type="text" formControlName="year" placeholder="2018" [readonly]="isExistingVehicle">
+              <div *ngIf="isInvalid('year')" class="error-msg">
+                <span *ngIf="jobCardForm.get('year')?.errors?.['required']">Year is required.</span>
+                <span *ngIf="jobCardForm.get('year')?.errors?.['pattern']">Enter a valid 4-digit year.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2-col">
+            <div class="form-group">
+              <label>Color</label>
+              <input type="text" formControlName="colour" placeholder="Silver" [readonly]="isExistingVehicle">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Other Specs</label>
+            <input type="text" formControlName="otherSpecs" placeholder="1.5L Engine, AWC" [readonly]="isExistingVehicle">
+          </div>
+        </section>
+
+      </div>
+
+      <div class="form-column">
+        <section class="form-section">
+          <h3>2. CUSTOMER INFO</h3>
+
+          <ng-template [ngIf]="!isExistingVehicle">
+            <div class="form-group search-transition">
+              <label>Search Customer:</label>
+              <div class="search-input-wrapper">
+                <input type="text" formControlName="customerSearch" placeholder="Type Driving License Number...">
+                <i class="search-icon" (click)="onCustomerSearchClick()">🔍</i>
+              </div>
+            </div>
+          </ng-template>
+
+          <div class="grid-2-col">
+            <div class="form-group">
+              <label>Customer Name: <span class="required">*</span></label>
+              <input type="text" formControlName="customerName" placeholder="Enter full name"
+                     [readonly]="isExistingVehicle || isExistingCustomer">
+              <div *ngIf="isInvalid('customerName')" class="error-msg">Customer name is required.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Email Address: <span class="required">*</span></label>
+              <input type="text" formControlName="email" placeholder="example@domain.com"
+                     [readonly]="isExistingVehicle || isExistingCustomer">
+              <div *ngIf="isInvalid('email')" class="error-msg">
+                <span *ngIf="jobCardForm.get('email')?.errors?.['required']">Email is required.</span>
+                <span *ngIf="jobCardForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Contact Number: <span class="required">*</span></label>
+              <input type="text" formControlName="contactNumber" placeholder="[ e.g., +94 77 123 4567 ]"
+                     [readonly]="isExistingVehicle || isExistingCustomer">
+              <div *ngIf="isInvalid('contactNumber')" class="error-msg">Contact number is required.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Driving License Number: <span class="required">*</span></label>
+              <input type="text" formControlName="drivingLicenseNumber" placeholder="[ e.g., 199012345678 ]"
+                     [readonly]="isExistingVehicle || isExistingCustomer">
+              <div *ngIf="isInvalid('drivingLicenseNumber')" class="error-msg">Driving license is required.</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 15px;">
+            <label>Customer Complaint/Issue <span class="required">*</span></label>
+            <textarea formControlName="complaint" rows="3" placeholder="Describe issue here..."></textarea>
+            <div *ngIf="isInvalid('complaint')" class="error-msg">Please specify the customer complaint.</div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>4. JOB DETAILS & CHECKLIST</h3>
+
+          <div class="form-group-stack">
+
+            <app-multi-select-dropdown
+              label="Select Repair Items:"
+              [formControl]="repairLaborActivitiesSelectedControl"
+              [b]="laborActivityNameProjection"
+              bindLabel="activityName"
+              bindValue="laborActivityId"
+              errorMessage="Please select at least one repair activity.">
+            </app-multi-select-dropdown>
+
+            <div class="form-group">
+              <label>Current Mileage: <span class="required">*</span></label>
+              <input type="text" formControlName="currentMileage">
+              <div *ngIf="isInvalid('currentMileage')" class="error-msg">Current mileage is required.</div>
+            </div>
+
+            <app-multi-select-dropdown
+              label="Assigned Technician:"
+              [formControl]="assignedTechniciansSelectedControl"
+              [b]="technicianNameProjection"
+              bindLabel="technicianName"
+              bindValue="technicianId"
+              errorMessage="Please select at least one technician.">
+            </app-multi-select-dropdown>
+
+          </div>
+        </section>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn-submit">
+        <span class="icon">+</span> SUBMIT JOB CARD
+      </button>
+      <button type="button" class="btn-cancel" (click)="$event.preventDefault(); onCancel()">
+        CANCEL
+      </button>
+    </div>
+  </form>
+</div>

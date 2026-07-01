@@ -1,0 +1,24 @@
+.notification-toast {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  z-index: 9999; /* Higher than any modal backdrop overlays */
+  min-width: 320px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.notification-toast.success { background-color: #1c3d22; border: 1px solid #34c759; color: #34c759; }
+.notification-toast.error { background-color: #3d1c1c; border: 1px solid #d32f2f; color: #ff453a; }
+.notification-content { display: flex; align-items: center; gap: 12px; }
+.notification-message { margin: 0; font-size: 0.9rem; font-weight: 500; }
+
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}

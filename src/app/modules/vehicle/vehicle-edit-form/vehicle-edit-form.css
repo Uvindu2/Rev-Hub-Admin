@@ -1,0 +1,303 @@
+/* --- Pop-Up Modal Layout Overlay & Backdrop --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65); /* Dark dimming overlay to match dark theme */
+  backdrop-filter: blur(4px); /* Soft blur effect on the parent table beneath */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Main Form Card Container --- */
+.modal-card {
+  background-color: #151515; /* Matching parent card background */
+  border: 1px solid #262626; /* Matching parent borders */
+  width: 100%;
+  height: 100%;
+  max-width: 1000px;
+  max-height: 650px; /* Slightly increased to comfortably stack vehicle fields + data table */
+  border-radius: 8px;
+  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.7);
+  display: flex;          /* Added: flex arrangement locks header/footer in place */
+  flex-direction: column; /* Added: content flows vertically */
+  overflow: hidden;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+/* --- Header Section --- */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2a2a2a;
+  background-color: #1a1a1a;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.close-header-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #757575;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.close-header-btn:hover {
+  color: #ffffff;
+}
+
+/* --- Body & Layout Rows --- */
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;              /* Added: Fills available space between header and footer */
+  overflow-y: auto;     /* Added: Scrollbar handles long content arrays cleanly */
+}
+
+.form-row {
+  display: flex;
+  gap: 14px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* --- Form Labels & Inputs --- */
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #9e9e9e; /* Dimmed secondary labels */
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #1e1e1e; /* Matching search box styling */
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #ffffff;
+  box-sizing: border-box;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* Crimson focus element layout edge styling matching parent input rings */
+.form-control:focus {
+  border-color: #b01c1c;
+}
+
+/* Read-Only State for immutable fields like Reg No. */
+.form-control.read-only {
+  background-color: #111111;
+  color: #757575;
+  border-color: #222222;
+  cursor: not-allowed;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Dropdown/Select element targeting */
+.select-field {
+  background-color: #1e1e1e;
+  cursor: pointer;
+}
+
+.select-field option {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+/* --- 🌟 NEW: Customers Sub-Table Layout Area --- */
+.customers-management-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 20px;
+}
+
+.section-control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-control-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Inline Add Button matching layout secondary structures */
+.btn-add-item {
+  background-color: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-add-item:hover {
+  background-color: #262626;
+  border-color: #b01c1c; /* Crimson hint highlighting on interactive path */
+  color: #ffffff;
+}
+
+/* Embedded Table Wrapper Panel */
+.table-scroll-container {
+  border: 1px solid #262626;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #111111;
+}
+
+.modal-embedded-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.modal-embedded-table th {
+  background-color: #1a1a1a;
+  color: #9e9e9e;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.modal-embedded-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #1a1a1a;
+  vertical-align: middle;
+}
+
+/* Compressed inputs sizing down context profiles within cells */
+.table-input {
+  padding: 6px 10px !important;
+  background-color: #161616 !important;
+  border-color: #2a2a2a !important;
+}
+
+.table-input:focus {
+  border-color: #b01c1c !important;
+}
+
+/* Inline Trash Button Styling */
+.btn-inline-delete {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  color: #757575;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-inline-delete:hover {
+  background-color: rgba(176, 28, 28, 0.15); /* Soft crimson highlight hint on destructive target hover */
+  color: #cd2222;
+}
+
+/* Table empty fallback system styles */
+.table-empty-state {
+  text-align: center;
+  color: #616161;
+  padding: 30px !important;
+  font-style: italic;
+  background-color: #151515;
+}
+
+/* --- Footer Action Area --- */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  background-color: #1a1a1a;
+  border-top: 1px solid #2a2a2a;
+}
+
+.modal-footer button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+/* Secondary Cancel Button Styles */
+.btn-secondary {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a !important;
+  color: #8e8e8e;
+}
+
+.btn-secondary:hover {
+  background-color: #262626;
+  color: #ffffff;
+}
+
+/* Primary Crimson Save Button Styles */
+.btn-primary {
+  background-color: #b01c1c;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #cd2222;
+}
+
+.btn-primary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Animation entry sequence */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

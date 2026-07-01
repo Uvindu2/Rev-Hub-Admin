@@ -1,0 +1,67 @@
+<div class="modal-overlay">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <h3>Add Customer</h3>
+      <button class="close-header-btn" (click)="closePopup()">
+        &times;
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- License Search -->
+      <div class="form-group">
+        <label>Driving License Number</label>
+
+        <div class="form-row">
+          <input class="form-control"
+                 [(ngModel)]="licenseNumber"
+                 placeholder="Search License">
+
+          <button type="button"
+                  class="btn-primary"
+                  (click)="searchCustomer()">
+            Search
+          </button>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div class="form-group">
+        <label>Customer Name</label>
+        <input class="form-control"
+               [(ngModel)]="customer.name">
+      </div>
+
+      <!-- Contact + Email -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contact Number</label>
+          <input class="form-control"
+                 [(ngModel)]="customer.contactNumber">
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input class="form-control"
+                 [(ngModel)]="customer.email">
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="form-group">
+        <label>Address</label>
+        <textarea class="form-control"
+                  [(ngModel)]="customer.address"></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closePopup()">Cancel</button>
+      <button class="btn-primary" (click)="saveCustomer()">Save</button>
+    </div>
+
+  </div>
+</div>

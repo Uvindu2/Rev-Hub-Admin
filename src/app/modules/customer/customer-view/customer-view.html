@@ -1,0 +1,60 @@
+<div class="page-header">
+<div class="card-container">
+  <div class="table-header">
+    <h2>All Customers</h2>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search Customers..." (input)="onSearch($event)">
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+      <tr>
+        <th>Customer ID</th>
+        <th>Customer Name</th>
+        <th>Contact Number</th>
+        <th>Email Address</th>
+        <th class="text-center">Total Jobs</th>
+        <th class="text-center">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let customer of displayedCustomers">
+        <td class="font-semibold">{{ customer.id }}</td>
+        <td>{{ customer.name }}</td>
+        <td>{{ customer.contactNumber }}</td>
+        <td>{{ customer.email }}</td>
+        <td class="text-center font-numeric">
+          <span class="job-count-badge">{{ customer.totalJobs }}</span>
+        </td>
+        <td class="actions-cell">
+          <button class="btn-action view-btn" title="View Profile" (click)="viewCustomer(customer.id)">
+            👁️
+          </button>
+          <button class="btn-action edit-btn" title="Edit Info" (click)="editCustomer(customer.id)">
+            ✏️
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+    <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+    <button *ngFor="let page of totalPages"
+            class="page-num"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="nextPage()">></button>
+    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="goToPage(maxPages)">>|</button>
+  </div>
+</div>
+</div>

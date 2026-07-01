@@ -1,0 +1,74 @@
+<div class="page-header">
+<div class="card-container">
+  <div class="table-header">
+    <h2>All Invoices</h2>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search Invoices..." (input)="onSearch($event)">
+    </div>
+
+    <button class="btn-add-invoice" type="button" (click)="onAddInvoice()">
+      <span class="icon-plus" aria-hidden="true">+</span> ADD Invoice
+    </button>
+  </div>
+
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+      <tr>
+        <th>Invoice ID</th>
+        <th>Related Job Card</th>
+        <th>Customer Name</th>
+        <th>Amount (Rs.)</th>
+        <th>Date Issued</th>
+        <th>Payment Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let invoice of invoices">
+        <td class="font-semibold">{{ invoice.id }}</td>
+        <td>{{ invoice.relatedJobCard }}</td>
+        <td>{{ invoice.customerName }}</td>
+        <td class="font-numeric">Rs. {{ invoice.amount | number:'1.2-2' }}</td>
+        <td>{{ invoice.dateIssued }}</td>
+        <td>
+            <span class="badge" [ngClass]="{
+              'badge-paid': invoice.paymentStatus === 'Paid',
+              'badge-pending': invoice.paymentStatus === 'Pending'
+            }">
+              {{ invoice.paymentStatus }}
+            </span>
+        </td>
+        <td class="actions-cell">
+          <button class="btn-action view-btn" title="View" (click)="viewInvoice(invoice.id)">
+            👁️
+          </button>
+          <button class="btn-action print-btn" title="Print" (click)="printInvoice(invoice.id)">
+            🖨️
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+    <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+    <button *ngFor="let page of totalPages"
+            class="page-num"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="nextPage()">></button>
+    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="goToPage(maxPages)">>|</button>
+  </div>
+</div>
+
+<app-invoice-form *ngIf="isEditModalOpen" (cancel)="closeModal()"></app-invoice-form>

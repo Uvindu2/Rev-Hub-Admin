@@ -1,0 +1,44 @@
+<label class="dropdown-component-label">
+  {{ label }}
+</label>
+
+<div class="dropdown-container">
+  <div class="dropdown-input-wrapper" [class.invalid-border]="isInvalid">
+    <input
+      type="text"
+      [(ngModel)]="searchText"
+      placeholder="Search options..."
+      class="dropdown-search-input"
+      (focus)="isOpen = true"
+    />
+    <span class="dropdown-toggle" (click)="$event.stopPropagation(); toggleDropdown()">
+      {{ isOpen ? '▲' : '▼' }}
+    </span>
+  </div>
+
+  <div class="dropdown-options-box" *ngIf="isOpen">
+    <div *ngFor="let item of filteredItems" class="checkbox-option">
+      <label class="checkbox-label-wrapper">
+        <input
+          type="checkbox"
+          [checked]="isSelected(item)"
+          (change)="toggle(item)">
+        <span class="option-text">{{ getItemLabel(item) }}</span>
+      </label>
+    </div>
+    <div *ngIf="filteredItems.length === 0" class="no-results">
+      No matching items found
+    </div>
+  </div>
+
+  <div class="selected-tags-container" *ngIf="value.length">
+    <span *ngFor="let item of value" class="selected-tag">
+      {{ getSelectedLabel(item) }}
+      <span class="remove-tag-btn" (click)="remove(item)">×</span>
+    </span>
+  </div>
+
+  <div *ngIf="isInvalid" class="dropdown-error-msg">
+    {{ errorMessage }}
+  </div>
+</div>

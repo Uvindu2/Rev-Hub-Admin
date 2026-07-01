@@ -1,0 +1,113 @@
+<div class="modal-overlay">
+  <div class="modal-card enhanced-wide-modal">
+    <div class="modal-header">
+      <h3>Edit Vehicle Profile</h3>
+      <button class="close-header-btn" (click)="closeForm()">&times;</button>
+    </div>
+
+    <form (ngSubmit)="submitForm()" #vehicleForm="ngForm">
+      <div class="modal-body">
+
+        <!-- === VEHICLE DETAILS SECTION === -->
+        <div class="form-group">
+          <label>Registration Number (Read Only)</label>
+          <input type="text" [value]="editableVehicle.regNo" disabled class="form-control read-only" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Make</label>
+            <input type="text" [(ngModel)]="editableVehicle.make" name="make" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input type="text" [(ngModel)]="editableVehicle.model" name="model" required class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Year</label>
+            <input type="number" [(ngModel)]="editableVehicle.year" name="year" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Mileage (mi)</label>
+            <input type="number" [(ngModel)]="editableVehicle.mileage" name="mileage" required class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-group border-bottom-spacing">
+          <label>Operational Status</label>
+          <select [(ngModel)]="editableVehicle.status" name="status" class="form-control select-field">
+            <option value="In Service">In Service</option>
+            <option value="Awaiting Info">Awaiting Info</option>
+            <option value="Ready">Ready</option>
+          </select>
+        </div>
+
+        <!-- === CUSTOMERS MANAGEMENT TABLE SECTION === -->
+        <div class="customers-management-section">
+          <div class="section-control-header">
+            <h4>Assigned Customer Accounts</h4>
+
+            <!-- 🌟 Add button is now only visible if the table has NO elements -->
+            <button
+              type="button"
+              class="btn-add-item"
+              (click)="showCustomerPopup = true">
+              <span class="icon">➕</span>
+              Add Customer
+            </button>
+
+            <app-add-customer-form
+              *ngIf="showCustomerPopup"
+              (close)="showCustomerPopup = false"
+              (customerSaved)="onCustomerSaved($event)">
+            </app-add-customer-form>
+          </div>
+
+          <div class="table-scroll-container">
+            <table class="modal-embedded-table">
+              <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Contact Email / Phone</th>
+                <th class="text-center" style="width: 80px;">Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let customer of editableVehicle.customers; let i = index">
+                <td>Raman Gamini
+                </td>
+                <td>011898986
+                </td>
+                <td class="text-center">
+                  <button type="button"
+                          class="btn-inline-delete"
+                          title="Remove Customer"
+                          (click)="removeCustomer(i)">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Fallback view when no records are bound -->
+              <tr *ngIf="!editableVehicle.customers || editableVehicle.customers.length === 0">
+                <td colspan="3" class="table-empty-state">
+                  No customers currently assigned to this operational fleet asset.
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeForm()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="!vehicleForm.form.valid">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>

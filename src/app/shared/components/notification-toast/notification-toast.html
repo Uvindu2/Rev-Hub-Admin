@@ -1,0 +1,10 @@
+@if (toast; as activeToast) {
+  <div class="notification-toast" [ngClass]="activeToast.type">
+    <div class="notification-content">
+      <span class="notification-icon">
+        @if (activeToast.type === 'success') { ✓ } @else { ✕ }
+      </span>
+      <p class="notification-message">{{ activeToast.message }}</p>
+    </div>
+  </div>
+}

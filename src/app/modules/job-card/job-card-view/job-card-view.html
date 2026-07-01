@@ -1,0 +1,98 @@
+<div class="page-header">
+  <div class="card-container">
+
+    <div class="table-header">
+      <div class="actions-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search Job Cards..." (input)="onSearch($event)">
+        </div>
+
+        <button class="btn-add-job-card" type="button" (click)="onAddJobCard()">
+          <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+        <tr>
+          <th>Job Card ID</th>
+          <th>Customer Name</th>
+          <th>Vehicle Reg</th>
+          <th>Date Added</th>
+          <th>Status</th>
+          <th>Technician</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="!jobCards || jobCards.length === 0">
+          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+            No job cards found matching current filter parameters.
+          </td>
+        </tr>
+        <tr *ngFor="let job of jobCards">
+          <td class="font-semibold">JC-{{ job.jobId }}</td>
+          <td>{{ job.vehicle?.customer?.customerName }}</td>
+          <td class="text-uppercase">{{ job.vehicle?.vehicleRegNo }}</td>
+          <td>{{ job.dateAdded | date:'dd MMM yyyy' }}</td>
+          <td>
+              <span class="badge" [ngClass]="{
+                'badge-progress': job.status === 'In Progress',
+                'badge-pending': job.status === 'Pending',
+                'badge-completed': job.status === 'Completed'
+              }">
+                {{ job.status }}
+              </span>
+          </td>
+          <td>
+              <span *ngFor="let tech of job.technician; let last = last">
+                {{ tech.technicianName }}{{ !last ? ', ' : '' }}
+              </span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-table-action view-btn" (click)="viewJob(job.jobId)">👁️</button>
+            <button class="btn-table-action edit-btn" (click)="editJob(job.jobId)">✏️</button>
+            <button class="btn-table-action delete-btn" (click)="deleteJob(job.jobId)">🗑️</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-summary custom-footer-layout">
+
+      <div class="record-counter left-counter-anchor">
+        Showing {{ jobCards?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+          </span>
+
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-job-card-form *ngIf="isEditModalOpen" (cancel)="closeModal()"></app-job-card-form>

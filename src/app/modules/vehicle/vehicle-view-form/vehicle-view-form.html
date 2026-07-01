@@ -1,0 +1,86 @@
+<div class="modal-overlay">
+  <div class="modal-card enhanced-wide-modal">
+    <div class="modal-header">
+      <h3>Vehicle Record Profile</h3>
+      <button class="close-header-btn" (click)="closeForm()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- === VEHICLE PROFILE DISPLAY === -->
+      <div class="form-group">
+        <label>Registration Number</label>
+        <input type="text" [value]="vehicle?.regNo" disabled class="form-control read-only" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Make</label>
+          <input type="text" [value]="vehicle?.make" disabled class="form-control read-only" />
+        </div>
+        <div class="form-group">
+          <label>Model</label>
+          <input type="text" [value]="vehicle?.model" disabled class="form-control read-only" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Year</label>
+          <input type="text" [value]="vehicle?.year" disabled class="form-control read-only" />
+        </div>
+        <div class="form-group">
+          <label>Current Mileage (mi)</label>
+          <input type="text" [value]="(vehicle?.mileage | number) + ' mi'" disabled class="form-control read-only" />
+        </div>
+      </div>
+
+      <div class="form-group border-bottom-spacing">
+        <label>Operational Status</label>
+        <div class="status-display-box">
+          <span class="badge" [ngClass]="{
+            'badge-service': vehicle?.status === 'In Service',
+            'badge-pending': vehicle?.status === 'Awaiting Info',
+            'badge-ready': vehicle?.status === 'Ready'
+          }">
+            {{ vehicle?.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- === CUSTOMERS SUB-TABLE DISPLAY === -->
+      <div class="customers-management-section">
+        <div class="section-control-header">
+          <h4>Assigned Customer Accounts</h4>
+        </div>
+
+        <div class="table-scroll-container">
+          <table class="modal-embedded-table">
+            <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Contact Email / Phone</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let customer of (vehicle?.customers || [])">
+              <td class="text-white font-medium">{{ customer.name }}</td>
+              <td class="text-secondary">{{ customer.email }}</td>
+            </tr>
+
+            <!-- Fallback layout when no customer sub-records exist -->
+            <tr *ngIf="vehicle.customers.length === 0">
+              <td colspan="2" class="table-empty-state">
+                No customer records are linked to this active fleet vehicle profile.
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeForm()">Close View</button>
+    </div>
+  </div>
+</div>

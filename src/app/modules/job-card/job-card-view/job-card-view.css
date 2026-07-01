@@ -1,0 +1,350 @@
+/* Container styling mirroring the dashboard card element */
+.card-container {
+  background-color: #151515;
+  border: 1px solid #262626;
+  border-radius: 8px;
+  padding: 40px;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.page-header {
+  padding-top: 36pt;
+}
+
+/* Header layout rules split by flexbox */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* Left controls arrangement */
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.select-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #9e9e9e;
+}
+
+.select-box select {
+  background-color: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-box select:focus {
+  border-color: #dc2626;
+}
+
+.btn-sort-dir {
+  background-color: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-sort-dir:hover {
+  background-color: #262626;
+  border-color: #555555;
+}
+
+/* Right layout area containing search and addition action handles */
+.actions-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  background-color: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #ffffff;
+  padding: 8px 12px 8px 32px;
+  font-size: 0.85rem;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #dc2626;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: #757575;
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+/* Core Table Element Architecture */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.custom-table th {
+  color: #9e9e9e;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.custom-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #1f1f1f;
+  color: #cccccc;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #1c1c1c;
+}
+
+/* Helpers */
+.font-semibold { font-weight: 600; color: #ffffff; }
+.text-uppercase { text-transform: uppercase; }
+.text-center { text-align: center; }
+
+/* Status Badge Styling */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.badge-progress {
+  background-color: rgba(217, 119, 6, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.badge-pending {
+  background-color: rgba(29, 78, 216, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(29, 78, 216, 0.3);
+}
+
+.badge-completed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Table Row Action Operations */
+.actions-cell {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn-table-action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 2px;
+  opacity: 0.65;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-table-action:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.view-btn { color: #9e9e9e; }
+.edit-btn { color: #ffffff; }
+.delete-btn { color: #dc2626; }
+
+/* Dashboard-specific Pagination elements */
+.table-footer-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  flex-direction: row-reverse; /* Pushes metrics count to right, navigation to left */
+}
+
+.record-counter {
+  font-weight: 500;
+  color: #757575;
+  font-size: 0.85rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto; /* Locks view segment firmly to the left border edge */
+}
+
+.page-nav {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  color: #8e8e8e;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  min-width: 32px;
+  transition: all 0.2s;
+}
+
+.page-nav:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.page-nav:not(:disabled):hover {
+  background-color: #262626;
+  color: #ffffff;
+}
+
+.page-indicator {
+  font-size: 0.85rem;
+  color: #9e9e9e;
+  margin: 0 8px;
+}
+
+/* Primary Crimson Button */
+.btn-add-job-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  min-height: 40px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s ease;
+}
+
+.btn-add-job-card:hover {
+  background-color: #b91c1c;
+}
+
+.btn-add-job-card:active {
+  transform: scale(0.98);
+  background-color: #991b1b;
+}
+
+.icon-plus {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+/* Footer Row container separating left and right layout content */
+.table-footer-summary {
+  display: flex;
+  justify-content: space-between; /* Pushes records to the far left, pagination to the far right */
+  align-items: center;
+  margin-top: 24px;
+}
+
+/* Base structural line forcing a strict polar separation */
+.custom-footer-layout {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: 24px !important;
+  width: 100% !important;
+}
+
+/* Anchors element string tightly to the left margin corner */
+.left-counter-anchor {
+  font-weight: 500;
+  color: #757575;
+  font-size: 0.85rem;
+  margin-right: auto !important; /* Pushes everything else away to the right */
+}
+
+/* Outer layout wrapper grouping row selection item + buttons safely on the right */
+.right-controls-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 24px !important; /* Visual gap between rows selector box and (|<) arrow key */
+  margin-left: auto !important; /* Anchors whole group firmly to the right edge */
+}
+
+/* Inline items inside the control cluster */
+.pagination {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.footer-select {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.85rem;
+  color: #9e9e9e;
+}
+
+.footer-select select {
+  background-color: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.footer-select select:focus {
+  border-color: #dc2626;
+}

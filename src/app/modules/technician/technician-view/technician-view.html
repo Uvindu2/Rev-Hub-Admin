@@ -1,0 +1,72 @@
+<div class="page-header">
+<div class="card-container">
+  <!-- Table Header Controls -->
+  <div class="table-header">
+    <h2>All Technicians</h2>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search Technicians..." (input)="onSearch($event)">
+    </div>
+  </div>
+
+  <!-- Responsive Table Wrap -->
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+      <tr>
+        <th>Tech ID</th>
+        <th>Technician Name</th>
+        <th>Specialty</th>
+        <th class="text-center">Active Jobs</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let tech of displayedTechnicians">
+        <td class="font-semibold">{{ tech.id }}</td>
+        <td>{{ tech.name }}</td>
+        <td>{{ tech.specialty }}</td>
+        <td class="text-center font-numeric">
+          <span class="job-count-badge">{{ tech.activeJobs }}</span>
+        </td>
+        <td>
+          <!-- Dynamic Availability Badges -->
+          <span class="badge" [ngClass]="{
+              'badge-available': tech.status === 'Available',
+              'badge-busy': tech.status === 'Busy',
+              'badge-leave': tech.status === 'On Leave'
+            }">
+              {{ tech.status }}
+            </span>
+        </td>
+        <td class="actions-cell">
+          <button class="btn-action view-btn" title="View Schedule" (click)="viewTech(tech.id)">
+            👁️
+          </button>
+          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTech(tech.id)">
+            ✏️
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+    <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+    <button *ngFor="let page of totalPages"
+            class="page-num"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="nextPage()">></button>
+    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="goToPage(maxPages)">>|</button>
+  </div>
+</div>
+</div>

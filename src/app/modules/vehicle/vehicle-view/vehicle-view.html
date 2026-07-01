@@ -1,0 +1,93 @@
+<div class="page-header">
+  <div class="card-container">
+    <!-- Table Header Controls -->
+    <div class="table-header">
+      <h2>All Vehicles</h2>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search Vehicles..." (input)="onSearch($event)">
+      </div>
+    </div>
+
+    <!-- Responsive Table Wrap -->
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+        <tr>
+          <th>Vehicle Reg No.</th>
+          <th>Make & Model</th>
+          <th class="text-center">Year</th>
+          <th>Color</th>
+          <th class="text-right">Mileage (km)</th>
+          <th>Current Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let vehicle of displayedVehicles">
+          <td class="font-semibold text-uppercase">{{ vehicle.regNo }}</td>
+          <td>{{ vehicle.make }} {{ vehicle.model }}</td>
+          <td class="text-center font-numeric">{{ vehicle.year }}</td>
+          <td>
+            <div class="color-preview-wrap">
+              <span class="color-dot" [style.backgroundColor]="vehicle.colorHex"></span>
+              {{ vehicle.color }}
+            </div>
+          </td>
+          <td class="text-right font-numeric">{{ vehicle.mileage | number }} km</td>
+          <td>
+            <!-- Dynamic Vehicle Layout Status Badges -->
+            <span class="badge" [ngClass]="{
+              'badge-service': vehicle.status === 'In Service',
+              'badge-pending': vehicle.status === 'Awaiting Info',
+              'badge-ready': vehicle.status === 'Ready'
+            }">
+              {{ vehicle.status }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-action view-btn" title="View History" (click)="viewVehicle(vehicle.regNo)">
+              👁️
+            </button>
+            <button class="btn-action edit-btn" title="Update Details" (click)="editVehicle(vehicle.regNo)">
+              ✏️
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+      <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+      <button *ngFor="let page of totalPages"
+              class="page-num"
+              [class.active]="currentPage === page"
+              (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button class="page-nav" [disabled]="currentPage === maxPages" (click)="nextPage()">></button>
+      <button class="page-nav" [disabled]="currentPage === maxPages" (click)="goToPage(maxPages)">>|</button>
+    </div>
+  </div>
+
+  <!-- Integrated Child Component Pop-up Interface -->
+  <app-vehicle-edit-form
+    *ngIf="isEditModalOpen && selectedVehicle"
+    [vehicle]="selectedVehicle"
+    (save)="onVehicleSaved($event)"
+    (cancel)="closeModal()">
+  </app-vehicle-edit-form>
+
+  <!-- Integrated Child Component Pop-up Interface -->
+  <app-vehicle-view-form
+    *ngIf="isViewModalOpen && selectedVehicle"
+    [vehicle]="selectedVehicle"
+    (cancel)="closeModal()">
+  </app-vehicle-view-form>
+
+</div>
