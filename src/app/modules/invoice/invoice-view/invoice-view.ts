@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {InvoiceForm} from '../invoice-form/invoice-form';
 
@@ -17,6 +17,7 @@ interface Invoice {
   standalone: true,
   imports: [CommonModule, InvoiceForm],
   templateUrl: './invoice-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './invoice-view.css',
 })
 export class InvoiceView implements OnInit {

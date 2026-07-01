@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -12,6 +12,7 @@ import { ItemProjection } from '../../../dto/response/ItemProjection';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './invoice-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './invoice-form.css',
 })
 export class InvoiceForm implements OnInit {

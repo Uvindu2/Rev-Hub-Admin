@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'; // Fixed: Added OnInit import
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core'; // Fixed: Added OnInit import
 import { CommonModule } from '@angular/common';
 
 // Fixed: Added missing Customer interface definition
@@ -15,6 +15,7 @@ interface Customer {
   standalone: true,
   imports: [CommonModule], // Fixed: Added CommonModule for HTML structural directives (*ngFor, *ngIf)
   templateUrl: './customer-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customer-view.css',
 })
 export class CustomerView implements OnInit { // Fixed: Added implements OnInit

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {AddCustomerForm} from '../../customer/add-customer-form/add-customer-form';
@@ -28,6 +28,7 @@ export interface Vehicle {
   standalone: true,
   imports: [CommonModule, FormsModule, AddCustomerForm],
   templateUrl: './vehicle-edit-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './vehicle-edit-form.css'
 })
 export class VehicleEditFormComponent implements OnInit {

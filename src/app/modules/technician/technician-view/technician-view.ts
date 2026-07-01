@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'; // Fixed: Added OnInit import
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core'; // Fixed: Added OnInit import
 import { CommonModule } from '@angular/common'; // Fixed: Added CommonModule import
 
 // Fixed: Added missing Technician interface definition
@@ -15,6 +15,7 @@ interface Technician {
   standalone: true,
   imports: [CommonModule], // Fixed: Added CommonModule for table structural bindings (*ngFor, ngClass)
   templateUrl: './technician-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './technician-view.css',
 })
 export class TechnicianView implements OnInit { // Fixed: Added implements OnInit

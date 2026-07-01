@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {VehicleEditFormComponent} from '../vehicle-edit-form/vehicle-edit-form';
 import {VehicleViewForm} from '../vehicle-view-form/vehicle-view-form';
@@ -29,6 +29,7 @@ export interface Vehicle {
   standalone: true,
   imports: [CommonModule, VehicleEditFormComponent, VehicleViewForm],
   templateUrl: './vehicle-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './vehicle-view.css',
 })
 export class VehicleView implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Self, Optional } from '@angular/core';
+import { Component, Input, OnInit, Self, Optional, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NgControl } from '@angular/forms';
 
@@ -7,6 +7,7 @@ import { FormsModule, ControlValueAccessor, NgControl } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './multi-select-dropdown.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./multi-select-dropdown.css']
 })
 export class MultiSelectDropdown implements ControlValueAccessor, OnInit {

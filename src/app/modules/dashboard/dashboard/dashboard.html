@@ -141,22 +141,33 @@
       <div class="grid">
 
         <!-- STATUS -->
+
         <div class="box">
           <h4>Job Card Status</h4>
-          <div class="circle">
-            <h2>12</h2>
-            <p>Total</p>
+          <div id="chart">
+            <apx-chart
+              [series]="chartOptions.series!"
+              [chart]="chartOptions.chart!"
+              [stroke]="chartOptions.stroke!"
+              [dataLabels]="chartOptions.dataLabels!"
+              [colors]="chartOptions.colors!"
+              [plotOptions]="chartOptions.plotOptions!"
+              [labels]="chartOptions.labels!"
+              [responsive]="chartOptions.responsive!"
+            ></apx-chart>
           </div>
-          <ul>
-            <li>In Progress - 5</li>
-            <li>Pending - 4</li>
-            <li>Completed - 3</li>
-          </ul>
+          <div style="color: #b30000" class="card-footer" (click)="setActive('customers')">
+            <span>View Report</span>
+            <span>→</span>
+          </div>
         </div>
 
         <!-- RECENT JOBS -->
         <div class="box">
-          <h4>Recent Job Cards</h4>
+          <div class="header-container">
+            <h4>Recent Job Cards</h4>
+            <span class="view-all">View All</span>
+          </div>
 
           <table>
             <tr>
@@ -181,41 +192,88 @@
             </tr>
           </table>
         </div>
-
         <!-- REVENUE -->
         <div class="box chart">
-          <h4>Revenue Overview</h4>
+          <div class="header-container-revenue">
+            <h4>Revenue Overview</h4>
+            <select class="filter-dropdown">
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="year">This Year</option>
+            </select>
+          </div>
+          <div class="header-container-revenue">
           <h2>Rs. 125,750</h2>
-          <p class="green">↑ 18% vs last month</p>
+          <p class="green">
+            <span class="colour">↑ 18%</span> vs last month
+          </p>
+          </div>
 
-          <div class="fake-chart"></div>
+          <div id="chart" *ngIf="revenueChartOptions && revenueChartOptions.series">
+            <apx-chart
+              [series]="revenueChartOptions.series!"
+              [chart]="revenueChartOptions.chart!"
+              [dataLabels]="revenueChartOptions.dataLabels!"
+              [stroke]="revenueChartOptions.stroke!"
+              [title]="revenueChartOptions.title!"
+              [subtitle]="revenueChartOptions.subtitle!"
+              [labels]="revenueChartOptions.labels!"
+              [xaxis]="revenueChartOptions.xaxis!"
+              [yaxis]="revenueChartOptions.yaxis!"
+              [legend]="revenueChartOptions.legend!"
+            ></apx-chart>
+          </div>
         </div>
 
         <!-- RECENT INVOICES -->
-        <div class="recent-box">
-          <div class="box recent-invoices-card">
-          <h4>Recent Invoices</h4>
+        <div class="abox recent-invoices-card">
+          <div class="header-container">
+            <h4>Recent Invoices</h4>
+            <span class="view-all">View All</span>
+          </div>
+
           <table>
             <thead>
-            <tr><th>ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
             </thead>
             <tbody>
-            <!-- Add your rows here -->
+            <tr>
+              <td>#INV-001</td>
+              <td>John Doe</td>
+              <td>$120.00</td>
+              <td class="done">Paid</td>
+            </tr>
+            <tr>
+              <td>#INV-002</td>
+              <td>Jane Smith</td>
+              <td>$85.00</td>
+              <td class="pending">Pending</td>
+            </tr>
             </tbody>
           </table>
-          </div>
         </div>
 
         <!-- TOP SERVICES -->
-        <div class="box top-services-car">
-          <h4>Top Services</h4>
-          <div class="service-item">
-            <span>Engine Repair</span> <span>18</span>
+        <div class="fbox top-services-car">
+          <div class="header-container">
+            <h4>Top Services</h4>
+            <span class="view-all">View All</span>
           </div>
-          <!-- Add more service rows here -->
-          <div class="car-illustration">
-            <!-- Apply custom image here: See section 3 -->
+
+          <div class="service-list">
+            <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
+            <div class="service-item"><span><i class="fa fa-circle-notch"></i> Brake Service</span> <span>15</span></div>
+            <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
+            <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
+            <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
           </div>
+
+          <div class="car-illustration"></div>
         </div>
 
       </div>

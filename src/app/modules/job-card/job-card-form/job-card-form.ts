@@ -6,7 +6,8 @@ import {
   HostListener,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
@@ -24,6 +25,7 @@ import {NotificationService} from '../../../services/notificationService';
   templateUrl: './job-card-form.html',
   styleUrls: ['./job-card-form.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, FormsModule, CommonModule, MatOptionModule, MultiSelectDropdown]
 })
 export class JobCardForm implements OnInit {

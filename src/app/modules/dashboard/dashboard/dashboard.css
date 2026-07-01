@@ -210,6 +210,23 @@
   border: 1px solid #1f1f1f;
 }
 
+.abox {
+  background: #141414;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  width: 142.4%;
+}
+
+.fbox {
+  background: #141414;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  width: 142.4%;
+  margin-left: 50.6%;
+}
+
 /* =========================
    JOB STATUS CIRCLE
 ========================= */
@@ -241,7 +258,7 @@ th, td {
   font-size: 13px;
 }
 
-.progress { color: orange; }
+.progress { color: orange;}
 .pending { color: #ffcc00; }
 .done { color: #4caf50; }
 
@@ -296,4 +313,101 @@ th, td {
   width: 100px;       /* Adjust size as needed */
   opacity: 0.9;
   pointer-events: none; /* Ensures the image doesn't block clicks */
+}
+.green{
+  font-size: 15px;
+}
+.colour{
+  color: #b30000;
+  font-weight: bold;
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.filter-dropdown {
+  background-color: #222222;
+  color: #d1d5db;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.filter-dropdown:hover {
+  border-color: #b91c1c;
+}
+.header-container-revenue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 88%;
+}
+
+.header-container h4 {
+  margin: 0;
+}
+
+.top-services-car {
+  position: relative;
+  background-color: #141414;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  overflow: hidden; /* This keeps the car image inside the rounded corners */
+  min-height: 250px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.view-all {
+  color: #b30000;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  width: 60%; /* Keeps text on the left side, leaving room for the car */
+  position: relative;
+  z-index: 2; /* Keeps text above the car */
+}
+
+.service-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #1f1f1f;
+  color: #fff;
+  font-size: 14px;
+}
+
+/* THE CAR ALIGNMENT */
+.car-illustration {
+  position: absolute;
+  right: 0;
+  /* Change 'bottom: 0' to 'top: 50%' or a fixed pixel value */
+  top: 50%;             /* Moves the image down from the top edge */
+  transform: translateY(-50%); /* This perfectly centers the image vertically */
+
+  width: 45%;
+  height: 100%;
+  background-image: url('/assets/images/cars1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right center; /* Centers the image content within the div */
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 1;
 }
