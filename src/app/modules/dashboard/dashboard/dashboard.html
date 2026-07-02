@@ -1,33 +1,48 @@
 <div class="layout">
 
   <!-- SIDEBAR -->
+<div class="layout">
   <div class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="logo-container">
       <img src="assets/images/revHub.jpeg" alt="RevHub Logo">
     </div>
-
     <ul>
-      <li (click)="setActive('dashboard')" [class.active]="activeView === 'dashboard'">
-        <fa-icon [icon]="faDashboard"></fa-icon> Dashboard
+      <li routerLink="/dashboard/overview" routerLinkActive="active">
+        <fa-icon [icon]="faDashboard"></fa-icon>
+        Dashboard
       </li>
-      <li (click)="setActive('jobCards')" [class.active]="activeView === 'jobCards'">
-        <fa-icon [icon]="faXRay"></fa-icon> Job Cards
+      <li routerLink="/dashboard/job-cards" routerLinkActive="active">
+        <fa-icon [icon]="faXRay"></fa-icon>
+        Job Cards
       </li>
-      <li (click)="setActive('invoices')" [class.active]="activeView === 'invoices'">
-        <fa-icon [icon]="faFileLines"></fa-icon> Invoices
+      <li routerLink="/dashboard/invoices" routerLinkActive="active">
+        <fa-icon [icon]="faFileLines"></fa-icon>
+        Invoices
       </li>
-      <li (click)="setActive('customers')" [class.active]="activeView === 'customers'">
-        <fa-icon [icon]="faUsers"></fa-icon> Customers
+      <li routerLink="/dashboard/customers" routerLinkActive="active">
+        <fa-icon [icon]="faUsers"></fa-icon>
+        Customers
       </li>
-      <li (click)="setActive('technicians')" [class.active]="activeView === 'technicians'">
-        <fa-icon [icon]="faWrench"></fa-icon> Technicians
+      <li routerLink="/dashboard/technicians" routerLinkActive="active">
+        <fa-icon [icon]="faWrench"></fa-icon>
+        Technicians
       </li>
-      <li (click)="setActive('vehicles')" [class.active]="activeView === 'vehicles'">
-        <fa-icon [icon]="faCar"></fa-icon> Vehicles
+      <li routerLink="/dashboard/vehicles" routerLinkActive="active">
+        <fa-icon [icon]="faCar"></fa-icon>
+        Vehicles
       </li>
-      <li><fa-icon [icon]="faReports"></fa-icon> Reports</li>
-      <li><fa-icon [icon]="faSettings"></fa-icon> Settings</li>
-      <li><fa-icon [icon]="faUsers"></fa-icon> Users</li>
+      <li>
+        <fa-icon [icon]="faReports"></fa-icon>
+        Reports
+      </li>
+      <li>
+        <fa-icon [icon]="faSettings"></fa-icon>
+        Settings
+      </li>
+      <li>
+        <fa-icon [icon]="faUsers"></fa-icon>
+        Users
+      </li>
     </ul>
     <div class="navigation-container">
       <img src="assets/images/cara1.jpg" alt="carImage">
@@ -64,259 +79,7 @@
       </div>
     </div>
 
-    <div *ngIf="activeView === 'dashboard'">
-
-      <!-- CARDS -->
-      <div class="cards">
-
-        <div class="card">
-          <img src="assets/images/cara.png" class="card-side-img" alt="Car">
-
-          <div class="card-top">
-            <h4>Today's Job Cards</h4>
-            <h2>12</h2>
-          </div>
-
-          <hr class="card-divider">
-
-          <div class="card-footer" (click)="setActive('invoices')">
-            <span>View all Job Cards</span>
-            <span>→</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <img src="assets/images/car1.png" class="card-side-img" alt="Car">
-
-          <div class="card-top">
-            <h4>Today's Invoices</h4>
-            <h2>8</h2>
-          </div>
-
-          <hr class="card-divider">
-
-          <div class="card-footer" (click)="setActive('invoices')">
-            <span>View all Invoices</span>
-            <span>→</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <img src="assets/images/a.png" class="report-card-side-img" alt="Car">
-
-          <div class="card-top">
-            <h4>Today's Revenue</h4>
-            <h2>Rs. 125,750</h2>
-            <p>↑ 18%</p>
-          </div>
-
-          <hr class="card-divider">
-
-          <div class="card-footer" (click)="setActive('invoices')">
-            <span>View Reports</span>
-            <span>→</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <img src="assets/images/s.jpeg" class="customer-card-side-img" alt="Car">
-
-          <div class="card-top">
-            <h4>Total Customers</h4>
-            <h2>256</h2>
-          </div>
-
-          <hr class="card-divider">
-
-          <div class="card-footer" (click)="setActive('customers')">
-            <span>View Customers</span>
-            <span>→</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- MIDDLE -->
-      <div class="grid">
-
-        <!-- STATUS -->
-
-        <div class="box">
-          <h4>Job Card Status</h4>
-          <div id="chart">
-            <apx-chart
-              [series]="chartOptions.series!"
-              [chart]="chartOptions.chart!"
-              [legend]="chartOptions.legend!"
-              [stroke]="chartOptions.stroke!"
-              [dataLabels]="chartOptions.dataLabels!"
-              [colors]="chartOptions.colors!"
-              [plotOptions]="chartOptions.plotOptions!"
-              [labels]="chartOptions.labels!"
-              [responsive]="chartOptions.responsive!"
-            ></apx-chart>
-          </div>
-          <div style="color: #b30000" class="card-footer" (click)="setActive('customers')">
-            <span>View Report</span>
-            <span>→</span>
-          </div>
-        </div>
-
-        <!-- RECENT JOBS -->
-        <div class="box">
-          <div class="header-container">
-            <h4>Recent Job Cards</h4>
-            <span class="view-all">View All</span>
-          </div>
-
-          <table>
-            <tr>
-              <th>ID</th>
-              <th>Customer</th>
-              <th>Status</th>
-            </tr>
-            <tr>
-              <td>JC-001</td>
-              <td>Nimal</td>
-              <td class="progress">In Progress</td>
-            </tr>
-            <tr>
-              <td>JC-002</td>
-              <td>Kamal</td>
-              <td class="pending">Pending</td>
-            </tr>
-            <tr>
-              <td>JC-003</td>
-              <td>Saman</td>
-              <td class="done">Completed</td>
-            </tr>
-          </table>
-        </div>
-        <!-- REVENUE -->
-        <div class="box chart">
-          <div class="header-container-revenue">
-            <h4>Revenue Overview</h4>
-            <select class="filter-dropdown">
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-            </select>
-          </div>
-          <div class="header-container-revenue">
-          <h2>Rs. 125,750</h2>
-          <p class="green">
-            <span class="colour">↑ 18%</span> vs last month
-          </p>
-          </div>
-
-          <div id="chart" *ngIf="revenueChartOptions && revenueChartOptions.series">
-            <!-- Remove the title and subtitle attributes if they aren't used -->
-            <apx-chart
-              [series]="revenueChartOptions.series!"
-              [chart]="revenueChartOptions.chart!"
-              [dataLabels]="revenueChartOptions.dataLabels!"
-              [stroke]="revenueChartOptions.stroke!"
-              [labels]="revenueChartOptions.labels!"
-              [xaxis]="revenueChartOptions.xaxis!"
-              [yaxis]="revenueChartOptions.yaxis!"
-              [legend]="revenueChartOptions.legend!"
-              [colors]="revenueChartOptions.colors!"
-              [fill]="revenueChartOptions.fill!"
-              [grid]="revenueChartOptions.grid!"
-            ></apx-chart>
-          </div>
-        </div>
-
-        <!-- RECENT INVOICES -->
-        <div class="abox recent-invoices-card">
-          <div class="header-container">
-            <h4>Recent Invoices</h4>
-            <span class="view-all">View All</span>
-          </div>
-
-          <table>
-            <thead>
-            <tr>
-              <th>ID</th>
-              <th>Customer</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>#INV-001</td>
-              <td>John Doe</td>
-              <td>$120.00</td>
-              <td class="done">Paid</td>
-            </tr>
-            <tr>
-              <td>#INV-002</td>
-              <td>Jane Smith</td>
-              <td>$85.00</td>
-              <td class="pending">Pending</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- TOP SERVICES -->
-        <div class="fbox top-services-car">
-          <div class="header-container">
-            <h4>Top Services</h4>
-            <span class="view-all">View All</span>
-          </div>
-
-          <div class="service-list">
-            <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
-            <div class="service-item"><span><i class="fa fa-circle-notch"></i> Brake Service</span> <span>15</span></div>
-            <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
-            <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
-            <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
-          </div>
-
-          <div class="car-illustration"></div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <div *ngIf="activeView === 'jobCards'">
-
-      <!-- your job card form or table here -->
-      <app-job-card-view></app-job-card-view>
-    </div>
-
-    <div *ngIf="activeView === 'invoices'">
-
-      <!-- your invoices or table here -->
-      <app-invoice-view></app-invoice-view>
-
-    </div>
-
-    <div *ngIf="activeView === 'customers'">
-
-      <!-- your customers or table here -->
-      <app-customer-view></app-customer-view>
-
-    </div>
-
-
-    <div *ngIf="activeView === 'technicians'">
-
-      <!-- your technicians or table here -->
-      <app-technician-view></app-technician-view>
-
-    </div>
-
-    <div *ngIf="activeView === 'vehicles'">
-
-      <!-- your vehicle form or table here -->
-      <app-vehicle-view></app-vehicle-view>
-
-    </div>
-
+    <router-outlet></router-outlet>
   </div>
-
+</div>
 </div>
