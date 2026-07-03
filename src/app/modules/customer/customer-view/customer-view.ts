@@ -1,5 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core'; // Fixed: Added OnInit import
+import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core'; // Fixed: Added OnInit import
 import { CommonModule } from '@angular/common';
+import {CustomerProjection} from '../../../dto/response/CustomerProjection';
+import {AdminService} from '../../../services/admin.service';
 
 // Fixed: Added missing Customer interface definition
 interface Customer {
@@ -20,39 +22,23 @@ interface Customer {
 })
 export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   // Master customer dataset compiled from your dashboard entries
-  allCustomers: Customer[] = [
-    { id: 'CUST-0001', name: 'Nimal Perera', contactNumber: '+94 77 123 4567', email: 'nimal.perera@gmail.com', totalJobs: 2 },
-    { id: 'CUST-0002', name: 'Kamal Fernando', contactNumber: '+94 71 987 6543', email: 'kamalfernando@yahoo.com', totalJobs: 2 },
-    { id: 'CUST-0003', name: 'Saman Jayawardena', contactNumber: '+94 75 444 3322', email: 'saman.j@outlook.com', totalJobs: 1 },
-    { id: 'CUST-0004', name: 'Lahiru Silva', contactNumber: '+94 72 555 6677', email: 'lahiru.silva@live.com', totalJobs: 3 },
-    { id: 'CUST-0005', name: 'Darshana Kumara', contactNumber: '+94 76 888 9900', email: 'darshana.k@gmail.com', totalJobs: 2 },
-    { id: 'CUST-0006', name: 'Anura De Silva', contactNumber: '+94 70 333 4455', email: 'anura.desilva@gmail.com', totalJobs: 1 },
-    { id: 'CUST-0007', name: 'Priyantha Bandara', contactNumber: '+94 78 222 1100', email: 'priyantha.b@yahoo.com', totalJobs: 1 },
-    { id: 'CUST-0008', name: 'Sunil Shantha', contactNumber: '+94 74 666 7788', email: 'sunil.sh@live.com', totalJobs: 2 }
-  ];
+  allCustomers: CustomerProjection[] = [];
 
-  displayedCustomers: Customer[] = [];
+  // Pagination Parameters
   currentPage: number = 1;
-  pageSize: number = 8;
-  totalPages: number[] = [];
-  maxPages: number = 1;
+  pageSize: number = 5;
+  totalElements: number = 0;
+  totalPagesCount: number = 0;
+  pageSizes: number[] = [5, 10, 20, 50];
 
-  constructor() {}
+  // Sorting Rules configuration
+  sortByField: string = 'dateAdded';
+  sortDirection: string = 'desc';
+
+  constructor(private readonly adminService: AdminService,private readonly cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.calculatePaginationConfig();
-    this.updateDisplayedCustomers();
-  }
-
-  calculatePaginationConfig(): void {
-    this.maxPages = Math.ceil(this.allCustomers.length / this.pageSize);
-    this.totalPages = Array.from({ length: this.maxPages }, (_, i) => i + 1);
-  }
-
-  updateDisplayedCustomers(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.displayedCustomers = this.allCustomers.slice(startIndex, endIndex);
+    this.fetchCustomers();
   }
 
   onSearch(event: Event): void {
@@ -60,11 +46,67 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
     console.log('Searching Customers for:', inputElement.value);
   }
 
-  viewCustomer(id: string): void { console.log('Viewing customer details profile:', id); }
-  editCustomer(id: string): void { console.log('Editing customer account records:', id); }
+  viewCustomer(id: number): void { console.log('Viewing customer details profile:', id); }
+  editCustomer(id: number): void { console.log('Editing customer account records:', id); }
 
   /* Pagination Navigation Controls */
-  goToPage(page: number): void { this.currentPage = page; this.updateDisplayedCustomers(); }
-  prevPage(): void { if(this.currentPage > 1) { this.currentPage--; this.updateDisplayedCustomers(); } }
-  nextPage(): void { if(this.currentPage < this.maxPages) { this.currentPage++; this.updateDisplayedCustomers(); } }
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPagesCount) {
+      this.currentPage = page;
+      this.fetchCustomers();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.fetchCustomers();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPagesCount) {
+      this.currentPage++;
+      this.fetchCustomers();
+    }
+  }
+
+  private fetchCustomers() {
+    const backendPage = this.currentPage - 1;
+
+    this.adminService.getCustomersPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        // Stage updates in local variables first to prevent layout thrashing
+        let updatedCustomers: CustomerProjection[] = [];
+        let updatedTotalElements = 0;
+        let updatedTotalPagesCount = 0;
+
+        if (response?.content !== undefined) {
+          updatedCustomers = response.content || [];
+          updatedTotalElements = response.totalElements === undefined ? (response.total_elements || 0) : response.totalElements;
+          updatedTotalPagesCount = response.totalPages === undefined ? (response.total_pages || 0) : response.totalPages;
+        } else if (Array.isArray(response)) {
+          updatedCustomers = response;
+          updatedTotalElements = response.length;
+          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+        }
+
+        // Apply properties all at once
+        this.allCustomers = updatedCustomers;
+        this.totalElements = updatedTotalElements;
+        this.totalPagesCount = updatedTotalPagesCount;
+
+        // Notify Angular to redraw on the next frame paint seamlessly
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load job cards from server:', err);
+        this.allCustomers = [];
+        this.totalElements = 0;
+        this.totalPagesCount = 0;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 }

@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {InvoiceForm} from '../invoice-form/invoice-form';
+import {InvoiceSummaryProjection} from '../../../dto/InvoiceSummaryProjection';
+import {AdminService} from '../../../services/admin.service';
 
 // Define the missing Invoice interface
 interface Invoice {
@@ -22,37 +24,37 @@ interface Invoice {
 })
 export class InvoiceView implements OnInit {
   // Mock data mirroring the All Invoices table
-  invoices: Invoice[] = [
-    { id: 'INV-00045', relatedJobCard: 'JC-00012', customerName: 'Nimal Perera', amount: 35200.00, dateIssued: '20 May 2024', paymentStatus: 'Paid' },
-    { id: 'INV-00044', relatedJobCard: 'JC-00011', customerName: 'Kamal Fernando', amount: 18750.00, dateIssued: '19 May 2024', paymentStatus: 'Pending' },
-    { id: 'INV-00043', relatedJobCard: 'JC-00013', customerName: 'Saman Jayawar-', amount: 22000.00, dateIssued: '19 May 2024', paymentStatus: 'Paid' },
-    { id: 'INV-00042', relatedJobCard: 'JC-00011', customerName: 'Lahiru Silva', amount: 15500.00, dateIssued: '19 May 2024', paymentStatus: 'Pending' },
-    { id: 'INV-00041', relatedJobCard: 'JC-00008', customerName: 'Darshana Kumara', amount: 15800.00, dateIssued: '17 May 2024', paymentStatus: 'Pending' },
-    { id: 'INV-00040', relatedJobCard: 'JC-00006', customerName: 'Lahiru Silva', amount: 15500.00, dateIssued: '19 May 2024', paymentStatus: 'Pending' },
-    { id: 'INV-00039', relatedJobCard: 'JC-00005', customerName: 'Darshana Kumara', amount: 15800.00, dateIssued: '17 May 2024', paymentStatus: 'Pending' },
-    { id: 'INV-00038', relatedJobCard: 'JC-00001', customerName: 'Lahiru Silva', amount: 15500.00, dateIssued: '19 May 2024', paymentStatus: 'Pending' }
-  ];
+  invoices: InvoiceSummaryProjection[] = [];
 
-  currentPage: number = 2;
-  totalPages: number[] = [1, 2];
-  maxPages: number = 2;
+  // Pagination Parameters
+  currentPage: number = 1;
+  pageSize: number = 5;
+  totalElements: number = 0;
+  totalPagesCount: number = 0;
+  pageSizes: number[] = [5, 10, 20, 50];
+
+  // Sorting Rules configuration
+  sortByField: string = 'dateAdded';
+  sortDirection: string = 'desc';
 
   isEditModalOpen: boolean = false;
 
-  constructor(private readonly cdr: ChangeDetectorRef) {}
+  constructor(private readonly cdr: ChangeDetectorRef,private readonly adminService: AdminService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.fetchInvoices();
+  }
 
   onSearch(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     console.log('Searching Invoices for:', inputElement.value);
   }
 
-  viewInvoice(id: string): void {
+  viewInvoice(id: number): void {
     console.log('Viewing invoice:', id);
   }
 
-  printInvoice(id: string): void {
+  printInvoice(id: number): void {
     console.log('Printing/Downloading invoice:', id);
   }
 
@@ -65,7 +67,7 @@ export class InvoiceView implements OnInit {
   }
 
   nextPage(): void {
-    if (this.currentPage < this.maxPages) this.currentPage++;
+    if (this.currentPage < this.totalPagesCount) this.currentPage++;
   }
 
   protected onAddInvoice(): void {
@@ -76,5 +78,44 @@ export class InvoiceView implements OnInit {
   closeModal(): void {
     this.isEditModalOpen = false;
     this.cdr.markForCheck();
+  }
+
+   fetchInvoices() {
+     const backendPage = this.currentPage - 1;
+
+     this.adminService.getInvoiceSummaryPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+       next: (response: any) => {
+         console.log(response);
+         // Stage updates in local variables first to prevent layout thrashing
+         let updatedInvoicesSummary: InvoiceSummaryProjection[] = [];
+         let updatedTotalElements = 0;
+         let updatedTotalPagesCount = 0;
+
+         if (response?.content !== undefined) {
+           updatedInvoicesSummary = response.content || [];
+           updatedTotalElements = response.totalElements === undefined ? (response.total_elements || 0) : response.totalElements;
+           updatedTotalPagesCount = response.totalPages === undefined ? (response.total_pages || 0) : response.totalPages;
+         } else if (Array.isArray(response)) {
+           updatedInvoicesSummary = response;
+           updatedTotalElements = response.length;
+           updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+         }
+
+         // Apply properties all at once
+         this.invoices = updatedInvoicesSummary;
+         this.totalElements = updatedTotalElements;
+         this.totalPagesCount = updatedTotalPagesCount;
+
+         // Notify Angular to redraw on the next frame paint seamlessly
+         this.cdr.markForCheck();
+       },
+       error: (err: any) => {
+         console.error('Failed to load job cards from server:', err);
+         this.invoices = [];
+         this.totalElements = 0;
+         this.totalPagesCount = 0;
+         this.cdr.markForCheck();
+       }
+     });
   }
 }

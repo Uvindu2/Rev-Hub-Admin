@@ -623,3 +623,9 @@
   border-radius: 4px;
   cursor: pointer;
 }
+/* Right layout area containing search and addition action handles */
+.actions-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}

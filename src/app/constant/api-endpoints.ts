@@ -12,5 +12,9 @@ export const API_ENDPOINTS = {
   // Maps to your @PostMapping(value = "/save", produces = MediaType.APPLICATION_PDF_VALUE)
   SAVE_JOB_CARD: `${API_BASE_URL}/job-card/save`,
   SAVE_INVOICE: `${API_BASE_URL}/invoice/save`,
-  GET_LABOR_ACTIVITIES_BY_JOB_ID: (jobId: number) => `${API_BASE_URL}/laborActivity/get-labor-activity-by-job-Id/${jobId}`
+  GET_LABOR_ACTIVITIES_BY_JOB_ID: (jobId: number) => `${API_BASE_URL}/laborActivity/get-labor-activity-by-job-Id/${jobId}`,
+  GET_INVOICE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/invoice/get-all-invoice-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  GET_ALL_CUSTOMERS: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/customer/get-all-customers-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
 };
