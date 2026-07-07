@@ -2,6 +2,7 @@ import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@an
 import { CommonModule } from '@angular/common';
 import {CustomerProjection} from '../../../dto/response/CustomerProjection';
 import {AdminService} from '../../../services/admin.service';
+import {FormsModule} from '@angular/forms';
 
 // Fixed: Added missing Customer interface definition
 interface Customer {
@@ -15,7 +16,7 @@ interface Customer {
 @Component({
   selector: 'app-customer-view',
   standalone: true,
-  imports: [CommonModule], // Fixed: Added CommonModule for HTML structural directives (*ngFor, *ngIf)
+  imports: [CommonModule, FormsModule], // Fixed: Added CommonModule for HTML structural directives (*ngFor, *ngIf)
   templateUrl: './customer-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customer-view.css',
@@ -84,8 +85,8 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
 
         if (response?.content !== undefined) {
           updatedCustomers = response.content || [];
-          updatedTotalElements = response.totalElements === undefined ? (response.total_elements || 0) : response.totalElements;
-          updatedTotalPagesCount = response.totalPages === undefined ? (response.total_pages || 0) : response.totalPages;
+          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
+          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
         } else if (Array.isArray(response)) {
           updatedCustomers = response;
           updatedTotalElements = response.length;
@@ -108,5 +109,12 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
         this.cdr.markForCheck();
       }
     });
+  }
+
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize = Number(select.value);
+    this.currentPage = 1;
+    this.fetchCustomers(); // fetchCustomers will run cdr.markForCheck() when done
   }
 }

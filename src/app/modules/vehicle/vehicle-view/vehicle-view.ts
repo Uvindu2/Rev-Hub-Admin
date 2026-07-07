@@ -1,7 +1,10 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {VehicleEditFormComponent} from '../vehicle-edit-form/vehicle-edit-form';
 import {VehicleViewForm} from '../vehicle-view-form/vehicle-view-form';
+import {FormsModule} from '@angular/forms';
+import {VehicleSummaryProjection} from '../../../dto/response/VehicleSummaryProjection';
+import {AdminService} from '../../../services/admin.service';
 
 export interface Customer {
   licenseNumber?: string;
@@ -27,131 +30,36 @@ export interface Vehicle {
 @Component({
   selector: 'app-vehicle-view',
   standalone: true,
-  imports: [CommonModule, VehicleEditFormComponent, VehicleViewForm],
+  imports: [CommonModule, VehicleEditFormComponent, VehicleViewForm, FormsModule],
   templateUrl: './vehicle-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './vehicle-view.css',
 })
 export class VehicleView implements OnInit {
-  allVehicles: Vehicle[] = [
-    {
-      regNo: 'WP CAB 1234',
-      make: 'Toyota',
-      model: 'Corolla',
-      year: 2018,
-      color: 'Black',
-      colorHex: '#000000',
-      mileage: 45200,
-      status: 'In Service',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP ABC 5678',
-      make: 'Honda',
-      model: 'Civic',
-      year: 2019,
-      color: 'Red',
-      colorHex: '#dc2626',
-      mileage: 32750,
-      status: 'In Service',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP KY 2345',
-      make: 'Suzuki',
-      model: 'Swift',
-      year: 2017,
-      color: 'Blue',
-      colorHex: '#2563eb',
-      mileage: 58100,
-      status: 'Awaiting Info',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP CAH 9876',
-      make: 'Mitsubishi',
-      model: 'Montero',
-      year: 2015,
-      color: 'White',
-      colorHex: '#ffffff',
-      mileage: 112400,
-      status: 'In Service',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP DAC 1122',
-      make: 'Nissan',
-      model: 'Dayz',
-      year: 2020,
-      color: 'Silver',
-      colorHex: '#9ca3af',
-      mileage: 21300,
-      status: 'Ready',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP CBK 4455',
-      make: 'Mazda',
-      model: 'CX-5',
-      year: 2021,
-      color: 'Soul Red',
-      colorHex: '#991b1b',
-      mileage: 18500,
-      status: 'Ready',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP CAD 7788',
-      make: 'BMW',
-      model: '320i',
-      year: 2016,
-      color: 'Grey',
-      colorHex: '#4b5563',
-      mileage: 65900,
-      status: 'In Service',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    },
-    {
-      regNo: 'WP CBB 9900',
-      make: 'Mercedes',
-      model: 'C200',
-      year: 2017,
-      color: 'White',
-      colorHex: '#f3f4f6',
-      mileage: 52000,
-      status: 'Awaiting Info',
-      customers: [{licenseNumber: '', name: 'John Doe', contactNumber: '', email: 'john@example.com', address: ''}]
-    }
-  ];
-
-  displayedVehicles: Vehicle[] = [];
+  allVehicles: VehicleSummaryProjection[] = [];
+  // Pagination Parameters
   currentPage: number = 1;
-  pageSize: number = 8;
-  totalPages: number[] = [];
-  maxPages: number = 1;
+  pageSize: number = 5;
+  totalElements: number = 0;
+  totalPagesCount: number = 0;
+  pageSizes: number[] = [5, 10, 20, 50];
+
+  // Sorting Rules configuration
+  sortByField: string = 'dateAdded';
+  sortDirection: string = 'desc';
 
   // Modal State Control Properties
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false; // 🌟 Added: Track display overlay visibility for your view form
   selectedVehicle: Vehicle | null = null;
 
-  constructor() {
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly cdr: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
-    this.calculatePaginationConfig();
-    this.updateDisplayedVehicles();
-  }
-
-  calculatePaginationConfig(): void {
-    this.maxPages = Math.ceil(this.allVehicles.length / this.pageSize);
-    this.totalPages = Array.from({length: this.maxPages}, (_, i) => i + 1);
-  }
-
-  updateDisplayedVehicles(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.displayedVehicles = this.allVehicles.slice(startIndex, endIndex);
+    this.fetchVehicles();
   }
 
   onSearch(event: Event): void {
@@ -159,56 +67,95 @@ export class VehicleView implements OnInit {
     console.log('Searching Fleet Records for Registration/Make:', inputElement.value);
   }
 
-  // 🌟 Updated: Finds target data model and pops open the read-only view form layout modal
-  viewVehicle(regNo: string): void {
-    const targetVehicle = this.allVehicles.find(v => v.regNo === regNo);
+// 🌟 Updated: Finds target data model and pops open the read-only view form layout modal
+  viewVehicle(regNo: string): void {const targetVehicle = this.allVehicles.find(v => v.vehicleRegNo === regNo);
     if (targetVehicle) {
-      this.selectedVehicle = targetVehicle;
       this.isViewModalOpen = true;
     }
   }
 
   editVehicle(regNo: string): void {
-    const targetVehicle = this.allVehicles.find(v => v.regNo === regNo);
+    const targetVehicle = this.allVehicles.find(v => v.vehicleRegNo === regNo);
     if (targetVehicle) {
-      this.selectedVehicle = targetVehicle;
       this.isEditModalOpen = true;
     }
   }
 
-  onVehicleSaved(updatedVehicle: Vehicle): void {
-    const targetIndex = this.allVehicles.findIndex(v => v.regNo === updatedVehicle.regNo);
-    if (targetIndex !== -1) {
-      this.allVehicles[targetIndex] = updatedVehicle;
-      this.updateDisplayedVehicles();
-    }
-    this.closeModal();
-  }
-
-  // 🌟 Updated: Re-set state tracking parameters to dismiss both edit and read-only overlay variants cleanly
+// 🌟 Updated: Re-set state tracking parameters to dismiss both edit and read-only overlay variants cleanly
   closeModal(): void {
     this.isEditModalOpen = false;
     this.isViewModalOpen = false;
     this.selectedVehicle = null;
   }
 
-  /* Interactive Pagination Navigation Links */
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize = Number(select.value);
+    this.currentPage = 1;
+    this.fetchVehicles(); // fetchJobCards will run cdr.markForCheck() when done
+  }
+
   goToPage(page: number): void {
-    this.currentPage = page;
-    this.updateDisplayedVehicles();
+    if (page >= 1 && page <= this.totalPagesCount) {
+      this.currentPage = page;
+      this.fetchVehicles();
+    }
   }
 
   prevPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.updateDisplayedVehicles();
+      this.fetchVehicles();
     }
   }
 
   nextPage(): void {
-    if (this.currentPage < this.maxPages) {
+    if (this.currentPage < this.totalPagesCount) {
       this.currentPage++;
-      this.updateDisplayedVehicles();
+      this.fetchVehicles();
     }
+  }
+
+  fetchVehicles() {
+    const backendPage = this.currentPage - 1;
+
+    this.adminService.getVehiclesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        // Stage updates in local variables first to prevent layout thrashing
+        let updatedVehicles: VehicleSummaryProjection[] = [];
+        let updatedTotalElements = 0;
+        let updatedTotalPagesCount = 0;
+
+        if (response?.content !== undefined) {
+          updatedVehicles = response.content || [];
+          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
+          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
+        } else if (Array.isArray(response)) {
+          updatedVehicles = response;
+          updatedTotalElements = response.length;
+          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+        }
+
+        // Apply properties all at once
+        this.allVehicles = updatedVehicles;
+        this.totalElements = updatedTotalElements;
+        this.totalPagesCount = updatedTotalPagesCount;
+
+        // Notify Angular to redraw on the next frame paint seamlessly
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load vehicles from server:', err);
+        this.allVehicles = [];
+        this.totalElements = 0;
+        this.totalPagesCount = 0;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  protected onVehicleSaved($event: Vehicle) {
+
   }
 }

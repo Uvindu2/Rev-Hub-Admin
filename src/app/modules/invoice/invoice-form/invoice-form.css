@@ -120,7 +120,7 @@
   border-color: #b91c1c; /* Crimson focus highlight loop matching design theme */
 }
 
-.search-box .search-icon {
+.search-box .search-icon-invoice {
   position: absolute;
   right: 10px;
   cursor: pointer;
@@ -131,7 +131,7 @@
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.search-box .search-icon:hover {
+.search-box .search-icon-invoice:hover {
   opacity: 1;
   transform: scale(1.1);
 }

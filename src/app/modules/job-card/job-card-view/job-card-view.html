@@ -8,7 +8,7 @@
           <input type="text" placeholder="Search Job Cards..." (input)="onSearch($event)">
         </div>
 
-        <button class="btn-add-job-card" type="button" (click)="onAddJobCard()">
+        <button class="btn-add" type="button" (click)="onAddJobCard()">
           <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
         </button>
       </div>
@@ -96,3 +96,5 @@
 </div>
 
 <app-job-card-form *ngIf="isEditModalOpen" (cancel)="closeModal()"></app-job-card-form>
+
+<app-job-card-view-and-edit *ngIf="isViewAndEditModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard"></app-job-card-view-and-edit>

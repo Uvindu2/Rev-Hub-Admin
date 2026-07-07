@@ -17,4 +17,7 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/invoice/get-all-invoice-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_CUSTOMERS: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/customer/get-all-customers-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/vehicle/get-all-vehicles-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  GET_JOB_CARD_BY_ID: (jobId: number) => `${API_BASE_URL}/job-card/get-job-card-by-jobId/${jobId}`
 };

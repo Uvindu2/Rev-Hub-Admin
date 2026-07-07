@@ -18,38 +18,25 @@
           <th>Make & Model</th>
           <th class="text-center">Year</th>
           <th>Color</th>
-          <th class="text-right">Mileage (km)</th>
-          <th>Current Status</th>
           <th class="text-center">Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let vehicle of displayedVehicles">
-          <td class="font-semibold text-uppercase">{{ vehicle.regNo }}</td>
-          <td>{{ vehicle.make }} {{ vehicle.model }}</td>
-          <td class="text-center font-numeric">{{ vehicle.year }}</td>
+        <tr *ngFor="let vehicle of allVehicles">
+          <td class="font-semibold text-uppercase">{{ vehicle.vehicleRegNo }}</td>
+          <td>{{ vehicle.vehicleMake }} {{ vehicle.vehicleModel }}</td>
+          <td class="text-center font-numeric">{{ vehicle.vehicleYear }}</td>
           <td>
             <div class="color-preview-wrap">
-              <span class="color-dot" [style.backgroundColor]="vehicle.colorHex"></span>
-              {{ vehicle.color }}
+              <span class="color-dot" [style.backgroundColor]="vehicle.colour"></span>
+              {{ vehicle.colour }}
             </div>
           </td>
-          <td class="text-right font-numeric">{{ vehicle.mileage | number }} km</td>
-          <td>
-            <!-- Dynamic Vehicle Layout Status Badges -->
-            <span class="badge" [ngClass]="{
-              'badge-service': vehicle.status === 'In Service',
-              'badge-pending': vehicle.status === 'Awaiting Info',
-              'badge-ready': vehicle.status === 'Ready'
-            }">
-              {{ vehicle.status }}
-            </span>
-          </td>
           <td class="actions-cell">
-            <button class="btn-action view-btn" title="View History" (click)="viewVehicle(vehicle.regNo)">
+            <button class="btn-action view-btn" title="View History" (click)="viewVehicle(vehicle.vehicleRegNo)">
               👁️
             </button>
-            <button class="btn-action edit-btn" title="Update Details" (click)="editVehicle(vehicle.regNo)">
+            <button class="btn-action edit-btn" title="Update Details" (click)="editVehicle(vehicle.vehicleRegNo)">
               ✏️
             </button>
           </td>
@@ -58,20 +45,34 @@
       </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-      <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-      <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+    <div class="table-footer-summary custom-footer-layout">
 
-      <button *ngFor="let page of totalPages"
-              class="page-num"
-              [class.active]="currentPage === page"
-              (click)="goToPage(page)">
-        {{ page }}
-      </button>
+      <div class="record-counter left-counter-anchor">
+        Showing {{ allVehicles?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+      </div>
 
-      <button class="page-nav" [disabled]="currentPage === maxPages" (click)="nextPage()">></button>
-      <button class="page-nav" [disabled]="currentPage === maxPages" (click)="goToPage(maxPages)">>|</button>
+      <div class="pagination-group-wrapper right-controls-group">
+
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+          </span>
+
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+        </div>
+
+      </div>
     </div>
   </div>
 

@@ -1,13 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { JobCardForm } from '../job-card-form/job-card-form';
-import { AdminService } from '../../../services/admin.service';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ReactiveFormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {JobCardForm} from '../job-card-form/job-card-form';
+import {AdminService} from '../../../services/admin.service';
+import {JobCardViewAndEdit} from '../job-card-view-and-edit/job-card-view-and-edit';
+import {NotificationService} from '../../../services/notificationService';
 
 @Component({
   selector: 'app-job-card-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, JobCardForm],
+  imports: [CommonModule, ReactiveFormsModule, JobCardForm, JobCardViewAndEdit],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush // Explicitly managing manual renders
@@ -15,6 +17,7 @@ import { AdminService } from '../../../services/admin.service';
 export class JobCardView implements OnInit {
 
   jobCards: JobCardProjection[] = [];
+  jobCard: JobCardProjection | undefined;
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -28,11 +31,14 @@ export class JobCardView implements OnInit {
   sortDirection: string = 'desc';
 
   isEditModalOpen: boolean = false;
+  isViewAndEditModalOpen: boolean = false;
 
   constructor(
     private readonly adminService: AdminService,
-    private readonly cdr: ChangeDetectorRef // Injecting manual render utility
-  ) {}
+    private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
+  private readonly notificationService: NotificationService
+  ) {
+  }
 
   ngOnInit(): void {
     this.fetchJobCards();
@@ -51,8 +57,8 @@ export class JobCardView implements OnInit {
 
         if (response?.content !== undefined) {
           updatedJobCards = response.content || [];
-          updatedTotalElements = response.totalElements === undefined ? (response.total_elements || 0) : response.totalElements;
-          updatedTotalPagesCount = response.totalPages === undefined ? (response.total_pages || 0) : response.totalPages;
+          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
+          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
         } else if (Array.isArray(response)) {
           updatedJobCards = response;
           updatedTotalElements = response.length;
@@ -113,11 +119,38 @@ export class JobCardView implements OnInit {
 
   closeModal(): void {
     this.isEditModalOpen = false;
+    this.isViewAndEditModalOpen = false;
     this.cdr.markForCheck();
   }
 
-  onSearch(event: Event): void { console.log('Searching...'); }
-  viewJob(id: number): void { console.log('Viewing ID:', id); }
-  editJob(id: number): void { console.log('Editing ID:', id); }
-  deleteJob(id: number): void { console.log('Deleting ID:', id); }
+  onSearch(event: Event): void {
+    console.log('Searching...');
+  }
+
+  viewJob(id: number): void {
+    console.log('Viewing ID:', id);
+
+    this.adminService.getJobCardById(id).subscribe({
+      next: (response: any) => {
+        this.jobCard = response.data;
+        console.log(response);
+        this.isViewAndEditModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load job card from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
+  }
+
+  editJob(id: number): void {
+    this.isViewAndEditModalOpen = true;
+  }
+
+  deleteJob(id: number): void {
+    console.log('Deleting ID:', id);
+  }
 }

@@ -79,4 +79,12 @@ export class AdminService {
   getCustomersPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMERS(page, size, sortBy, sortDir));
   }
+
+  getVehiclesPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_SUMMARIES(page, size, sortBy, sortDir));
+  }
+
+  getJobCardById(id: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_JOB_CARD_BY_ID(id));
+  }
 }

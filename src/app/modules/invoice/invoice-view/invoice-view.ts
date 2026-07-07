@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import {InvoiceForm} from '../invoice-form/invoice-form';
 import {InvoiceSummaryProjection} from '../../../dto/InvoiceSummaryProjection';
 import {AdminService} from '../../../services/admin.service';
+import {JobCardForm} from '../../job-card/job-card-form/job-card-form';
+import {ReactiveFormsModule} from '@angular/forms';
 
 // Define the missing Invoice interface
 interface Invoice {
@@ -17,7 +19,7 @@ interface Invoice {
 @Component({
   selector: 'app-invoice-view',
   standalone: true,
-  imports: [CommonModule, InvoiceForm],
+  imports: [CommonModule, InvoiceForm, ReactiveFormsModule],
   templateUrl: './invoice-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './invoice-view.css',
@@ -93,8 +95,8 @@ export class InvoiceView implements OnInit {
 
          if (response?.content !== undefined) {
            updatedInvoicesSummary = response.content || [];
-           updatedTotalElements = response.totalElements === undefined ? (response.total_elements || 0) : response.totalElements;
-           updatedTotalPagesCount = response.totalPages === undefined ? (response.total_pages || 0) : response.totalPages;
+           updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
+           updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
          } else if (Array.isArray(response)) {
            updatedInvoicesSummary = response;
            updatedTotalElements = response.length;
@@ -117,5 +119,11 @@ export class InvoiceView implements OnInit {
          this.cdr.markForCheck();
        }
      });
+  }
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize = Number(select.value);
+    this.currentPage = 1;
+    this.fetchInvoices(); // fetchJobCards will run cdr.markForCheck() when done
   }
 }

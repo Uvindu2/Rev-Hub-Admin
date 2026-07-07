@@ -4,32 +4,35 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
+  Input, OnChanges,
   OnInit,
   Output,
-  ViewChild,
-  ChangeDetectionStrategy
+  SimpleChanges,
+  ViewChild, AfterViewInit
 } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AdminService} from '../../../services/admin.service';
+import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
+import {NgIf} from "@angular/common";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Customer} from '../../../dto/response/customer/Customer';
 import {VehicleAndCustomerDTO} from '../../../dto/response/VehicleAndCustomerDTO';
-import {CommonModule} from '@angular/common';
-import {MatOptionModule} from '@angular/material/core';
-import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
 import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
+import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 
 @Component({
-  selector: 'app-job-card-form',
-  templateUrl: './job-card-form.html',
-  styleUrls: ['./job-card-form.css'],
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, MatOptionModule, MultiSelectDropdown]
+  selector: 'app-job-card-view-and-edit',
+  imports: [
+    MultiSelectDropdown,
+    NgIf,
+    ReactiveFormsModule
+  ],
+  templateUrl: './job-card-view-and-edit.html',
+  styleUrl: './job-card-view-and-edit.css',
 })
-export class JobCardForm implements OnInit {
+export class JobCardViewAndEdit implements OnInit, AfterViewInit {
 
+  @Input() jobCardData: JobCardProjection | undefined;
   @Output() cancel = new EventEmitter<void>();
   @ViewChild('dropdownWrapper') dropdownWrapper!: ElementRef;
 
@@ -46,61 +49,86 @@ export class JobCardForm implements OnInit {
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
 
   constructor(
-    private fb: FormBuilder,
-    private adminService: AdminService,
-    private notificationService: NotificationService,
-    private cdr: ChangeDetectorRef
+    private readonly fb: FormBuilder,
+    private readonly adminService: AdminService,
+    private readonly notificationService: NotificationService,
+    private readonly cdr: ChangeDetectorRef
   ) {
   }
 
   ngOnInit(): void {
-    this.isExistingVehicle = true;
     this.initForm();
-    this.loadItemNames();
-    this.loadTechnicianNames();
+    this.loadMetadataAndPatch();
   }
 
-  loadTechnicianNames(): void {
-    this.adminService.getTechnicianNames().subscribe({
-      next: (res: TechnicianNameProjection[]) => {
-        this.technicianNameProjection = res;
-      },
-      error: (err: any) => console.error(err)
-    });
+  ngAfterViewInit(): void {
+    // If data already exists, patch it after the view is ready
+    if (this.jobCardData) {
+      this.patchFormWithData(this.jobCardData);
+    }
   }
 
-  loadItemNames(): void {
-    this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameProjection[]) => {
-        this.laborActivityNameProjection = res;
-      },
-      error: (err: any) => console.error('Failed to load names', err)
-    });
+  private patchFormWithData(data: JobCardProjection): void {
+    // Use patchValue with a complete object map
+    this.jobCardForm.patchValue({
+      vehicleRegNo: data.vehicle?.vehicleRegNo,
+      make: data.vehicle?.vehicleMake,
+      model: data.vehicle?.vehicleModel,
+      year: data.vehicle?.vehicleYear,
+      colour: data.vehicle?.colour,
+      otherSpecs: data.vehicle?.otherSpecs,
+      customerName: data.vehicle?.customer?.customerName,
+      contactNumber: data.vehicle?.customer?.contactNumber,
+      email: data.vehicle?.customer?.email,
+      drivingLicenseNumber: data.vehicle?.customer?.drivingLicenseNumber,
+      complaint: data.customerComplaintText,
+      laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
+      assignedTechniciansSelected: data.technician?.map(t => t.technicianId) || []
+    }, { emitEvent: false }); // <--- Crucial: Prevents recursive form loops
+
+    this.cdr.markForCheck();
   }
 
   initForm(): void {
     this.jobCardForm = this.fb.group({
-      vehicleSearch: [''],
-      customerSearch: [''],
-      entryMode: ['new'],
-
-      // Adding core validations
       vehicleRegNo: ['', Validators.required],
       make: ['', Validators.required],
       model: ['', Validators.required],
       year: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
       colour: [''],
       otherSpecs: [''],
-
       customerName: ['', Validators.required],
       contactNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       drivingLicenseNumber: ['', Validators.required],
       complaint: ['', Validators.required],
-
       laborActivitiesSelected: [[], Validators.required],
       assignedTechniciansSelected: [[], Validators.required],
       currentMileage: ['', Validators.required],
+    });
+  }
+
+  loadMetadata(): void {
+    this.adminService.getTechnicianNames().subscribe(res => this.technicianNameProjection = res);
+    this.adminService.getLaborActivityNames().subscribe(res => this.laborActivityNameProjection = res);
+  }
+
+  loadMetadataAndPatch(): void {
+    // Use forkJoin to wait for both metadata requests to finish
+    import('rxjs').then(({ forkJoin }) => {
+      forkJoin({
+        techs: this.adminService.getTechnicianNames(),
+        labor: this.adminService.getLaborActivityNames()
+      }).subscribe(({ techs, labor }) => {
+        this.technicianNameProjection = techs;
+        this.laborActivityNameProjection = labor;
+
+        // NOW we have the options, we can safely patch
+        if (this.jobCardData) {
+          this.patchFormWithData(this.jobCardData);
+        }
+        this.cdr.markForCheck();
+      });
     });
   }
 
@@ -162,7 +190,7 @@ export class JobCardForm implements OnInit {
             }
 
             // Create the Blob explicitly binding the 'application/pdf' MIME type
-            const pdfBlob = new Blob([byteNumbers], { type: 'application/pdf' });
+            const pdfBlob = new Blob([byteNumbers], {type: 'application/pdf'});
 
             // Generate the unique internal blob URL
             const fileURL = window.URL.createObjectURL(pdfBlob);
@@ -195,81 +223,6 @@ export class JobCardForm implements OnInit {
 
   onCancel(): void {
     this.cancel.emit();
-  }
-
-  onCustomerSearchClick(): void {
-    const customerFields = ['customerName', 'email', 'contactNumber', 'drivingLicenseNumber'];
-    customerFields.forEach(field => this.jobCardForm.get(field)?.reset());
-    const value = this.jobCardForm.get('customerSearch')?.value;
-    this.adminService.getCustomerByDrivingLicenseNumber(value).subscribe({
-      next: (res: any) => {
-        this.customer = res;
-        this.isExistingCustomer=true
-        this.jobCardForm.patchValue({
-          contactNumber: this.customer?.contactNumbers,
-          customerName: this.customer?.customerName,
-          email: this.customer?.email,
-          drivingLicenseNumber: this.customer?.drivingLicenseNumber
-        });
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        setTimeout(() => {
-          console.log(err);
-          this.isExistingCustomer=false
-          this.notificationService.show('No Customer found with that driving license.', 'error');
-          this.cdr.detectChanges();
-        }, 0);
-      }
-    });
-  }
-
-  onVehicleSearchClick(): void {
-    const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value;
-    this.jobCardForm.reset({vehicleSearch: currentSearchValue});
-    const value = this.jobCardForm.get('vehicleSearch')?.value;
-
-    this.adminService.getVehicleAndCustomerByVehicleRegNumber(value).subscribe({
-      next: (res: any) => {
-        this.vehicleAndCustomerDTO = res;
-
-        // Mark as existing vehicle since we found a record
-        this.isExistingVehicle = true;
-
-        this.jobCardForm.patchValue({
-          entryMode: 'existing', // Syncing form state with the search result
-          vehicleRegNo: this.vehicleAndCustomerDTO?.vehicleRegNo,
-          make: this.vehicleAndCustomerDTO?.vehicleMake,
-          model: this.vehicleAndCustomerDTO?.vehicleModel,
-          year: this.vehicleAndCustomerDTO?.vehicleYear,
-          colour: this.vehicleAndCustomerDTO?.colour,
-          otherSpecs: this.vehicleAndCustomerDTO?.otherSpecs,
-          contactNumber: this.vehicleAndCustomerDTO?.contactNumbers,
-          customerName: this.vehicleAndCustomerDTO?.customerName,
-          email: this.vehicleAndCustomerDTO?.email,
-          drivingLicenseNumber: this.vehicleAndCustomerDTO?.drivingLicenseNumber
-        });
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error(err);
-
-        // 1. Reset the form states instantly
-        const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value;
-        this.jobCardForm.reset({
-          vehicleSearch: currentSearchValue,
-          vehicleRegNo: currentSearchValue,
-          entryMode: 'new'
-        });
-        this.isExistingVehicle = false;
-
-        // 2. Defer the notification and explicitly force Angular to draw it
-        setTimeout(() => {
-          this.notificationService.show('No Vehicle or Customer records found.', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
-      }
-    });
   }
 
   @HostListener('document:click')

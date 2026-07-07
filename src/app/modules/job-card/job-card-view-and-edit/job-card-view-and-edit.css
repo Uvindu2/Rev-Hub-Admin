@@ -186,9 +186,9 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
 }
 
-.search-icon-job {
+.search-icon {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);

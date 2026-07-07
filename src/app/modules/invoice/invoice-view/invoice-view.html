@@ -7,7 +7,7 @@
           <input type="text" placeholder="Search Invoices..." (input)="onSearch($event)">
         </div>
 
-        <button class="btn-add-invoice" type="button" (click)="onAddInvoice()">
+        <button class="btn-add" type="button" (click)="onAddInvoice()">
           <span class="icon-plus" aria-hidden="true">+</span> ADD Invoice
         </button>
     </div>
@@ -53,16 +53,34 @@
       </table>
     </div>
 
-    <div class="pagination">
-      <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-      <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+    <div class="table-footer-summary custom-footer-layout">
 
-      <span class="page-indicator">
+      <div class="record-counter left-counter-anchor">
+        Showing {{ invoices?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
             Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
           </span>
 
-      <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
-      <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
