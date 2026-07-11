@@ -95,6 +95,6 @@
   </div>
 </div>
 
-<app-job-card-form *ngIf="isEditModalOpen" (cancel)="closeModal()"></app-job-card-form>
+<app-job-card-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-job-card-form>
 
-<app-job-card-view-and-edit *ngIf="isViewAndEditModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard"></app-job-card-view-and-edit>
+<app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-job-card-view-and-edit>

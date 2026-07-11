@@ -313,3 +313,13 @@ input.ng-invalid.ng-touched,
 textarea.ng-invalid.ng-touched {
   border: 1px solid #dc3545 !important;
 }
+/* Style for disabled inputs */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #1a1a1a; /* Darker, muted background */
+  border: 1px solid #2a2a2a; /* Subtler border */
+  color: #b5b5b5;             /* Faded text color */
+  cursor: not-allowed;        /* Changes mouse cursor to signify inability to click */
+  opacity: 0.7;               /* Optional: slightly transparent */
+}

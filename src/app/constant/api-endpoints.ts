@@ -3,7 +3,7 @@ export const API_BASE_URL = 'http://localhost:8085';
 export const API_ENDPOINTS = {
   GET_ALL: `${API_BASE_URL}/customer`,
   GET_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-names`,
-  GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/laborActivity/get-all-labor-activity-names`,
+  GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/labor-activity/get-all-labor-activity-names`,
   GET_ITEM_PASRTS: `${API_BASE_URL}/item/fetch-all-items`,
   GET_BY_LICENSE: (licenseNumber: string) => `${API_BASE_URL}/customer/get-customer-by-driving-license-number/${licenseNumber}`,
   GET_BY_VEHICLE_REG_NUMBER: (vehicleRegNumber: string) => `${API_BASE_URL}/vehicle/get-vehicle-and-customer-by-vehicle-reg-number/${vehicleRegNumber}`,
@@ -11,13 +11,22 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/job-card/get-all-job-card?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   // Maps to your @PostMapping(value = "/save", produces = MediaType.APPLICATION_PDF_VALUE)
   SAVE_JOB_CARD: `${API_BASE_URL}/job-card/save`,
+  MODIFY_JOB_CARD: `${API_BASE_URL}/job-card/modify`,
   SAVE_INVOICE: `${API_BASE_URL}/invoice/save`,
-  GET_LABOR_ACTIVITIES_BY_JOB_ID: (jobId: number) => `${API_BASE_URL}/laborActivity/get-labor-activity-by-job-Id/${jobId}`,
+  GET_LABOR_ACTIVITIES_BY_JOB_ID: (jobId: number) => `${API_BASE_URL}/labor-activity/get-labor-activity-by-job-Id/${jobId}`,
   GET_INVOICE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/invoice/get-all-invoice-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_CUSTOMERS: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/customer/get-all-customers-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/vehicle/get-all-vehicles-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
-  GET_JOB_CARD_BY_ID: (jobId: number) => `${API_BASE_URL}/job-card/get-job-card-by-jobId/${jobId}`
+  GET_JOB_CARD_BY_ID: (jobId: number) => `${API_BASE_URL}/job-card/get-job-card-by-jobId/${jobId}`,
+  GET_ITEM_BY_ID: (itemId: number) => `${API_BASE_URL}/item/get-item-by-itemId/${itemId}`,
+  GET_ALL_ITEMS: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/item/get-all-items?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  GET_ALL_LABOR_ACTIVITIES: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/labor-activity/get-all-labor-activities?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  GET_LABOR_ACTIVITY_BY_ID: (laborActivityId: number) => `${API_BASE_URL}/labor-activity/get-labor-activity-by-laborActivityId/${laborActivityId}`,
+  SAVE_LABOR_ACTIVITY: `${API_BASE_URL}/labor-activity/save`,
+  SAVE_ITEM: `${API_BASE_URL}/item/save`
 };

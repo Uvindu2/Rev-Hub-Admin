@@ -30,13 +30,14 @@ export class JobCardView implements OnInit {
   sortByField: string = 'dateAdded';
   sortDirection: string = 'desc';
 
+  isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
-  isViewAndEditModalOpen: boolean = false;
+  isViewModalOpen: boolean = false;
 
   constructor(
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
-  private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService
   ) {
   }
 
@@ -113,13 +114,15 @@ export class JobCardView implements OnInit {
 
   // Local action triggers require instant local checks
   onAddJobCard(): void {
-    this.isEditModalOpen = true;
+    this.isAddModalOpen = true;
     this.cdr.markForCheck();
   }
 
   closeModal(): void {
+    this.isAddModalOpen = false;
+    this.isViewModalOpen = false;
     this.isEditModalOpen = false;
-    this.isViewAndEditModalOpen = false;
+    this.jobCard = undefined;
     this.cdr.markForCheck();
   }
 
@@ -134,7 +137,7 @@ export class JobCardView implements OnInit {
       next: (response: any) => {
         this.jobCard = response.data;
         console.log(response);
-        this.isViewAndEditModalOpen = true;
+        this.isViewModalOpen = true;
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -147,7 +150,20 @@ export class JobCardView implements OnInit {
   }
 
   editJob(id: number): void {
-    this.isViewAndEditModalOpen = true;
+    this.adminService.getJobCardById(id).subscribe({
+      next: (response: any) => {
+        this.jobCard = response.data;
+        console.log(response);
+        this.isEditModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load job card from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
   }
 
   deleteJob(id: number): void {

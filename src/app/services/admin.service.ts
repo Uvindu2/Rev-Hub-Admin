@@ -57,6 +57,11 @@ export class AdminService {
     return this.http.post<any>(API_ENDPOINTS.SAVE_JOB_CARD, jobCardData);
   }
 
+  modifyJobCardBlobVariant(jobCardData: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_JOB_CARD, jobCardData);
+  }
+
 // Add this method to your AdminService class
   getJobCardsPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_JOB_CARDS(page, size, sortBy, sortDir));
@@ -86,5 +91,31 @@ export class AdminService {
 
   getJobCardById(id: number): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_JOB_CARD_BY_ID(id));
+  }
+
+  getItemById(id: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ITEM_BY_ID(id));
+  }
+
+  getItemsPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_ITEMS(page, size, sortBy, sortDir));
+  }
+
+  getLaborActivitiesPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sortBy, sortDir));
+  }
+
+  getLaborActivityById(id: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_LABOR_ACTIVITY_BY_ID(id));
+  }
+
+  saveLaborActivity(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.post<any>(API_ENDPOINTS.SAVE_LABOR_ACTIVITY, backendPayload);
+  }
+
+  saveItem(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.post<any>(API_ENDPOINTS.SAVE_ITEM, backendPayload);
   }
 }

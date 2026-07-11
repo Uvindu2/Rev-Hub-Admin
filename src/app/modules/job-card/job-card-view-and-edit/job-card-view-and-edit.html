@@ -4,7 +4,7 @@
     <button class="close-btn" (click)="onCancel()">&times;</button>
   </div>
 
-  <form [formGroup]="jobCardForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="jobCardForm">
     <div class="modal-body">
 
       <div class="form-column">
@@ -15,25 +15,25 @@
 
             <div class="form-group">
               <label>Vehicle Reg No. <span class="required">*</span></label>
-              <input type="text" formControlName="vehicleRegNo" placeholder="CBN-9081" [readonly]="isExistingVehicle">
+              <input type="text" formControlName="vehicleRegNo" placeholder="CBN-9081">
               <div *ngIf="isInvalid('vehicleRegNo')" class="error-msg">Vehicle registration number is required.</div>
             </div>
 
             <div class="form-group">
               <label>Make <span class="required">*</span></label>
-              <input type="text" formControlName="make" placeholder="Toyota" [readonly]="isExistingVehicle">
+              <input type="text" formControlName="make" placeholder="Toyota">
               <div *ngIf="isInvalid('make')" class="error-msg">Vehicle make is required.</div>
             </div>
 
             <div class="form-group">
               <label>Model <span class="required">*</span></label>
-              <input type="text" formControlName="model" placeholder="Premio" [readonly]="isExistingVehicle">
+              <input type="text" formControlName="model" placeholder="Premio">
               <div *ngIf="isInvalid('model')" class="error-msg">Vehicle model is required.</div>
             </div>
 
             <div class="form-group">
               <label>Year <span class="required">*</span></label>
-              <input type="text" formControlName="year" placeholder="2018" [readonly]="isExistingVehicle">
+              <input type="text" formControlName="year" placeholder="2018">
               <div *ngIf="isInvalid('year')" class="error-msg">
                 <span *ngIf="jobCardForm.get('year')?.errors?.['required']">Year is required.</span>
                 <span *ngIf="jobCardForm.get('year')?.errors?.['pattern']">Enter a valid 4-digit year.</span>
@@ -44,13 +44,13 @@
           <div class="grid-2-col">
             <div class="form-group">
               <label>Color</label>
-              <input type="text" formControlName="colour" placeholder="Silver" [readonly]="isExistingVehicle">
+              <input type="text" formControlName="colour" placeholder="Silver">
             </div>
           </div>
 
           <div class="form-group">
             <label>Other Specs</label>
-            <input type="text" formControlName="otherSpecs" placeholder="1.5L Engine, AWC" [readonly]="isExistingVehicle">
+            <input type="text" formControlName="otherSpecs" placeholder="1.5L Engine, AWC">
           </div>
         </section>
 
@@ -94,15 +94,13 @@
             <div class="grid-2-col">
               <div class="form-group">
                 <label>Customer Name: <span class="required">*</span></label>
-                <input type="text" formControlName="customerName" placeholder="Enter full name"
-                       [readonly]="isExistingVehicle || isExistingCustomer">
+                <input type="text" formControlName="customerName" placeholder="Enter full name">
                 <div *ngIf="isInvalid('customerName')" class="error-msg">Customer name is required.</div>
               </div>
 
               <div class="form-group">
                 <label>Email Address: <span class="required">*</span></label>
-                <input type="text" formControlName="email" placeholder="example@domain.com"
-                       [readonly]="isExistingVehicle || isExistingCustomer">
+                <input type="text" formControlName="email" placeholder="example@domain.com">
                 <div *ngIf="isInvalid('email')" class="error-msg">
                   <span *ngIf="jobCardForm.get('email')?.errors?.['required']">Email is required.</span>
                   <span *ngIf="jobCardForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
@@ -111,15 +109,13 @@
 
               <div class="form-group">
                 <label>Contact Number: <span class="required">*</span></label>
-                <input type="text" formControlName="contactNumber" placeholder="[ e.g., +94 77 123 4567 ]"
-                       [readonly]="isExistingVehicle || isExistingCustomer">
+                <input type="text" formControlName="contactNumber" placeholder="[ e.g., +94 77 123 4567 ]">
                 <div *ngIf="isInvalid('contactNumber')" class="error-msg">Contact number is required.</div>
               </div>
 
               <div class="form-group">
                 <label>Driving License Number: <span class="required">*</span></label>
-                <input type="text" formControlName="drivingLicenseNumber" placeholder="[ e.g., 199012345678 ]"
-                       [readonly]="isExistingVehicle || isExistingCustomer">
+                <input type="text" formControlName="drivingLicenseNumber" placeholder="[ e.g., 199012345678 ]">
                 <div *ngIf="isInvalid('drivingLicenseNumber')" class="error-msg">Driving license is required.</div>
               </div>
             </div>
@@ -134,13 +130,15 @@
 
     </div>
 
+    <ng-template [ngIf]="isEditModalOpen">
     <div class="modal-footer">
-      <button type="submit" class="btn-submit">
+      <button type="submit" (click)="onSubmit()" class="btn-submit">
         <span class="icon">+</span> SUBMIT JOB CARD
       </button>
       <button type="button" class="btn-cancel" (click)="$event.preventDefault(); onCancel()">
         CANCEL
       </button>
     </div>
+    </ng-template>
   </form>
 </div>

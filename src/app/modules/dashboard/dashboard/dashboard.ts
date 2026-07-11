@@ -8,57 +8,13 @@ import {
   faUserGroup,
   faWrench,
   faXRay,
-  faBars, faChevronDown, faUser
+  faBars, faChevronDown, faUser,faBox,faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  ApexAnnotations,
-  ApexAxisChartSeries,
-  ApexChart,
-  ApexDataLabels,
-  ApexFill,
-  ApexGrid,
-  ApexLegend,
-  ApexMarkers,
-  ApexNonAxisChartSeries,
-  ApexPlotOptions,
-  ApexResponsive,
-  ApexStates,
-  ApexStroke,
-  ApexTheme,
-  ApexTitleSubtitle,
-  ApexTooltip,
-  ApexXAxis,
-  ApexYAxis
-} from 'ng-apexcharts';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {NgIf} from '@angular/common';
 
-export type ChartOptions = {
-  series?: ApexAxisChartSeries | ApexNonAxisChartSeries;
-  chart?: ApexChart;
-  xaxis?: ApexXAxis;
-  yaxis?: ApexYAxis | ApexYAxis[];
-  title?: ApexTitleSubtitle;
-  subtitle?: ApexTitleSubtitle;
-  dataLabels?: ApexDataLabels;
-  stroke?: ApexStroke;
-  fill?: ApexFill;
-  legend?: ApexLegend;
-  tooltip?: ApexTooltip;
-  markers?: ApexMarkers;
-  plotOptions?: ApexPlotOptions;
-  responsive?: ApexResponsive[];
-  grid?: ApexGrid;
-  annotations?: ApexAnnotations;
-  states?: ApexStates;
-  theme?: ApexTheme;
-  colors?: string[];
-  labels?: any;
-};
-
-
-type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' | 'vehicles';
+type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' | 'vehicles' | 'items' | 'laborActivities';
 
 @Component({
   selector: 'app-dashboard',
@@ -81,11 +37,11 @@ export class Dashboard {
   faWrench = faWrench;
   faCar = faCar;
   faReports = faChartLine;
-  faSettings = faGear;
   faChevronDown = faChevronDown;
   faUser = faUser;
   faBars = faBars;
-
+  faBox = faBox;
+  faClipboardList = faClipboardList;
   activeView: View = 'dashboard';
   isSidebarCollapsed = false;
   isDropdownOpen = false;
@@ -105,6 +61,8 @@ export class Dashboard {
     customers: 'Customers',
     technicians: 'Technicians',
     vehicles: 'Vehicles',
+    items: 'Items',
+    laborActivities: 'Labor Activities'
   };
 
   get pageTitle(): string {

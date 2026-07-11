@@ -6,6 +6,8 @@ import {TechnicianView} from './modules/technician/technician-view/technician-vi
 import {VehicleView} from './modules/vehicle/vehicle-view/vehicle-view';
 import {InvoiceView} from './modules/invoice/invoice-view/invoice-view';
 import {DashboardOverview} from './modules/dashboard/dashboard-overview/dashboard-overview';
+import {ItemView} from './modules/item/item-view/item-view';
+import {LaborActivityView} from './modules/labor-activity/labor-activity-view/labor-activity-view';
 
 // app.routes.ts
 export const routes: Routes = [
@@ -19,7 +21,9 @@ export const routes: Routes = [
       { path: 'invoices', component: InvoiceView },
       { path: 'customers', component: CustomerView },
       { path: 'technicians', component: TechnicianView },
-      { path: 'vehicles', component: VehicleView }
+      { path: 'vehicles', component: VehicleView },
+      { path: 'items', component: ItemView },
+      { path: 'labor-activities', component: LaborActivityView }
     ]
   }
 ];

@@ -1,14 +1,14 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
   HostListener,
-  Input, OnChanges,
+  Input,
   OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild, AfterViewInit
+  Output, SimpleChanges,
+  ViewChild, OnChanges
 } from '@angular/core';
 import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
 import {NgIf} from "@angular/common";
@@ -33,6 +33,8 @@ import {NotificationService} from '../../../services/notificationService';
 export class JobCardViewAndEdit implements OnInit, AfterViewInit {
 
   @Input() jobCardData: JobCardProjection | undefined;
+  @Input() isViewModalOpen: boolean = true;
+  @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
   @ViewChild('dropdownWrapper') dropdownWrapper!: ElementRef;
 
@@ -84,7 +86,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       complaint: data.customerComplaintText,
       laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
       assignedTechniciansSelected: data.technician?.map(t => t.technicianId) || []
-    }, { emitEvent: false }); // <--- Crucial: Prevents recursive form loops
+    }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops
 
     this.cdr.markForCheck();
   }
@@ -106,20 +108,28 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       assignedTechniciansSelected: [[], Validators.required],
       currentMileage: ['', Validators.required],
     });
-  }
+    // Immediately set the state based on the current mode
+    if (!this.isEditModalOpen) {
+      this.jobCardForm.disable();
+    } else {
+      // 1. Disable the whole form
+      this.jobCardForm.disable();
 
-  loadMetadata(): void {
-    this.adminService.getTechnicianNames().subscribe(res => this.technicianNameProjection = res);
-    this.adminService.getLaborActivityNames().subscribe(res => this.laborActivityNameProjection = res);
+      // 2. Explicitly enable only the vehicleRegNo
+      this.jobCardForm.get('laborActivitiesSelected')?.enable();
+      this.jobCardForm.get('assignedTechniciansSelected')?.enable();
+      this.jobCardForm.get('currentMileage')?.enable();
+      this.jobCardForm.get('complaint')?.enable();
+    }
   }
 
   loadMetadataAndPatch(): void {
     // Use forkJoin to wait for both metadata requests to finish
-    import('rxjs').then(({ forkJoin }) => {
+    import('rxjs').then(({forkJoin}) => {
       forkJoin({
         techs: this.adminService.getTechnicianNames(),
         labor: this.adminService.getLaborActivityNames()
-      }).subscribe(({ techs, labor }) => {
+      }).subscribe(({techs, labor}) => {
         this.technicianNameProjection = techs;
         this.laborActivityNameProjection = labor;
 
@@ -144,34 +154,15 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
 
     // 2. Safely construct the exact payload contract structure expected by the backend
     const backendPayload = {
-      dateAdded: new Date().toISOString(),
-      estimatedCompletionTime: null,
-      status: 'PENDING',
-      customerComplaintText: formValue.complaint,
-      existVehicle: formValue.entryMode === 'existing',
-      customerDTO: {
-        customerName: formValue.customerName,
-        email: formValue.email,
-        drivingLicenseNumber: formValue.drivingLicenseNumber,
-        contactNumbers: formValue.contactNumber
-      },
-      vehicleSaveRequestDTO: {
-        vehicleRegNo: formValue.vehicleRegNo,
-        vehicleMake: formValue.make,
-        vehicleModel: formValue.model,
-        vehicleYear: formValue.year,
-        colour: formValue.colour,
-        otherSpecs: formValue.otherSpecs
-      },
-      // Safe arrays extraction mapping precisely to your reactive form keys
+      jobId: this.jobCardData?.jobId,
       laborActivitiesSelected: formValue.laborActivitiesSelected || [],
-      assignedTechniciansSelected: formValue.assignedTechniciansSelected || []
+      assignedTechniciansSelected: formValue.assignedTechniciansSelected || [],
+      customerComplaintText: formValue.complaint || null
     };
-
     // 3. Dispatch the payload request
-    this.adminService.saveJobCardBlobVariant(backendPayload).subscribe({
+    this.adminService.modifyJobCardBlobVariant(backendPayload).subscribe({
       next: (res: any) => {
-        this.notificationService.show('Job Card saved successfully!', 'success');
+        this.notificationService.show('Job Card modified successfully!', 'success');
 
         if (res && res.data) {
           try {
@@ -216,7 +207,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       },
       error: (err: any) => {
         console.error('Error saving Job Card:', err);
-        this.notificationService.show('Failed to save Job Card. Please verify details.', 'error');
+        this.notificationService.show('Failed to modified Job Card. Please verify details.', 'error');
       }
     });
   }
