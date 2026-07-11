@@ -1,0 +1,88 @@
+<div class="page-header">
+  <div class="card-container">
+
+    <div class="table-header">
+      <div class="actions-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search Items..." (input)="onSearch($event)">
+        </div>
+
+        <button class="btn-add" type="button" (click)="onAddItem()">
+          <span class="icon-plus" aria-hidden="true">+</span> ADD Item
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+        <tr>
+          <th>Item ID</th>
+          <th>Item Name</th>
+          <th>Balance Qty</th>
+          <th>Date Modify</th>
+          <th>User</th>
+          <th>Supplier Price</th>
+          <th>Selling Price</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="!items || items.length === 0">
+          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+            No item found matching current filter parameters.
+          </td>
+        </tr>
+        <tr *ngFor="let item of items">
+          <td class="font-semibold">{{ item.itemId }}</td>
+          <td class="font-semibold">{{ item.itemName }}</td>
+          <td class="font-semibold">{{ item.balanceQty }}</td>
+          <td class="font-semibold">{{ item.dateModify }}</td>
+          <td class="font-semibold">{{ item.userModify }}</td>
+          <td class="font-semibold">{{ item.supplierPrice }}</td>
+          <td class="font-semibold">{{ item.sellingPrice }}</td>
+          <td class="actions-cell">
+            <button class="btn-table-action view-btn" (click)="viewItem(item.itemId)">👁️</button>
+            <button class="btn-table-action edit-btn" (click)="editItem(item.itemId)">✏️</button>
+            <button class="btn-table-action delete-btn" (click)="deleteItem(item.itemId)">🗑️</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-summary custom-footer-layout">
+
+      <div class="record-counter left-counter-anchor">
+        Showing {{ items?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+          </span>
+
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-item-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-item-form>
