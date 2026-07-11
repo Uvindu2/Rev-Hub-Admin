@@ -1,0 +1,79 @@
+<div class="page-header">
+  <div class="card-container">
+
+    <div class="table-header">
+      <div class="actions-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search Labor Activities..." (input)="onSearch($event)">
+        </div>
+
+        <button class="btn-add" type="button" (click)="onAddLaborActivity()">
+          <span class="icon-plus" aria-hidden="true">+</span> ADD Labor Activity
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+        <tr>
+          <th>Labor Activity ID</th>
+          <th>Labor Activity Name</th>
+          <th>Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="!laborActivities || laborActivities.length === 0">
+          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+            No labor Activities found matching current filter parameters.
+          </td>
+        </tr>
+        <tr *ngFor="let laborActivity of laborActivities">
+          <td class="font-semibold">{{ laborActivity.laborActivityId }}</td>
+          <td class="font-semibold">{{ laborActivity.activityName }}</td>
+          <td class="font-semibold">{{ laborActivity.active }}</td>
+          <td class="actions-cell">
+            <button class="btn-table-action view-btn" (click)="viewLaborActivity(laborActivity.laborActivityId)">👁️</button>
+            <button class="btn-table-action edit-btn" (click)="editLaborActivity(laborActivity.laborActivityId)">✏️</button>
+            <button class="btn-table-action delete-btn" (click)="deleteLaborActivity(laborActivity.laborActivityId)">🗑️</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-summary custom-footer-layout">
+
+      <div class="record-counter left-counter-anchor">
+        Showing {{ laborActivities?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+          </span>
+
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+<app-labor-activity-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-labor-activity-form>
