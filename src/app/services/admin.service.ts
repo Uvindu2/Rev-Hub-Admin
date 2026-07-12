@@ -118,4 +118,14 @@ export class AdminService {
     // Return standard JSON response object containing code, response, and data
     return this.http.post<any>(API_ENDPOINTS.SAVE_ITEM, backendPayload);
   }
+
+  modifyItem(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_ITEM, backendPayload);
+  }
+
+  modifyLaborActivity(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_LABOR_ACTIVITY, backendPayload);
+  }
 }

@@ -1,0 +1,58 @@
+<div class="modal-container">
+  <button class="close-btn" (click)="onCancel()">&times;</button>
+
+  <div class="modal-header">
+    <h2>ITEM</h2>
+  </div>
+
+  <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Item Name <span class="required">*</span></label>
+        <input type="text" formControlName="itemName" placeholder="e.g. Brake Fluid">
+        <div *ngIf="isInvalid('itemName')" class="error-msg">Item name is required.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Supplier Price <span class="required">*</span></label>
+        <input type="text" formControlName="supplierPrice" placeholder="0.00">
+        <div *ngIf="isInvalid('supplierPrice')" class="error-msg">Supplier price is required.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Selling Price <span class="required">*</span></label>
+        <input type="text" formControlName="sellingPrice" placeholder="0.00">
+        <div *ngIf="isInvalid('sellingPrice')" class="error-msg">Selling price is required.</div>
+      </div>
+
+      <app-multi-select-dropdown
+        label="Select Labor Activity:"
+        [formControl]="repairLaborActivitiesSelectedControl"
+        [b]="laborActivityNameProjection"
+        bindLabel="activityName"
+        bindValue="laborActivityId"
+        errorMessage="Please select at least one labor activity.">
+      </app-multi-select-dropdown>
+
+      <div class="form-group">
+        <label>Unit of Measure <span class="required">*</span></label>
+        <select formControlName="measuringUnitType">
+          <option value="" disabled selected>Select unit...</option>
+          <option *ngFor="let type of unitTypesList" [value]="type">
+            {{ unitDisplayMap[type] }}
+          </option>
+        </select>
+        <div *ngIf="isInvalid('measuringUnitType')" class="error-msg">
+          Please select a unit type.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn-submit">SUBMIT</button>
+      <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
+    </div>
+  </form>
+</div>

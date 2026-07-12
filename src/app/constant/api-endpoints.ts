@@ -28,5 +28,7 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/labor-activity/get-all-labor-activities?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_LABOR_ACTIVITY_BY_ID: (laborActivityId: number) => `${API_BASE_URL}/labor-activity/get-labor-activity-by-laborActivityId/${laborActivityId}`,
   SAVE_LABOR_ACTIVITY: `${API_BASE_URL}/labor-activity/save`,
-  SAVE_ITEM: `${API_BASE_URL}/item/save`
+  MODIFY_LABOR_ACTIVITY: `${API_BASE_URL}/labor-activity/modify`,
+  SAVE_ITEM: `${API_BASE_URL}/item/save`,
+  MODIFY_ITEM: `${API_BASE_URL}/item/modify`
 };

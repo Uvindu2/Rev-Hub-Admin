@@ -86,3 +86,5 @@
 </div>
 
 <app-item-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-item-form>
+
+<app-item-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [item]="item" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-item-view-and-edit>

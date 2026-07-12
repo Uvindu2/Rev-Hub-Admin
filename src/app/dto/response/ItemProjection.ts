@@ -5,5 +5,10 @@ export interface ItemProjection {
   userModify: string;
   balanceQty: number;
   supplierPrice: number;
+  measuringUnitType:any;
   sellingPrice: number;
+  laborActivities: Array<{
+    laborActivityId: number;
+    activityName: string;
+  }>;
 }

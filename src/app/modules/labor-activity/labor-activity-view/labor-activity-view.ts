@@ -6,6 +6,7 @@ import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
 import {JobCardForm} from '../../job-card/job-card-form/job-card-form';
+import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
 
 @Component({
   selector: 'app-labor-activity-view',
@@ -13,8 +14,9 @@ import {JobCardForm} from '../../job-card/job-card-form/job-card-form';
     NgForOf,
     NgIf,
     ReactiveFormsModule,
-    LaborActivityForm
-  ],
+    LaborActivityForm,
+    LaborActivityViewAndEdit
+],
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',
 })

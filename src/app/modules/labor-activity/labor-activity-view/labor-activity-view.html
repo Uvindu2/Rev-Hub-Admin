@@ -77,3 +77,5 @@
   </div>
 </div>
 <app-labor-activity-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-labor-activity-form>
+
+<app-labor-activity-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" [laborActivity]="laborActivity" (cancel)="closeModal()"></app-labor-activity-view-and-edit>

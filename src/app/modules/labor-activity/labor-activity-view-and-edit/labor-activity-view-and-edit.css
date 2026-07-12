@@ -1,0 +1,49 @@
+/* --- Overlay & Container --- */
+:host {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); z-index: 1000;
+  display: flex; justify-content: center; align-items: center;
+}
+
+.modal-container {
+  background-color: #181818; color: #cccccc; padding: 25px;
+  border-radius: 8px; width: 500px; border: 1px solid #3a3a3a;
+}
+
+/* --- Form Elements --- */
+.modal-body { display: flex; flex-direction: column; gap: 20px; padding: 20px 0; }
+
+.form-group { display: flex; flex-direction: column; }
+label { font-size: 0.85rem; margin-bottom: 8px; }
+
+input[type="text"] {
+  background-color: #2a2a2a; border: 1px solid #3a3a3a;
+  color: white; padding: 10px; border-radius: 4px;
+}
+
+/* --- Custom Radio Group --- */
+.radio-group { display: flex; gap: 20px; padding: 5px 0; }
+.radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.radio-option input[type="radio"] {
+  width: 16px; height: 16px; cursor: pointer; accent-color: #a61c1c;
+}
+
+/* --- Footer & Buttons --- */
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.btn-submit { background-color: #a61c1c; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+.btn-cancel { background-color: #2e2e2e; color: white; border: 1px solid #3a3a3a; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+
+.error-msg { color: #dc3545; font-size: 0.8rem; margin-top: 4px; }
+.required { color: #dc3545; }
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 50px;
+  cursor: pointer;
+
+  /* --- UPDATED: Pin to top-left --- */
+  position: absolute;
+  left: 63%; /* Changed from 'right' to 'left' */
+  line-height: 0.5;
+}
