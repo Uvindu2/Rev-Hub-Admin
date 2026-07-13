@@ -11,7 +11,7 @@ import {
   faBars, faChevronDown, faUser,faBox,faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
-import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {NgIf} from '@angular/common';
 
 type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' | 'vehicles' | 'items' | 'laborActivities';
@@ -46,7 +46,9 @@ export class Dashboard {
   isSidebarCollapsed = false;
   isDropdownOpen = false;
 
-  constructor() {
+  constructor(
+        private router: Router
+  ) {
   }
 
   // Existing method to toggle sidebar
@@ -74,6 +76,6 @@ export class Dashboard {
   }
 
   logout() {
-
+      this.router.navigate(['login']);
   }
 }
