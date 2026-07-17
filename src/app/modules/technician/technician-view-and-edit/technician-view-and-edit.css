@@ -1,0 +1,315 @@
+/* Dark theme palette matched to Gemini_Generated_Image_3ip3yt3ip3yt3ip3.png */
+/* Dark theme palette matched to Gemini_Generated_Image_3ip3yt3ip3yt3ip3.png */
+:host {
+  --bg-dark: #181818;
+  --bg-card: #222222;
+  --bg-input: #2a2a2a;
+  --border-color: #3a3a3a;
+  --text-main: #cccccc;
+  --text-muted: #888888;
+  --accent-red: #a61c1c;
+  --accent-red-hover: #c42323;
+
+  /* --- NEW: Host component acts as the screen-wide dark overlay backdrop --- */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* Dims the table background */
+  z-index: 1000;                         /* Ensures it stays above the table layout grid */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-container {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 1100px;
+  width: 90%;                            /* Keeps it responsive on smaller monitors */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--border-color);
+
+  /* --- NEW: Handle Form heights if it overflows vertically --- */
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- NEW: Allows the main form body to scroll internally if screen height is small --- */
+.modal-container form {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  overflow-y: auto;                     /* Turns on vertical scrolling only when needed */
+  padding-right: 5px;                    /* Soft gap space for the scrollbar element */
+}
+
+
+/* Header styling */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.modal-header .subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+/* Content layout split into two dynamic columns */
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.form-section {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.form-section h3 {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+/* Input Fields styling */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin-bottom: 5px;
+}
+
+input[type="text"], select, textarea {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #555555;
+}
+
+/* Nested structural grid mechanics */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+/* Search wrapper style mimicking input elements */
+.search-input-wrapper {
+  position: relative;
+}
+
+.repair-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 99999;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+.no-data {
+  color: #999;
+}
+
+.search-input-wrapper input {
+  padding-right: 35px;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.search-icon-job {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Mock Lookup Popover Dropdowns */
+.dropdown-suggestions {
+  background-color: #252525;
+  border: 1px solid var(--border-color);
+  margin-top: 2px;
+  border-radius: 4px;
+}
+
+.suggestion-item {
+  padding: 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.suggestion-item.new-item {
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.suggestion-item.selected {
+  background-color: #333333;
+}
+
+/* Footer Control Elements */
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.btn-submit {
+  background-color: var(--accent-red);
+  color: #ffffff;
+  border: none;
+  padding: 12px 25px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.btn-submit:hover {
+  background-color: var(--accent-red-hover);
+}
+
+.btn-cancel {
+  background-color: #2e2e2e;
+  color: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 12px 25px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+  background-color: #3e3e3e;
+}
+
+/* Responsive collapse pattern */
+@media (max-width: 850px) {
+  .modal-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.custom-dropdown-container {
+  position: relative;
+}
+
+/* input wrapper */
+.dropdown-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* input */
+.dropdown-search-input {
+  width: 100%;
+  padding-right: 30px;
+}
+
+/* dropdown arrow */
+.dropdown-toggle {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #666;
+  font-size: 15px;
+  user-select: none;
+}
+.error-msg {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.required {
+  color: #dc3545;
+  margin-left: 2px;
+}
+
+/* Optional styling to make invalid borders distinct */
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border: 1px solid #dc3545 !important;
+}
