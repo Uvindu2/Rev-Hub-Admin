@@ -1,8 +1,8 @@
 import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core'; // Fixed: Added OnInit import
 import { CommonModule } from '@angular/common';
-import {CustomerProjection} from '../../../dto/response/CustomerProjection';
 import {AdminService} from '../../../services/admin.service';
 import {FormsModule} from '@angular/forms';
+import {CustomerSummaryProjection} from '../../../dto/response/CustomerSummaryProjection';
 
 // Fixed: Added missing Customer interface definition
 interface Customer {
@@ -23,7 +23,7 @@ interface Customer {
 })
 export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   // Master customer dataset compiled from your dashboard entries
-  allCustomers: CustomerProjection[] = [];
+  allCustomers: CustomerSummaryProjection[] = [];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -79,7 +79,7 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
       next: (response: any) => {
         console.log(response);
         // Stage updates in local variables first to prevent layout thrashing
-        let updatedCustomers: CustomerProjection[] = [];
+        let updatedCustomers: CustomerSummaryProjection[] = [];
         let updatedTotalElements = 0;
         let updatedTotalPagesCount = 0;
 

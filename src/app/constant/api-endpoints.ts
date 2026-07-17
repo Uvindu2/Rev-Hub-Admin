@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
   GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/labor-activity/get-all-labor-activity-names`,
   GET_ITEM_PASRTS: `${API_BASE_URL}/item/fetch-all-items`,
   GET_BY_LICENSE: (licenseNumber: string) => `${API_BASE_URL}/customer/get-customer-by-driving-license-number/${licenseNumber}`,
+  GET_BY_CONTACT_NUMBER: (contactNumber: string) => `${API_BASE_URL}/customer/get-customer-by-contact-number/${contactNumber}`,
   GET_BY_VEHICLE_REG_NUMBER: (vehicleRegNumber: string) => `${API_BASE_URL}/vehicle/get-vehicle-and-customer-by-vehicle-reg-number/${vehicleRegNumber}`,
   GET_ALL_JOB_CARDS: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/job-card/get-all-job-card?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
@@ -30,5 +31,9 @@ export const API_ENDPOINTS = {
   SAVE_LABOR_ACTIVITY: `${API_BASE_URL}/labor-activity/save`,
   MODIFY_LABOR_ACTIVITY: `${API_BASE_URL}/labor-activity/modify`,
   SAVE_ITEM: `${API_BASE_URL}/item/save`,
-  MODIFY_ITEM: `${API_BASE_URL}/item/modify`
+  MODIFY_ITEM: `${API_BASE_URL}/item/modify`,
+  GET_ALL_TECHNICIANS: (page: number, size: number, sortBy: string, sortDir: string) =>`${API_BASE_URL}/technician/get-all-technicians?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  GET_TECHNICIAN_BY_ID: (id: number) => `${API_BASE_URL}/technician/get-technician-by-technicianId/${id}`,
+  SAVE_TECHNICIAN: `${API_BASE_URL}/technician/save`,
+  MODIFY_TECHNICIAN: `${API_BASE_URL}/technician/modify`
 };

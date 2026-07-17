@@ -5,7 +5,7 @@ import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {ItemProjection} from '../../../dto/response/ItemProjection';
 import {ItemForm} from '../item-form/item-form';
-import { ItemViewAndEdit } from "../item-view-and-edit/item-view-and-edit";
+import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
 
 @Component({
   selector: 'app-item-view',
@@ -15,7 +15,7 @@ import { ItemViewAndEdit } from "../item-view-and-edit/item-view-and-edit";
     NgIf,
     ReactiveFormsModule,
     ItemViewAndEdit
-],
+  ],
   templateUrl: './item-view.html',
   styleUrl: './item-view.css',
 })

@@ -29,6 +29,13 @@ export class AdminService {
   }
 
   // GET BY DRIVING LICENSE (PATH PARAM)
+  getCustomerByContactNumber(contactNumber: string): Observable<Customer[]> {
+    return this.http.get<Customer[]>(
+      API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber)
+    );
+  }
+
+  // GET BY DRIVING LICENSE (PATH PARAM)
   getVehicleAndCustomerByVehicleRegNumber(vehicleRegNumber: string): Observable<VehicleAndCustomerDTO[]> {
     return this.http.get<VehicleAndCustomerDTO[]>(
       API_ENDPOINTS.GET_BY_VEHICLE_REG_NUMBER(vehicleRegNumber)
@@ -127,5 +134,23 @@ export class AdminService {
   modifyLaborActivity(backendPayload: any): Observable<any> {
     // Return standard JSON response object containing code, response, and data
     return this.http.put<any>(API_ENDPOINTS.MODIFY_LABOR_ACTIVITY, backendPayload);
+  }
+
+  getTechniciansPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_TECHNICIANS(page, size, sortBy, sortDir));
+  }
+
+  getTechnicianById(id: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_TECHNICIAN_BY_ID(id));
+  }
+
+  saveTechnician(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.post<any>(API_ENDPOINTS.SAVE_TECHNICIAN, backendPayload);
+  }
+
+  modfiyTechnician(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.post<any>(API_ENDPOINTS.MODIFY_TECHNICIAN, backendPayload);
   }
 }

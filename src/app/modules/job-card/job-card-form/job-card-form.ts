@@ -19,6 +19,7 @@ import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropd
 import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
 import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
 import {NotificationService} from '../../../services/notificationService';
+import {CustomerProjection} from '../../../dto/response/CustomerProjection';
 
 @Component({
   selector: 'app-job-card-form',
@@ -35,7 +36,7 @@ export class JobCardForm implements OnInit {
 
   jobCardForm!: FormGroup;
 
-  customer: Customer | undefined;
+  customer: CustomerProjection | undefined;
   vehicleAndCustomerDTO: VehicleAndCustomerDTO | undefined;
 
   isDropdownOpen = false;
@@ -95,7 +96,7 @@ export class JobCardForm implements OnInit {
       customerName: ['', Validators.required],
       contactNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      drivingLicenseNumber: ['', Validators.required],
+      drivingLicenseNumber: [''],
       complaint: ['', Validators.required],
 
       laborActivitiesSelected: [[], Validators.required],
@@ -201,12 +202,12 @@ export class JobCardForm implements OnInit {
     const customerFields = ['customerName', 'email', 'contactNumber', 'drivingLicenseNumber'];
     customerFields.forEach(field => this.jobCardForm.get(field)?.reset());
     const value = this.jobCardForm.get('customerSearch')?.value;
-    this.adminService.getCustomerByDrivingLicenseNumber(value).subscribe({
+    this.adminService.getCustomerByContactNumber(value).subscribe({
       next: (res: any) => {
-        this.customer = res;
+        this.customer = res.data;
         this.isExistingCustomer=true
         this.jobCardForm.patchValue({
-          contactNumber: this.customer?.contactNumbers,
+          contactNumber: this.customer?.contactNumber,
           customerName: this.customer?.customerName,
           email: this.customer?.email,
           drivingLicenseNumber: this.customer?.drivingLicenseNumber

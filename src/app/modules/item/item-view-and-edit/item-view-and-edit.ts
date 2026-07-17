@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
 import { AdminService } from '../../../services/admin.service';
@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './item-view-and-edit.html',
   styleUrl: './item-view-and-edit.css',
 })
-export class ItemViewAndEdit {
+export class ItemViewAndEdit implements OnInit, AfterViewInit {
   @Input() item: ItemProjection | undefined;
   @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
@@ -52,19 +52,19 @@ export class ItemViewAndEdit {
       balanceQty: [0, [Validators.required, Validators.min(0)]],
       supplierPrice: [0, [Validators.required, Validators.min(0)]],
       sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      measuringUnitType: ['', Validators.required] ,// e.g., 'PIECES', 'LITERS'
+      measuringUnitType: ['', Validators.required],// e.g., 'PIECES', 'LITERS'
       laborActivitiesSelected: [[], Validators.required]
     });
   }
 
-    ngAfterViewInit(): void {
+  ngAfterViewInit(): void {
     // If data already exists, patch it after the view is ready
     if (this.item) {
       this.patchFormWithData(this.item);
     }
   }
 
-  
+
   private patchFormWithData(data: ItemProjection): void {
     // Use patchValue with a complete object map
     this.itemForm.patchValue({

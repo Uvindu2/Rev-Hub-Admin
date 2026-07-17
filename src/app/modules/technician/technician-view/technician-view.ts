@@ -1,70 +1,188 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core'; // Fixed: Added OnInit import
-import { CommonModule } from '@angular/common'; // Fixed: Added CommonModule import
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core'; // Fixed: Added OnInit import
+import {CommonModule} from '@angular/common';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {FormsModule} from '@angular/forms';
+import {TechnicianProjectionWithJobStatus} from '../../../dto/response/TechnicianProjectionWithJobStatus';
+import {TechnicianForm} from '../technician-form/technician-form';
+import {TechnicianViewAndEdit} from '../technician-view-and-edit/technician-view-and-edit';
+import {TechnicianProjection} from '../../../dto/response/TechnicianProjection'; // Fixed: Added CommonModule import
 
 // Fixed: Added missing Technician interface definition
 interface Technician {
   id: string;
   name: string;
   specialty: string;
-  activeJobs: number;
+  activeTechnicians: number;
   status: 'Available' | 'Busy' | 'On Leave';
 }
 
 @Component({
   selector: 'app-technician-view',
   standalone: true,
-  imports: [CommonModule], // Fixed: Added CommonModule for table structural bindings (*ngFor, ngClass)
+  imports: [CommonModule, FormsModule, TechnicianForm, TechnicianViewAndEdit], // Fixed: Added CommonModule for table structural bindings (*ngFor, ngClass)
   templateUrl: './technician-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './technician-view.css',
 })
 export class TechnicianView implements OnInit { // Fixed: Added implements OnInit
   // Balanced 8-record technician dataset matching your system framework
-  allTechnicians: Technician[] = [
-    { id: 'TECH-0001', name: 'Alex P.', specialty: 'Engine Tune-ups & Diagnostics', activeJobs: 3, status: 'Busy' },
-    { id: 'TECH-0002', name: 'Sam K.', specialty: 'Brake Systems & Suspension', activeJobs: 2, status: 'Busy' },
-    { id: 'TECH-0003', name: 'Nimal P.', specialty: 'Electrical & Wiring Specialist', activeJobs: 0, status: 'Available' },
-    { id: 'TECH-0004', name: 'Ravi R.', specialty: 'Auto Detailing & Paint Correction', activeJobs: 1, status: 'Busy' },
-    { id: 'TECH-0005', name: 'Asanka J.', specialty: 'Wheel Alignment & Balancing', activeJobs: 0, status: 'On Leave' },
-    { id: 'TECH-0006', name: 'Michael S.', specialty: 'Transmission Systems Repair', activeJobs: 0, status: 'Available' },
-    { id: 'TECH-0007', name: 'Chandana K.', specialty: 'Air Conditioning & Cooling Tech', activeJobs: 2, status: 'Busy' },
-    { id: 'TECH-0008', name: 'Kasun T.', specialty: 'General Mechanical Maintenance', activeJobs: 0, status: 'Available' }
-  ];
+  technicians: TechnicianProjectionWithJobStatus[] = [];
+  technician: TechnicianProjection | undefined;
 
-  displayedTechnicians: Technician[] = [];
+  // Pagination Parameters
   currentPage: number = 1;
-  pageSize: number = 8; // Formats cleanly into 5 items per page view
-  totalPages: number[] = [];
-  maxPages: number = 1;
+  pageSize: number = 5;
+  totalElements: number = 0;
+  totalPagesCount: number = 0;
+  pageSizes: number[] = [5, 10, 20, 50];
 
-  constructor() {}
+  // Sorting Rules configuration
+  sortByField: string = 'dateAdded';
+  sortDirection: string = 'desc';
+
+  isAddModalOpen: boolean = false;
+  isEditModalOpen: boolean = false;
+  isViewModalOpen: boolean = false;
+
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
+    private readonly notificationService: NotificationService
+  ) {
+  }
 
   ngOnInit(): void {
-    this.calculatePaginationConfig();
-    this.updateDisplayedInvoices();
+    this.fetchTechnicians();
   }
 
-  calculatePaginationConfig(): void {
-    this.maxPages = Math.ceil(this.allTechnicians.length / this.pageSize);
-    this.totalPages = Array.from({ length: this.maxPages }, (_, i) => i + 1);
+  fetchTechnicians(): void {
+    const backendPage = this.currentPage - 1;
+
+    this.adminService.getTechniciansPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        // Stage updates in local variables first to prevent layout thrashing
+        let updatedTechnicians: TechnicianProjectionWithJobStatus[] = [];
+        let updatedTotalElements = 0;
+        let updatedTotalPagesCount = 0;
+
+        if (response?.content !== undefined) {
+          updatedTechnicians = response.content || [];
+          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
+          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
+        } else if (Array.isArray(response)) {
+          updatedTechnicians = response;
+          updatedTotalElements = response.length;
+          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+        }
+
+        // Apply properties all at once
+        this.technicians = updatedTechnicians;
+        this.totalElements = updatedTotalElements;
+        this.totalPagesCount = updatedTotalPagesCount;
+
+        // Notify Angular to redraw on the next frame paint seamlessly
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load technician from server:', err);
+        this.technicians = [];
+        this.totalElements = 0;
+        this.totalPagesCount = 0;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
-  updateDisplayedInvoices(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.displayedTechnicians = this.allTechnicians.slice(startIndex, endIndex);
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize = Number(select.value);
+    this.currentPage = 1;
+    this.fetchTechnicians(); // fetchTechnicians will run cdr.markForCheck() when done
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPagesCount) {
+      this.currentPage = page;
+      this.fetchTechnicians();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.fetchTechnicians();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPagesCount) {
+      this.currentPage++;
+      this.fetchTechnicians();
+    }
+  }
+
+  // Local action triggers require instant local checks
+  onAddTechnicians(): void {
+    this.isAddModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  closeModal(): void {
+    this.isAddModalOpen = false;
+    this.isViewModalOpen = false;
+    this.isEditModalOpen = false;
+    this.technician = undefined;
+    this.cdr.markForCheck();
   }
 
   onSearch(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    console.log('Searching Technicians for:', inputElement.value);
+    console.log('Searching...');
   }
 
-  viewTech(id: string): void { console.log('Viewing schedule matrix for:', id); }
-  editTech(id: string): void { console.log('Editing technician payload metrics for:', id); }
+  viewTechnician(id: number): void {
+    console.log('Viewing ID:', id);
 
-  /* Navigation Links pagination rules */
-  goToPage(page: number): void { this.currentPage = page; this.updateDisplayedInvoices(); }
-  prevPage(): void { if(this.currentPage > 1) { this.currentPage--; this.updateDisplayedInvoices(); } }
-  nextPage(): void { if(this.currentPage < this.maxPages) { this.currentPage++; this.updateDisplayedInvoices(); } }
+    this.adminService.getTechnicianById(id).subscribe({
+      next: (response: any) => {
+        this.technician = response.data;
+        console.log(response);
+        this.isViewModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load technician from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
+  }
+
+  editTechnician(id: number): void {
+    this.adminService.getTechnicianById(id).subscribe({
+      next: (response: any) => {
+        this.technician = response.data;
+        console.log(response);
+        this.isEditModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load technician from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
+  }
+
+  deleteTechnician(id: number): void {
+    console.log('Deleting ID:', id);
+  }
+
+  protected onAddTechnician() {
+    this.isAddModalOpen = true;
+    this.cdr.markForCheck();
+  }
 }

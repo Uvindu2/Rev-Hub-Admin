@@ -76,8 +76,8 @@
             <div class="form-group search-transition">
               <label>Search Customer:</label>
               <div class="search-input-wrapper">
-                <input type="text" formControlName="customerSearch" placeholder="Type Driving License Number...">
-                <i class="search-icon" (click)="onCustomerSearchClick()">🔍</i>
+                <input type="text" formControlName="customerSearch" placeholder="Type Customer Contact Number...">
+                <i class="search-icon-job" (click)="onCustomerSearchClick()">🔍</i>
               </div>
             </div>
           </ng-template>
@@ -108,10 +108,9 @@
             </div>
 
             <div class="form-group">
-              <label>Driving License Number: <span class="required">*</span></label>
+              <label>Driving License Number: </label>
               <input type="text" formControlName="drivingLicenseNumber" placeholder="[ e.g., 199012345678 ]"
                      [readonly]="isExistingVehicle || isExistingCustomer">
-              <div *ngIf="isInvalid('drivingLicenseNumber')" class="error-msg">Driving license is required.</div>
             </div>
           </div>
 

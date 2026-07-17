@@ -41,11 +41,8 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
   jobCardForm!: FormGroup;
 
   customer: Customer | undefined;
-  vehicleAndCustomerDTO: VehicleAndCustomerDTO | undefined;
 
   isDropdownOpen = false;
-  isExistingVehicle = true;
-  isExistingCustomer = true;
 
   technicianNameProjection: TechnicianNameProjection[] = [];
   laborActivityNameProjection: LaborActivityNameProjection[] = [];

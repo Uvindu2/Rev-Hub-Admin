@@ -7,6 +7,9 @@
       <span class="search-icon">🔍</span>
       <input type="text" placeholder="Search Technicians..." (input)="onSearch($event)">
     </div>
+    <button class="btn-add" type="button" (click)="onAddTechnician()">
+      <span class="icon-plus" aria-hidden="true">+</span> ADD Technician
+    </button>
   </div>
 
   <!-- Responsive Table Wrap -->
@@ -23,28 +26,28 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let tech of displayedTechnicians">
-        <td class="font-semibold">{{ tech.id }}</td>
-        <td>{{ tech.name }}</td>
+      <tr *ngFor="let tech of technicians">
+        <td class="font-semibold">{{ tech.technicianId }}</td>
+        <td>{{ tech.technicianName }}</td>
         <td>{{ tech.specialty }}</td>
         <td class="text-center font-numeric">
-          <span class="job-count-badge">{{ tech.activeJobs }}</span>
+          <span class="job-count-badge">{{ tech.activeJobCount }}</span>
         </td>
         <td>
           <!-- Dynamic Availability Badges -->
           <span class="badge" [ngClass]="{
-              'badge-available': tech.status === 'Available',
-              'badge-busy': tech.status === 'Busy',
-              'badge-leave': tech.status === 'On Leave'
+              'badge-available': tech.jobStatus === 'Available',
+              'badge-busy': tech.jobStatus === 'Busy',
+              'badge-leave': tech.jobStatus === 'On Leave'
             }">
-              {{ tech.status }}
+              {{ tech.jobStatus }}
             </span>
         </td>
         <td class="actions-cell">
-          <button class="btn-action view-btn" title="View Schedule" (click)="viewTech(tech.id)">
+          <button class="btn-action view-btn" title="View Schedule" (click)="viewTechnician(tech.technicianId)">
             👁️
           </button>
-          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTech(tech.id)">
+          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTechnician(tech.technicianId)">
             ✏️
           </button>
         </td>
@@ -53,20 +56,38 @@
     </table>
   </div>
 
-  <!-- Pagination -->
-  <div class="pagination">
-    <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-    <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+  <div class="table-footer-summary custom-footer-layout">
 
-    <button *ngFor="let page of totalPages"
-            class="page-num"
-            [class.active]="currentPage === page"
-            (click)="goToPage(page)">
-      {{ page }}
-    </button>
+    <div class="record-counter left-counter-anchor">
+      Showing {{ technicians?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+    </div>
 
-    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="nextPage()">></button>
-    <button class="page-nav" [disabled]="currentPage === maxPages" (click)="goToPage(maxPages)">>|</button>
+    <div class="pagination-group-wrapper right-controls-group">
+
+      <div class="select-box footer-select">
+        <label>Show:</label>
+        <select (change)="onPageSizeChange($event)" [value]="pageSize">
+          <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+        </select>
+      </div>
+
+      <div class="pagination">
+        <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+        <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+        <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+          </span>
+
+        <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+        <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+      </div>
+
+    </div>
   </div>
 </div>
 </div>
+
+<app-technician-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-technician-form>
+
+<app-technician-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [technician]="technician" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-technician-view-and-edit>
