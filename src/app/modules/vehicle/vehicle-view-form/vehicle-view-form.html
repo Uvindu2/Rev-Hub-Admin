@@ -9,43 +9,43 @@
       <!-- === VEHICLE PROFILE DISPLAY === -->
       <div class="form-group">
         <label>Registration Number</label>
-        <input type="text" [value]="$safeNavigationMigration(vehicle?.regNo)" disabled class="form-control read-only" />
+        <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleRegNo)" disabled class="form-control read-only" />
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label>Make</label>
-          <input type="text" [value]="$safeNavigationMigration(vehicle?.make)" disabled class="form-control read-only" />
+          <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleMake)" disabled class="form-control read-only" />
         </div>
         <div class="form-group">
           <label>Model</label>
-          <input type="text" [value]="$safeNavigationMigration(vehicle?.model)" disabled class="form-control read-only" />
+          <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleModel)" disabled class="form-control read-only" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label>Year</label>
-          <input type="text" [value]="$safeNavigationMigration(vehicle?.year)" disabled class="form-control read-only" />
+          <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleYear)" disabled class="form-control read-only" />
         </div>
-        <div class="form-group">
-          <label>Current Mileage (mi)</label>
-          <input type="text" [value]="($safeNavigationMigration(vehicle?.mileage) | number) + ' mi'" disabled class="form-control read-only" />
-        </div>
+<!--        <div class="form-group">-->
+<!--          <label>Current Mileage (mi)</label>-->
+<!--          <input type="text" [value]="($safeNavigationMigration(vehicle?.mileage) | number) + ' mi'" disabled class="form-control read-only" />-->
+<!--        </div>-->
       </div>
 
-      <div class="form-group border-bottom-spacing">
-        <label>Operational Status</label>
-        <div class="status-display-box">
-          <span class="badge" [ngClass]="{
-            'badge-service': vehicle?.status === 'In Service',
-            'badge-pending': vehicle?.status === 'Awaiting Info',
-            'badge-ready': vehicle?.status === 'Ready'
-          }">
-            {{ vehicle?.status }}
-          </span>
-        </div>
-      </div>
+<!--      <div class="form-group border-bottom-spacing">-->
+<!--        <label>Operational Status</label>-->
+<!--        <div class="status-display-box">-->
+<!--          <span class="badge" [ngClass]="{-->
+<!--            'badge-service': vehicle?.status === 'In Service',-->
+<!--            'badge-pending': vehicle?.status === 'Awaiting Info',-->
+<!--            'badge-ready': vehicle?.status === 'Ready'-->
+<!--          }">-->
+<!--            {{ vehicle?.status }}-->
+<!--          </span>-->
+<!--        </div>-->
+<!--      </div>-->
 
       <!-- === CUSTOMERS SUB-TABLE DISPLAY === -->
       <div class="customers-management-section">
@@ -63,7 +63,7 @@
             </thead>
             <tbody>
             <tr *ngFor="let customer of (vehicle?.customers || [])">
-              <td class="text-white font-medium">{{ customer.name }}</td>
+              <td class="text-white font-medium">{{ customer.customerName }}</td>
               <td class="text-secondary">{{ customer.email }}</td>
             </tr>
 

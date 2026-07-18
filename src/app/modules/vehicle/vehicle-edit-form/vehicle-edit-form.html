@@ -5,109 +5,78 @@
       <button class="close-header-btn" (click)="closeForm()">&times;</button>
     </div>
 
-    <form (ngSubmit)="submitForm()" #vehicleForm="ngForm">
+    <form [formGroup]="vehicleForm" (ngSubmit)="submitForm()">
       <div class="modal-body">
 
-        <!-- === VEHICLE DETAILS SECTION === -->
-        <div class="form-group">
-          <label>Registration Number (Read Only)</label>
-          <input type="text" [value]="editableVehicle.regNo" disabled class="form-control read-only" />
-        </div>
-
+        <!-- Standard Inputs -->
         <div class="form-row">
           <div class="form-group">
-            <label>Make</label>
-            <input type="text" [(ngModel)]="editableVehicle.make" name="make" required class="form-control" />
+            <label>Registration Number</label>
+            <input type="text" formControlName="vehicleRegNo" class="form-control">
           </div>
           <div class="form-group">
-            <label>Model</label>
-            <input type="text" [(ngModel)]="editableVehicle.model" name="model" required class="form-control" />
+            <label>Make</label>
+            <input type="text" formControlName="vehicleMake" class="form-control">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Year</label>
-            <input type="number" [(ngModel)]="editableVehicle.year" name="year" required class="form-control" />
+            <input type="text" formControlName="vehicleYear" class="form-control">
           </div>
           <div class="form-group">
-            <label>Mileage (mi)</label>
-            <input type="number" [(ngModel)]="editableVehicle.mileage" name="mileage" required class="form-control" />
+            <label>Model</label>
+            <input type="text" formControlName="vehicleModel" class="form-control">
           </div>
         </div>
 
-        <div class="form-group border-bottom-spacing">
-          <label>Operational Status</label>
-          <select [(ngModel)]="editableVehicle.status" name="status" class="form-control select-field">
-            <option value="In Service">In Service</option>
-            <option value="Awaiting Info">Awaiting Info</option>
-            <option value="Ready">Ready</option>
-          </select>
-        </div>
-
-        <!-- === CUSTOMERS MANAGEMENT TABLE SECTION === -->
+        <!-- Customer Section -->
         <div class="customers-management-section">
           <div class="section-control-header">
-            <h4>Assigned Customer Accounts</h4>
-
-            <!-- 🌟 Add button is now only visible if the table has NO elements -->
-            <button
-              type="button"
-              class="btn-add-item"
-              (click)="showCustomerPopup = true">
-              <span class="icon">➕</span>
-              Add Customer
+            <h4>Assigned Customer</h4>
+            <button type="button" class="btn-add-item" (click)="showCustomerPopup = true" *ngIf="!currentCustomer">
+              <span>➕</span> Add Customer
             </button>
-
-            <app-add-customer-form
-              *ngIf="showCustomerPopup"
-              (close)="showCustomerPopup = false"
-              (customerSaved)="onCustomerSaved($event)">
-            </app-add-customer-form>
           </div>
 
-          <div class="table-scroll-container">
-            <table class="modal-embedded-table">
-              <thead>
-              <tr>
-                <th>Customer Name</th>
-                <th>Contact Email / Phone</th>
-                <th class="text-center" style="width: 80px;">Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let customer of editableVehicle.customers; let i = index">
-                <td>Raman Gamini
-                </td>
-                <td>011898986
-                </td>
-                <td class="text-center">
-                  <button type="button"
-                          class="btn-inline-delete"
-                          title="Remove Customer"
-                          (click)="removeCustomer(i)">
-                    🗑️
-                  </button>
-                </td>
-              </tr>
+          <table class="modal-embedded-table">
+            <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngIf="currentCustomer">
+              <td>{{ currentCustomer.customerName }}</td>
+              <td>{{ currentCustomer.email }}</td>
+              <td class="text-center">
+                <button type="button" class="btn-inline-delete" (click)="removeCustomer()">🗑️</button>
+              </td>
+            </tr>
+            <tr *ngIf="!currentCustomer">
+              <td colspan="3" class="table-empty-state">No customer assigned.</td>
+            </tr>
+            </tbody>
+          </table>
 
-              <!-- Fallback view when no records are bound -->
-              <tr *ngIf="!editableVehicle.customers || editableVehicle.customers.length === 0">
-                <td colspan="3" class="table-empty-state">
-                  No customers currently assigned to this operational fleet asset.
-                </td>
-              </tr>
-              </tbody>
-            </table>
+          <!-- Validation Message -->
+          <div *ngIf="isInvalid('customerId')" class="error-msg" style="color: red; margin-top: 10px;">
+            * A customer must be assigned to this vehicle to save.
           </div>
         </div>
 
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeForm()">Cancel</button>
-        <button type="submit" class="btn-primary" [disabled]="!vehicleForm.form.valid">Save Changes</button>
+        <button type="submit" class="btn-primary" [disabled]="vehicleForm.invalid">SUBMIT</button>
+        <button type="button" class="btn-secondary" (click)="closeForm()">CANCEL</button>
       </div>
     </form>
   </div>
 </div>
+
+<app-add-customer-form *ngIf="showCustomerPopup" (close)="showCustomerPopup = false" (customerSaved)="onCustomerSaved($event)">
+</app-add-customer-form>

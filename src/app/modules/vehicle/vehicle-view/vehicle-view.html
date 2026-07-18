@@ -33,10 +33,10 @@
             </div>
           </td>
           <td class="actions-cell">
-            <button class="btn-action view-btn" title="View History" (click)="viewVehicle(vehicle.vehicleRegNo)">
+            <button class="btn-action view-btn" title="View History" (click)="viewVehicle(vehicle.vehicleId)">
               👁️
             </button>
-            <button class="btn-action edit-btn" title="Update Details" (click)="editVehicle(vehicle.vehicleRegNo)">
+            <button class="btn-action edit-btn" title="Update Details" (click)="editVehicle(vehicle.vehicleId)">
               ✏️
             </button>
           </td>
@@ -76,19 +76,7 @@
     </div>
   </div>
 
-  <!-- Integrated Child Component Pop-up Interface -->
-  <app-vehicle-edit-form
-    *ngIf="isEditModalOpen && selectedVehicle"
-    [vehicle]="selectedVehicle"
-    (save)="onVehicleSaved($event)"
-    (cancel)="closeModal()">
-  </app-vehicle-edit-form>
 
-  <!-- Integrated Child Component Pop-up Interface -->
-  <app-vehicle-view-form
-    *ngIf="isViewModalOpen && selectedVehicle"
-    [vehicle]="selectedVehicle"
-    (cancel)="closeModal()">
-  </app-vehicle-view-form>
+  <app-vehicle-edit-form *ngIf="isEditModalOpen || isViewModalOpen" [vehicle]="selectedVehicle"  (cancel)="closeModal()"></app-vehicle-edit-form >
 
 </div>

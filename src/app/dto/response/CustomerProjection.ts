@@ -5,4 +5,6 @@ export interface CustomerProjection {
   contactNumber: string;
   email: string;
   drivingLicenseNumber: string;
+  active: boolean;
+  customerAddress: string;
 }

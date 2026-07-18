@@ -1,105 +1,136 @@
-import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {AddCustomerForm} from '../../customer/add-customer-form/add-customer-form';
-
-export interface Customer {
-  licenseNumber?: string;
-  name: string;
-  contactNumber: string;
-  email?: string;
-  address?: string;
-}
-
-export interface Vehicle {
-  regNo: string;
-  make: string;
-  model: string;
-  year: number;
-  color: string;
-  colorHex: string;
-  mileage: number;
-  status: 'In Service' | 'Awaiting Info' | 'Ready';
-  customers: Customer[];
-}
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AddCustomerForm } from '../../customer/add-customer-form/add-customer-form';
+import { VehicleProjection } from '../../../dto/response/VehicleProjection';
+import { CustomerProjection } from '../../../dto/response/CustomerProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
 
 @Component({
   selector: 'app-vehicle-edit-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddCustomerForm],
+  imports: [CommonModule, FormsModule, AddCustomerForm, ReactiveFormsModule],
   templateUrl: './vehicle-edit-form.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush, // Changed to OnPush for better performance
   styleUrl: './vehicle-edit-form.css'
 })
-export class VehicleEditFormComponent implements OnInit {
+export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
-  @Input() vehicle!: Vehicle;
-
-  @Output() save = new EventEmitter<Vehicle>();
+  @Input() vehicle: VehicleProjection | undefined;
+  @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
-  editableVehicle!: Vehicle;
-
-  // 🌟 popup control
+  vehicleForm!: FormGroup;
+  currentCustomer: CustomerProjection | null = null;
   showCustomerPopup = false;
 
-  ngOnInit(): void {
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly adminService: AdminService,
+    private readonly notificationService: NotificationService
+  ) {}
 
-    if (this.vehicle) {
-      this.editableVehicle = {
-        ...this.vehicle,
-        customers: this.vehicle.customers
-          ? this.vehicle.customers.map(c => ({ ...c }))
-          : []
-      };
-    }
+  ngOnInit(): void {
+    // 1. Initialize the "Slot"
+    this.currentCustomer = this.vehicle?.customer?.[0] || null;
+    this.initForm();
   }
 
-  // ----------------------------
-  // Vehicle actions
-  // ----------------------------
+  initForm(): void {
+    this.vehicleForm = this.fb.group({
+      vehicleRegNo: [this.vehicle?.vehicleRegNo || '', Validators.required],
+      vehicleMake: [this.vehicle?.vehicleMake || '', Validators.required],
+      vehicleYear: [this.vehicle?.vehicleYear || '', Validators.required],
+      vehicleModel: [this.vehicle?.vehicleModel || '', Validators.required],
+      // This is our hidden field for validation
+      customerId: [this.currentCustomer?.customerId || null]
+    });
+  }
 
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+  }
+
+  onCustomerSaved(customer: CustomerProjection): void {
+    this.currentCustomer = customer;
+    this.vehicleForm.patchValue({ customerId: customer.customerId });
+    this.showCustomerPopup = false;
+    this.cdr.markForCheck();
+  }
+
+  removeCustomer(): void {
+    this.currentCustomer = null;
+    this.vehicleForm.patchValue({ customerId: '' });
+    this.cdr.markForCheck();
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.vehicleForm.get(controlName);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
   submitForm(): void {
-    this.save.emit(this.editableVehicle);
+    // 1. Validation check
+    if (this.vehicleForm.invalid) {
+      this.vehicleForm.markAllAsTouched();
+      this.notificationService.show('Please fill out all required fields.', 'error');
+      return;
+    }
+
+    if (!this.currentCustomer) {
+      this.notificationService.show('Please assign a customer.', 'error');
+      return;
+    }
+
+    // 2. Define the payload structure inline
+    const backendPayload = {
+      vehicleRegNo: this.vehicleForm.value.vehicleRegNo,
+      vehicleMake: this.vehicleForm.value.vehicleMake,
+      vehicleModel: this.vehicleForm.value.vehicleModel,
+      vehicleYear: this.vehicleForm.value.vehicleYear,
+      vehicleMileage: this.vehicleForm.value.vehicleMileage,
+      colour: this.vehicleForm.value.colour,
+      otherSpecs: this.vehicleForm.value.otherSpecs,
+
+      // Logic for Customer
+      customerId: this.currentCustomer.customerId || 0,
+      customer: this.currentCustomer.customerId ? null : {
+        customerName: this.currentCustomer.customerName,
+        customerAddress: this.currentCustomer.customerAddress,
+        contactNumbers: this.currentCustomer.contactNumber,
+        email: this.currentCustomer.email,
+        drivingLicenseNumber: this.currentCustomer.drivingLicenseNumber,
+        active: true
+      }
+    };
+
+    console.log('Payload sending to backend:', backendPayload);
+
+    // 3. Send
+    this.adminService.modifyVehicle(backendPayload).subscribe({
+      next: (res: any) => {
+        this.notificationService.show('Vehicle modified successfully!', 'success');
+        this.cancel.emit();
+      },
+      error: (err: any) => {
+        // Show backend error message if available
+        const errorMsg = err.error?.message || 'Failed to modify vehicle.';
+        this.notificationService.show(errorMsg, 'error');
+      }
+    });
   }
 
   closeForm(): void {
     this.cancel.emit();
-  }
-
-  // ----------------------------
-  // Customer popup control
-  // ----------------------------
-
-  openCustomerPopup(): void {
-    this.showCustomerPopup = true;
-  }
-
-  closeCustomerPopup(): void {
-    this.showCustomerPopup = false;
-  }
-
-  // ----------------------------
-  // Receive saved customer from popup
-  // ----------------------------
-
-  onCustomerSaved(customer: Customer): void {
-
-    if (!this.editableVehicle.customers) {
-      this.editableVehicle.customers = [];
-    }
-
-    // add customer to vehicle
-    this.editableVehicle.customers.push(customer);
-
-    // close popup and stay in edit component
-    this.showCustomerPopup = false;
-  }
-  // ----------------------------
-  // Remove customer from list
-  // ----------------------------
-
-  removeCustomer(index: number): void {
-    this.editableVehicle.customers?.splice(index, 1);
   }
 }

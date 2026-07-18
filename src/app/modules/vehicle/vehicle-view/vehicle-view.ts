@@ -1,36 +1,16 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {VehicleEditFormComponent} from '../vehicle-edit-form/vehicle-edit-form';
-import {VehicleViewForm} from '../vehicle-view-form/vehicle-view-form';
 import {FormsModule} from '@angular/forms';
 import {VehicleSummaryProjection} from '../../../dto/response/VehicleSummaryProjection';
 import {AdminService} from '../../../services/admin.service';
-
-export interface Customer {
-  licenseNumber?: string;
-  name: string;
-  contactNumber: string;
-  email?: string;
-  address?: string;
-}
-
-export interface Vehicle {
-  regNo: string;
-  make: string;
-  model: string;
-  year: number;
-  color: string;
-  colorHex: string;
-  mileage: number;
-  status: 'In Service' | 'Awaiting Info' | 'Ready';
-  // 🌟 MAKE SURE THIS LINE IS PRESENT:
-  customers: Customer[];
-}
+import {NotificationService} from '../../../services/notificationService';
+import {VehicleProjection} from '../../../dto/response/VehicleProjection';
 
 @Component({
   selector: 'app-vehicle-view',
   standalone: true,
-  imports: [CommonModule, VehicleEditFormComponent, VehicleViewForm, FormsModule],
+  imports: [CommonModule, VehicleEditFormComponent, FormsModule],
   templateUrl: './vehicle-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './vehicle-view.css',
@@ -51,11 +31,12 @@ export class VehicleView implements OnInit {
   // Modal State Control Properties
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false; // 🌟 Added: Track display overlay visibility for your view form
-  selectedVehicle: Vehicle | null = null;
+  selectedVehicle: VehicleProjection | undefined;
 
   constructor(
     private readonly adminService: AdminService,
-    private readonly cdr: ChangeDetectorRef) {
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notificationService: NotificationService) {
   }
 
   ngOnInit(): void {
@@ -68,24 +49,48 @@ export class VehicleView implements OnInit {
   }
 
 // 🌟 Updated: Finds target data model and pops open the read-only view form layout modal
-  viewVehicle(regNo: string): void {const targetVehicle = this.allVehicles.find(v => v.vehicleRegNo === regNo);
-    if (targetVehicle) {
-      this.isViewModalOpen = true;
-    }
+
+  viewVehicle(id: number): void {
+    console.log('Viewing ID:', id);
+
+    this.adminService.getVehicleById(id).subscribe({
+      next: (response: any) => {
+        this.selectedVehicle = response.data;
+        console.log(response);
+        this.isViewModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load vehicle from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
   }
 
-  editVehicle(regNo: string): void {
-    const targetVehicle = this.allVehicles.find(v => v.vehicleRegNo === regNo);
-    if (targetVehicle) {
-      this.isEditModalOpen = true;
-    }
+  editVehicle(id: number): void {
+    this.adminService.getVehicleById(id).subscribe({
+      next: (response: any) => {
+        this.selectedVehicle = response.data;
+        console.log(response);
+        this.isEditModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load vehicle from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
   }
 
 // 🌟 Updated: Re-set state tracking parameters to dismiss both edit and read-only overlay variants cleanly
   closeModal(): void {
     this.isEditModalOpen = false;
     this.isViewModalOpen = false;
-    this.selectedVehicle = null;
+    this.selectedVehicle = undefined;
   }
 
   onPageSizeChange(event: Event): void {
@@ -153,9 +158,5 @@ export class VehicleView implements OnInit {
         this.cdr.markForCheck();
       }
     });
-  }
-
-  protected onVehicleSaved($event: Vehicle) {
-
   }
 }

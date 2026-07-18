@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Vehicle} from '../vehicle-view/vehicle-view';
+import {VehicleProjection} from '../../../dto/response/VehicleProjection';
 
 @Component({
   selector: 'app-vehicle-view-form',
@@ -11,7 +11,7 @@ import {Vehicle} from '../vehicle-view/vehicle-view';
   styleUrl: './vehicle-view-form.css',
 })
 export class VehicleViewForm {
-  @Input() vehicle!: Vehicle;
+  @Input() vehicle!: VehicleProjection;
   @Output() close = new EventEmitter<void>();
 
   closeForm(): void {

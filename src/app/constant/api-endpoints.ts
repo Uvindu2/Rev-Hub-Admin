@@ -35,5 +35,7 @@ export const API_ENDPOINTS = {
   GET_ALL_TECHNICIANS: (page: number, size: number, sortBy: string, sortDir: string) =>`${API_BASE_URL}/technician/get-all-technicians?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_TECHNICIAN_BY_ID: (id: number) => `${API_BASE_URL}/technician/get-technician-by-technicianId/${id}`,
   SAVE_TECHNICIAN: `${API_BASE_URL}/technician/save`,
-  MODIFY_TECHNICIAN: `${API_BASE_URL}/technician/modify`
+  MODIFY_TECHNICIAN: `${API_BASE_URL}/technician/modify`,
+  GET_VEHICLE_BY_ID: (vehicleId: number) => `${API_BASE_URL}/vehicle/get-vehicle-by-vehicleId/${vehicleId}`,
+  MODIFY_VEHICLE: `${API_BASE_URL}/vehicle/modify`
 };

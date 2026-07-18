@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Customer} from '../modules/vehicle/vehicle-view/vehicle-view';
 import {API_ENDPOINTS} from '../constant/api-endpoints';
 import {VehicleAndCustomerDTO} from '../dto/response/VehicleAndCustomerDTO';
 import {TechnicianNameProjection} from '../dto/response/TechnicianNameProjection';
 import {LaborActivityNameProjection} from '../dto/response/LaborActivityNameProjection';
 import {ItemProjection} from '../dto/response/ItemProjection';
+import {CustomerProjection} from '../dto/response/CustomerProjection';
 
 @Injectable({
   providedIn: 'root'
@@ -16,21 +16,9 @@ export class AdminService {
   constructor(private readonly http: HttpClient) {
   }
 
-  // GET ALL CUSTOMERS
-  getCustomers(): Observable<Customer[]> {
-    return this.http.get<Customer[]>(API_ENDPOINTS.GET_ALL);
-  }
-
   // GET BY DRIVING LICENSE (PATH PARAM)
-  getCustomerByDrivingLicenseNumber(licenseNumber: string): Observable<Customer[]> {
-    return this.http.get<Customer[]>(
-      API_ENDPOINTS.GET_BY_LICENSE(licenseNumber)
-    );
-  }
-
-  // GET BY DRIVING LICENSE (PATH PARAM)
-  getCustomerByContactNumber(contactNumber: string): Observable<Customer[]> {
-    return this.http.get<Customer[]>(
+  getCustomerByContactNumber(contactNumber: string): Observable<CustomerProjection[]> {
+    return this.http.get<CustomerProjection[]>(
       API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber)
     );
   }
@@ -152,5 +140,14 @@ export class AdminService {
   modfiyTechnician(backendPayload: any): Observable<any> {
     // Return standard JSON response object containing code, response, and data
     return this.http.post<any>(API_ENDPOINTS.MODIFY_TECHNICIAN, backendPayload);
+  }
+
+  getVehicleById(id: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_VEHICLE_BY_ID(id));
+  }
+
+  modifyVehicle(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_VEHICLE, backendPayload);
   }
 }
