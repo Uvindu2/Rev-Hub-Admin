@@ -5,6 +5,7 @@ import {InvoiceSummaryProjection} from '../../../dto/InvoiceSummaryProjection';
 import {AdminService} from '../../../services/admin.service';
 import {JobCardForm} from '../../job-card/job-card-form/job-card-form';
 import {ReactiveFormsModule} from '@angular/forms';
+import {NotificationService} from '../../../services/notificationService';
 
 // Define the missing Invoice interface
 interface Invoice {
@@ -41,7 +42,7 @@ export class InvoiceView implements OnInit {
 
   isEditModalOpen: boolean = false;
 
-  constructor(private readonly cdr: ChangeDetectorRef,private readonly adminService: AdminService) {}
+  constructor(private readonly cdr: ChangeDetectorRef,private readonly adminService: AdminService,private readonly notificationService: NotificationService) {}
 
   ngOnInit(): void {
     this.fetchInvoices();
@@ -52,12 +53,60 @@ export class InvoiceView implements OnInit {
     console.log('Searching Invoices for:', inputElement.value);
   }
 
-  viewInvoice(id: number): void {
-    console.log('Viewing invoice:', id);
+  viewInvoice(invoiceId: number): void {
+    const viewerTab = window.open('about:blank', '_blank');
+
+    if (viewerTab) {
+      viewerTab.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:20px;">Loading PDF...</p>');
+    }
+
+    this.adminService.viewInvoice(invoiceId).subscribe({
+      next: (blob: Blob) => {
+        // Create a URL for the binary blob
+        const url = window.URL.createObjectURL(blob);
+
+        if (viewerTab) {
+          viewerTab.location.href = url;
+        }
+
+        // Optional: Clean up memory after 1 minute
+        setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+      },
+      error: (err) => {
+        console.error('Download error:', err);
+        if (viewerTab) viewerTab.close();
+        this.notificationService.show('Error: Unable to load the PDF.', 'error');
+      }
+    });
   }
 
-  printInvoice(id: number): void {
-    console.log('Printing/Downloading invoice:', id);
+// 2. PRINT FUNCTION: Triggers browser print dialog directly
+  printInvoice(invoiceId: number): void {
+    this.adminService.viewInvoice(invoiceId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a hidden iframe to print
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          // Trigger the print dialog
+          iframe.contentWindow?.print();
+
+          // Cleanup after a delay
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+            window.URL.revokeObjectURL(url);
+          }, 1000);
+        };
+      },
+      error: () => {
+        this.notificationService.show('Failed to print invoice', 'error');
+      }
+    });
   }
 
   goToPage(page: number): void {

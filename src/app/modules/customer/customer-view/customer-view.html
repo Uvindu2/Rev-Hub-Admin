@@ -73,3 +73,5 @@
   </div>
 </div>
 </div>
+
+<app-customer-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [customer]="customer" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-customer-view-and-edit>

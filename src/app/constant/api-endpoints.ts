@@ -37,5 +37,8 @@ export const API_ENDPOINTS = {
   SAVE_TECHNICIAN: `${API_BASE_URL}/technician/save`,
   MODIFY_TECHNICIAN: `${API_BASE_URL}/technician/modify`,
   GET_VEHICLE_BY_ID: (vehicleId: number) => `${API_BASE_URL}/vehicle/get-vehicle-by-vehicleId/${vehicleId}`,
-  MODIFY_VEHICLE: `${API_BASE_URL}/vehicle/modify`
+  MODIFY_VEHICLE: `${API_BASE_URL}/vehicle/modify`,
+  MODIFY_CUSTOMER: `${API_BASE_URL}/customer/modify`,
+  GET_CUSTOMER_BY_ID: (customerId: number) => `${API_BASE_URL}/customer/get-customer-by-customerId/${customerId}`,
+  VIEW_INVOICE_BY_ID: (invoiceId: number) => `${API_BASE_URL}/invoice/get-invoice-by-invoiceId/${invoiceId}/pdf`,
 };

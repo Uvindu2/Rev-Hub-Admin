@@ -62,13 +62,13 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let customer of (vehicle?.customers || [])">
+            <tr *ngFor="let customer of (vehicle?.customer || [])">
               <td class="text-white font-medium">{{ customer.customerName }}</td>
               <td class="text-secondary">{{ customer.email }}</td>
             </tr>
 
             <!-- Fallback layout when no customer sub-records exist -->
-            <tr *ngIf="vehicle.customers.length === 0">
+            <tr *ngIf="vehicle.customer.length === 0">
               <td colspan="2" class="table-empty-state">
                 No customer records are linked to this active fleet vehicle profile.
               </td>

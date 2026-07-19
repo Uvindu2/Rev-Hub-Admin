@@ -1,22 +1,16 @@
-import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core'; // Fixed: Added OnInit import
+import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AdminService} from '../../../services/admin.service';
 import {FormsModule} from '@angular/forms';
 import {CustomerSummaryProjection} from '../../../dto/response/CustomerSummaryProjection';
-
-// Fixed: Added missing Customer interface definition
-interface Customer {
-  id: string;
-  name: string;
-  contactNumber: string;
-  email: string;
-  totalJobs: number;
-}
+import {CustomerViewAndEdit} from '../customer-view-and-edit/customer-view-and-edit';
+import {NotificationService} from '../../../services/notificationService';
+import {CustomerProjection} from '../../../dto/response/CustomerProjection';
 
 @Component({
   selector: 'app-customer-view',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Fixed: Added CommonModule for HTML structural directives (*ngFor, *ngIf)
+  imports: [CommonModule, FormsModule, CustomerViewAndEdit],
   templateUrl: './customer-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customer-view.css',
@@ -24,6 +18,7 @@ interface Customer {
 export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   // Master customer dataset compiled from your dashboard entries
   allCustomers: CustomerSummaryProjection[] = [];
+  customer: CustomerProjection | undefined;
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -36,7 +31,14 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   sortByField: string = 'dateAdded';
   sortDirection: string = 'desc';
 
-  constructor(private readonly adminService: AdminService,private readonly cdr: ChangeDetectorRef) {}
+  isEditModalOpen: boolean = false;
+  isViewModalOpen: boolean = false;
+
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notificationService: NotificationService) {
+  }
 
   ngOnInit(): void {
     this.fetchCustomers();
@@ -47,8 +49,39 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
     console.log('Searching Customers for:', inputElement.value);
   }
 
-  viewCustomer(id: number): void { console.log('Viewing customer details profile:', id); }
-  editCustomer(id: number): void { console.log('Editing customer account records:', id); }
+  viewCustomer(customerId: number): void {
+    console.log('Viewing customer details profile:', customerId);
+    this.adminService.getCustomerById(customerId).subscribe({
+      next: (response: any) => {
+        this.customer = response.data;
+        console.log(response);
+        this.isViewModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load job card from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
+  }
+  editCustomer(customerId: number): void {
+    this.adminService.getCustomerById(customerId).subscribe({
+      next: (response: any) => {
+        this.customer = response.data;
+        console.log(response);
+        this.isViewModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        setTimeout(() => {
+          this.notificationService.show('Failed to load job card from server:', 'error');
+          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+        }, 0);
+      }
+    });
+  }
 
   /* Pagination Navigation Controls */
   goToPage(page: number): void {
@@ -117,4 +150,12 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
     this.currentPage = 1;
     this.fetchCustomers(); // fetchCustomers will run cdr.markForCheck() when done
   }
+
+  closeModal(): void {
+    this.isViewModalOpen = false;
+    this.isEditModalOpen = false;
+    this.customer = undefined;
+    this.cdr.markForCheck();
+  }
+
 }

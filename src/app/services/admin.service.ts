@@ -150,4 +150,20 @@ export class AdminService {
     // Return standard JSON response object containing code, response, and data
     return this.http.put<any>(API_ENDPOINTS.MODIFY_VEHICLE, backendPayload);
   }
+
+  modifyCustomer(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_CUSTOMER, backendPayload);
+  }
+
+  getCustomerById(customerId: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_CUSTOMER_BY_ID(customerId));
+  }
+
+  viewInvoice(invoiceId: number): Observable<Blob> {
+    // Use 'blob' to handle binary PDF data
+    return this.http.get(API_ENDPOINTS.VIEW_INVOICE_BY_ID(invoiceId), {
+      responseType: 'blob'
+    });
+  }
 }
