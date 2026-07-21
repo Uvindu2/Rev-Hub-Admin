@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
-import {JobCardForm} from '../job-card-form/job-card-form';
+import JobCardForm from '../job-card-form/job-card-form';
 import {AdminService} from '../../../services/admin.service';
 import {JobCardViewAndEdit} from '../job-card-view-and-edit/job-card-view-and-edit';
 import {NotificationService} from '../../../services/notificationService';

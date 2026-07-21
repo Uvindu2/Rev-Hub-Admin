@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
-import {Customer} from '../../../dto/response/customer/Customer';
 import {VehicleAndCustomerDTO} from '../../../dto/response/VehicleAndCustomerDTO';
 import {CommonModule} from '@angular/common';
 import {MatOptionModule} from '@angular/material/core';
@@ -29,7 +28,7 @@ import {CustomerProjection} from '../../../dto/response/CustomerProjection';
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, FormsModule, CommonModule, MatOptionModule, MultiSelectDropdown]
 })
-export class JobCardForm implements OnInit {
+class JobCardForm implements OnInit {
 
   @Output() cancel = new EventEmitter<void>();
   @ViewChild('dropdownWrapper') dropdownWrapper!: ElementRef;
@@ -57,6 +56,7 @@ export class JobCardForm implements OnInit {
   ngOnInit(): void {
     this.isExistingVehicle = true;
     this.initForm();
+    this.setupFormListeners();
     this.loadItemNames();
     this.loadTechnicianNames();
   }
@@ -81,12 +81,15 @@ export class JobCardForm implements OnInit {
 
   initForm(): void {
     this.jobCardForm = this.fb.group({
+      vehicleRegStatus: ['registered'],
       vehicleSearch: [''],
+      unRegVehicleSearch: [''],
       customerSearch: [''],
       entryMode: ['new'],
 
       // Adding core validations
       vehicleRegNo: ['', Validators.required],
+      vehicleVinNo: ['', Validators.required],
       make: ['', Validators.required],
       model: ['', Validators.required],
       year: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
@@ -122,14 +125,15 @@ export class JobCardForm implements OnInit {
       status: 'PENDING',
       customerComplaintText: formValue.complaint,
       existVehicle: formValue.entryMode === 'existing',
-      customerDTO: {
+      customerSaveRequestDTO: {
         customerName: formValue.customerName,
         email: formValue.email,
         drivingLicenseNumber: formValue.drivingLicenseNumber,
-        contactNumbers: formValue.contactNumber
+        contactNumber: formValue.contactNumber
       },
       vehicleSaveRequestDTO: {
         vehicleRegNo: formValue.vehicleRegNo,
+        vehicleVinNo: formValue.vehicleVinNo,
         vehicleMake: formValue.make,
         vehicleModel: formValue.model,
         vehicleYear: formValue.year,
@@ -140,6 +144,7 @@ export class JobCardForm implements OnInit {
       laborActivitiesSelected: formValue.laborActivitiesSelected || [],
       assignedTechniciansSelected: formValue.assignedTechniciansSelected || []
     };
+
 
     // 3. Dispatch the payload request
     this.adminService.saveJobCardBlobVariant(backendPayload).subscribe({
@@ -218,56 +223,8 @@ export class JobCardForm implements OnInit {
         setTimeout(() => {
           console.log(err);
           this.isExistingCustomer=false
-          this.notificationService.show('No Customer found with that driving license.', 'error');
+          this.notificationService.show('No Customer found with that contact number.', 'error');
           this.cdr.detectChanges();
-        }, 0);
-      }
-    });
-  }
-
-  onVehicleSearchClick(): void {
-    const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value;
-    this.jobCardForm.reset({vehicleSearch: currentSearchValue});
-    const value = this.jobCardForm.get('vehicleSearch')?.value;
-
-    this.adminService.getVehicleAndCustomerByVehicleRegNumber(value).subscribe({
-      next: (res: any) => {
-        this.vehicleAndCustomerDTO = res;
-
-        // Mark as existing vehicle since we found a record
-        this.isExistingVehicle = true;
-
-        this.jobCardForm.patchValue({
-          entryMode: 'existing', // Syncing form state with the search result
-          vehicleRegNo: this.vehicleAndCustomerDTO?.vehicleRegNo,
-          make: this.vehicleAndCustomerDTO?.vehicleMake,
-          model: this.vehicleAndCustomerDTO?.vehicleModel,
-          year: this.vehicleAndCustomerDTO?.vehicleYear,
-          colour: this.vehicleAndCustomerDTO?.colour,
-          otherSpecs: this.vehicleAndCustomerDTO?.otherSpecs,
-          contactNumber: this.vehicleAndCustomerDTO?.contactNumbers,
-          customerName: this.vehicleAndCustomerDTO?.customerName,
-          email: this.vehicleAndCustomerDTO?.email,
-          drivingLicenseNumber: this.vehicleAndCustomerDTO?.drivingLicenseNumber
-        });
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error(err);
-
-        // 1. Reset the form states instantly
-        const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value;
-        this.jobCardForm.reset({
-          vehicleSearch: currentSearchValue,
-          vehicleRegNo: currentSearchValue,
-          entryMode: 'new'
-        });
-        this.isExistingVehicle = false;
-
-        // 2. Defer the notification and explicitly force Angular to draw it
-        setTimeout(() => {
-          this.notificationService.show('No Vehicle or Customer records found.', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
         }, 0);
       }
     });
@@ -295,4 +252,105 @@ export class JobCardForm implements OnInit {
     const control = this.jobCardForm.get(controlName);
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
+
+  private setupFormListeners(): void {
+    this.jobCardForm.get('vehicleRegStatus')?.valueChanges.subscribe((status) => {
+      const currentRegSearch = this.jobCardForm.get('vehicleSearch')?.value?.trim();
+      const currentUnRegSearch = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
+
+      if (status === 'registered') {
+        this.jobCardForm.patchValue({
+          unRegVehicleSearch: '',
+          vehicleRegNo: currentRegSearch || 'N/A',
+          vehicleVinNo: 'N/A',
+          entryMode: 'new'
+        }, { emitEvent: false });
+      } else {
+        this.jobCardForm.patchValue({
+          vehicleSearch: '',
+          vehicleRegNo: 'N/A',
+          vehicleVinNo: currentUnRegSearch || 'N/A',
+          entryMode: 'new'
+        }, { emitEvent: false });
+      }
+      this.isExistingVehicle = false;
+    });
+  }
+
+  onVehicleSearchClick(): void {
+    const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value?.trim();
+    if (!currentSearchValue) return;
+
+    this.adminService.getVehicleAndCustomerByVehicleRegNumber(currentSearchValue).subscribe({
+      next: (res: any) => {
+        this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
+      },
+      error: (err) => {
+        console.error(err);
+        this.handleVehicleLookupError(currentSearchValue, 'registered');
+      }
+    });
+  }
+
+  onUnRegVehicleSearchClick(): void {
+    const currentSearchValue = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
+    if (!currentSearchValue) return;
+
+    this.adminService.getVehicleAndCustomerByVehicleVinNumber(currentSearchValue).subscribe({
+      next: (res: any) => {
+        this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');
+      },
+      error: (err) => {
+        console.error(err);
+        this.handleVehicleLookupError(currentSearchValue, 'unregistered');
+      }
+    });
+  }
+
+  private handleVehicleLookupSuccess(res: any, searchValue: string, status: string): void {
+    this.vehicleAndCustomerDTO = res;
+    this.isExistingVehicle = true;
+
+    this.jobCardForm.patchValue({
+      entryMode: 'existing',
+      vehicleRegNo: status === 'registered' ? searchValue : (this.vehicleAndCustomerDTO?.vehicleRegNo || 'N/A'),
+      vehicleVinNo: status === 'unregistered' ? searchValue : (this.vehicleAndCustomerDTO?.vehicleVinNo || 'N/A'),
+      make: this.vehicleAndCustomerDTO?.vehicleMake || '',
+      model: this.vehicleAndCustomerDTO?.vehicleModel || '',
+      year: this.vehicleAndCustomerDTO?.vehicleYear || '',
+      colour: this.vehicleAndCustomerDTO?.colour || '',
+      otherSpecs: this.vehicleAndCustomerDTO?.otherSpecs || '',
+      contactNumber: this.vehicleAndCustomerDTO?.contactNumbers || '',
+      customerName: this.vehicleAndCustomerDTO?.customerName || '',
+      email: this.vehicleAndCustomerDTO?.email || '',
+      drivingLicenseNumber: this.vehicleAndCustomerDTO?.drivingLicenseNumber || ''
+    });
+    this.cdr.detectChanges();
+  }
+
+  private handleVehicleLookupError(searchValue: string, status: string): void {
+    this.isExistingVehicle = false;
+
+    this.jobCardForm.patchValue({
+      entryMode: 'new',
+      vehicleRegNo: status === 'registered' ? searchValue : 'N/A',
+      vehicleVinNo: status === 'unregistered' ? searchValue : 'N/A',
+      make: '',
+      model: '',
+      year: '',
+      colour: '',
+      otherSpecs: '',
+      contactNumber: '',
+      customerName: '',
+      email: '',
+      drivingLicenseNumber: ''
+    });
+
+    setTimeout(() => {
+      this.notificationService.show('No Vehicle or Customer records found.', 'error');
+      this.cdr.detectChanges();
+    }, 0);
+  }
 }
+
+export default JobCardForm

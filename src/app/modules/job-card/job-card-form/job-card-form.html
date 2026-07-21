@@ -11,8 +11,29 @@
 
         <section class="form-section">
           <h3>1. VEHICLE ENTRY TYPE</h3>
+          <!-- NEW: Registered / Unregistered Selection Dropdown -->
+          <div class="form-group">
+            <label>Vehicle Registration Status <span class="required">*</span></label>
+            <div class="custom-dropdown-container">
+              <div class="dropdown-input-wrapper">
+                <select formControlName="vehicleRegStatus" class="dropdown-search-input">
+                  <option value="registered" selected>Registered Vehicle</option>
+                  <option value="unregistered">Unregistered Vehicle</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-          <div class="form-group search-transition">
+          <!-- 2. The Conditional Search Box (Appears only when 'unregistered' is selected) -->
+          <div class="form-group search-transition" *ngIf="jobCardForm.get('vehicleRegStatus')?.value === 'unregistered'">
+            <label>Search Vehicle:</label>
+            <div class="search-input-wrapper">
+              <input type="text" formControlName="unRegVehicleSearch" placeholder="Type Vehicle Vin No...">
+              <i class="search-icon-job" (click)="onUnRegVehicleSearchClick()">🔍</i>
+            </div>
+          </div>
+
+          <div class="form-group search-transition" *ngIf="jobCardForm.get('vehicleRegStatus')?.value === 'registered'">
             <label>Search Vehicle:</label>
             <div class="search-input-wrapper">
               <input type="text" formControlName="vehicleSearch" placeholder="Type Vehicle Reg No...">
@@ -29,6 +50,12 @@
               <label>Vehicle Reg No. <span class="required">*</span></label>
               <input type="text" formControlName="vehicleRegNo" placeholder="CBN-9081" readonly>
               <div *ngIf="isInvalid('vehicleRegNo')" class="error-msg">Vehicle registration number is required.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Vin No. <span class="required">*</span></label>
+              <input type="text" formControlName="vehicleVinNo" placeholder="85685689081" readonly>
+              <div *ngIf="isInvalid('vehicleVinNo')" class="error-msg">Vehicle vin number is required.</div>
             </div>
 
             <div class="form-group">

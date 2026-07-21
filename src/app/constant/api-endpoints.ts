@@ -41,4 +41,5 @@ export const API_ENDPOINTS = {
   MODIFY_CUSTOMER: `${API_BASE_URL}/customer/modify`,
   GET_CUSTOMER_BY_ID: (customerId: number) => `${API_BASE_URL}/customer/get-customer-by-customerId/${customerId}`,
   VIEW_INVOICE_BY_ID: (invoiceId: number) => `${API_BASE_URL}/invoice/get-invoice-by-invoiceId/${invoiceId}/pdf`,
+  GET_BY_VEHICLE_VIN_NUMBER: (vehicleVinNumber: string) => `${API_BASE_URL}/vehicle/get-vehicle-and-customer-by-vehicle-vin-number/${vehicleVinNumber}`,
 };

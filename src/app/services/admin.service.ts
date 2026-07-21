@@ -23,7 +23,6 @@ export class AdminService {
     );
   }
 
-  // GET BY DRIVING LICENSE (PATH PARAM)
   getVehicleAndCustomerByVehicleRegNumber(vehicleRegNumber: string): Observable<VehicleAndCustomerDTO[]> {
     return this.http.get<VehicleAndCustomerDTO[]>(
       API_ENDPOINTS.GET_BY_VEHICLE_REG_NUMBER(vehicleRegNumber)
@@ -165,5 +164,10 @@ export class AdminService {
     return this.http.get(API_ENDPOINTS.VIEW_INVOICE_BY_ID(invoiceId), {
       responseType: 'blob'
     });
+  }
+  getVehicleAndCustomerByVehicleVinNumber(vehicleVinNumber: string): Observable<VehicleAndCustomerDTO[]> {
+    return this.http.get<VehicleAndCustomerDTO[]>(
+      API_ENDPOINTS.GET_BY_VEHICLE_VIN_NUMBER(vehicleVinNumber)
+    );
   }
 }

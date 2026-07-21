@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import {InvoiceForm} from '../invoice-form/invoice-form';
 import {InvoiceSummaryProjection} from '../../../dto/InvoiceSummaryProjection';
 import {AdminService} from '../../../services/admin.service';
-import {JobCardForm} from '../../job-card/job-card-form/job-card-form';
+import JobCardForm from '../../job-card/job-card-form/job-card-form';
 import {ReactiveFormsModule} from '@angular/forms';
 import {NotificationService} from '../../../services/notificationService';
 

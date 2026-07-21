@@ -2,6 +2,8 @@ export interface VehicleAndCustomerDTO {
 
   vehicleRegNo: string;
 
+  vehicleVinNo: string;
+
   vehicleMake: string;
 
   vehicleModel: string;
