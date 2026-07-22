@@ -4,7 +4,7 @@ import {InvoiceForm} from '../invoice-form/invoice-form';
 import {InvoiceSummaryProjection} from '../../../dto/InvoiceSummaryProjection';
 import {AdminService} from '../../../services/admin.service';
 import JobCardForm from '../../job-card/job-card-form/job-card-form';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NotificationService} from '../../../services/notificationService';
 
 // Define the missing Invoice interface
@@ -20,7 +20,7 @@ interface Invoice {
 @Component({
   selector: 'app-invoice-view',
   standalone: true,
-  imports: [CommonModule, InvoiceForm, ReactiveFormsModule],
+  imports: [CommonModule, InvoiceForm, ReactiveFormsModule, FormsModule],
   templateUrl: './invoice-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './invoice-view.css',
@@ -28,6 +28,17 @@ interface Invoice {
 export class InvoiceView implements OnInit {
   // Mock data mirroring the All Invoices table
   invoices: InvoiceSummaryProjection[] = [];
+
+  // Filter Bindings
+  searchTerm: string = '';
+  selectedVehicle: string = '';
+  selectedTechnician: string = '';
+  selectedStatus: string = '';
+  dateFrom: string = '';
+  dateTo: string = '';
+
+  availableVehicles: string[] = ['CAH-1331', 'CAH-1231'];
+  availableTechnicians: string[] = ['Sarah Connor', 'Alex Smith', 'David Miller'];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -175,4 +186,34 @@ export class InvoiceView implements OnInit {
     this.currentPage = 1;
     this.fetchInvoices(); // fetchJobCards will run cdr.markForCheck() when done
   }
+
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchTerm = target.value;
+  }
+
+  onApplyFilters(): void {
+    console.log('Applying filters:', {
+      search: this.searchTerm,
+      vehicle: this.selectedVehicle,
+      technician: this.selectedTechnician,
+      status: this.selectedStatus,
+      dateFrom: this.dateFrom,
+      dateTo: this.dateTo
+    });
+    this.currentPage = 1;
+    this.fetchInvoices();
+  }
+
+  onResetFilters(): void {
+    this.searchTerm = '';
+    this.selectedVehicle = '';
+    this.selectedTechnician = '';
+    this.selectedStatus = '';
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.currentPage = 1;
+    this.fetchInvoices();
+  }
+
 }

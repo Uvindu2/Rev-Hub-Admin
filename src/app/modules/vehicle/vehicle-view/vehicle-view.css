@@ -1,1 +1,8 @@
 
+.search-icon {
+  position: absolute;
+  left: 90%;
+  color: #757575;
+  font-size: 0.85rem;
+  pointer-events: none;
+}

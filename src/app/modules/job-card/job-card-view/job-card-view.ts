@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import JobCardForm from '../job-card-form/job-card-form';
 import {AdminService} from '../../../services/admin.service';
@@ -9,7 +9,7 @@ import {NotificationService} from '../../../services/notificationService';
 @Component({
   selector: 'app-job-card-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, JobCardForm, JobCardViewAndEdit],
+  imports: [CommonModule, ReactiveFormsModule, JobCardForm, JobCardViewAndEdit, FormsModule],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush // Explicitly managing manual renders
@@ -18,6 +18,17 @@ export class JobCardView implements OnInit {
 
   jobCards: JobCardProjection[] = [];
   jobCard: JobCardProjection | undefined;
+
+  // Filter Bindings
+  searchTerm: string = '';
+  selectedVehicle: string = '';
+  selectedTechnician: string = '';
+  selectedStatus: string = '';
+  dateFrom: string = '';
+  dateTo: string = '';
+
+  availableVehicles: string[] = ['CAH-1331', 'CAH-1231'];
+  availableTechnicians: string[] = ['Sarah Connor', 'Alex Smith', 'David Miller'];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -168,5 +179,34 @@ export class JobCardView implements OnInit {
 
   deleteJob(id: number): void {
     console.log('Deleting ID:', id);
+  }
+
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchTerm = target.value;
+  }
+
+  onApplyFilters(): void {
+    console.log('Applying filters:', {
+      search: this.searchTerm,
+      vehicle: this.selectedVehicle,
+      technician: this.selectedTechnician,
+      status: this.selectedStatus,
+      dateFrom: this.dateFrom,
+      dateTo: this.dateTo
+    });
+    this.currentPage = 1;
+    this.fetchJobCards();
+  }
+
+  onResetFilters(): void {
+    this.searchTerm = '';
+    this.selectedVehicle = '';
+    this.selectedTechnician = '';
+    this.selectedStatus = '';
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.currentPage = 1;
+    this.fetchJobCards();
   }
 }

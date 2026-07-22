@@ -1,18 +1,94 @@
 <div class="page-header">
   <div class="card-container">
+        <!-- Search & Filter Card Section -->
+        <div class="filter-card-section">
+          <div class="filter-card-header">
+            <div class="filter-title-wrapper">
+              <span class="filter-title-icon">🔍</span>
+              <h3>Search & Filter</h3>
+            </div>
 
-    <div class="table-header">
-      <div class="actions-right">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search Job Cards..." (input)="onSearch($event)">
+            <button class="btn-add" type="button" (click)="onAddJobCard()">
+              <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
+            </button>
+          </div>
+
+          <!-- Filter Inputs Grid Row 1 -->
+          <div class="filter-grid-row">
+
+            <!-- Search Field -->
+            <div class="filter-group">
+              <label>Search Job Card / Customer / Vehicle</label>
+              <div class="search-box full-width-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (input)="onSearchInput($event)">
+              </div>
+            </div>
+
+            <!-- Vehicle Dropdown Filter -->
+            <div class="filter-group">
+              <label>Vehicle</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="selectedVehicle">
+                  <option value="">All Vehicles</option>
+                  <option *ngFor="let vehicle of availableVehicles" [value]="vehicle">{{ vehicle }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Technician Dropdown Filter -->
+            <div class="filter-group">
+              <label>Technician</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="selectedTechnician">
+                  <option value="">All Technicians</option>
+                  <option *ngFor="let tech of availableTechnicians" [value]="tech">{{ tech }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Status Dropdown Filter -->
+            <div class="filter-group">
+              <label>Status</label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="selectedStatus">
+                  <option value="">All Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Filter Inputs Grid Row 2 (Dates & Action Triggers) -->
+          <div class="filter-grid-row filter-row-bottom">
+
+            <!-- Date From -->
+            <div class="filter-group">
+              <label>Date From</label>
+              <input type="date" [(ngModel)]="dateFrom">
+            </div>
+
+            <!-- Date To -->
+            <div class="filter-group">
+              <label>Date To</label>
+              <input type="date" [(ngModel)]="dateTo">
+            </div>
+
+            <!-- Reset & Search Trigger Buttons -->
+            <div class="filter-actions-group">
+              <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
+                🔄 RESET
+              </button>
+              <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
+                🔍 SEARCH
+              </button>
+            </div>
+
+          </div>
         </div>
-
-        <button class="btn-add" type="button" (click)="onAddJobCard()">
-          <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
-        </button>
-      </div>
-    </div>
 
     <div class="table-responsive">
       <table class="custom-table">

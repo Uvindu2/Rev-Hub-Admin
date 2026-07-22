@@ -24,6 +24,10 @@ export class VehicleView implements OnInit {
   totalPagesCount: number = 0;
   pageSizes: number[] = [5, 10, 20, 50];
 
+  // Filter Bindings
+  searchTerm: string = '';
+  availableVehicles: string[] = ['CAH-1331', 'CAH-1231'];
+
   // Sorting Rules configuration
   sortByField: string = 'dateAdded';
   sortDirection: string = 'desc';
@@ -158,5 +162,25 @@ export class VehicleView implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchTerm = target.value;
+  }
+
+  onApplyFilters(): void {
+    console.log('Applying filters:', {
+      search: this.searchTerm,
+      vehicle: this.selectedVehicle,
+    });
+    this.currentPage = 1;
+    this.fetchVehicles();
+  }
+
+  onResetFilters(): void {
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.fetchVehicles();
   }
 }
