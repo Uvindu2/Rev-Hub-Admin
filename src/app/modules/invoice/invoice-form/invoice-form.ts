@@ -50,7 +50,7 @@ export class InvoiceForm implements OnInit {
       paymentMethod: ['Cash', Validators.required],
       jobCardSearch: ['', Validators.required],
       additionalFees: [1500, [Validators.required, Validators.min(0)]],
-      status: ['FINALIZED']
+      status: ['PAID']
     });
   }
 
@@ -233,7 +233,7 @@ export class InvoiceForm implements OnInit {
       paymentMethod: 'Cash',
       jobCardSearch: '',
       additionalFees: 1500,
-      status: 'FINALIZED'
+      status: 'PENDING'
     });
     this.laborActivities.clear();
     this.selectedLaborIndex = 0;

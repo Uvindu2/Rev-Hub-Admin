@@ -1,10 +1,12 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {CommonModule} from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import JobCardForm from '../job-card-form/job-card-form';
-import {AdminService} from '../../../services/admin.service';
-import {JobCardViewAndEdit} from '../job-card-view-and-edit/job-card-view-and-edit';
-import {NotificationService} from '../../../services/notificationService';
+import { AdminService } from '../../../services/admin.service';
+import { JobCardViewAndEdit } from '../job-card-view-and-edit/job-card-view-and-edit';
+import { NotificationService } from '../../../services/notificationService';
+import {JobCardSummaryResponseDTO} from '../../../dto/response/JobCardSummaryResponseDTO';
+import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
 
 @Component({
   selector: 'app-job-card-view',
@@ -12,23 +14,17 @@ import {NotificationService} from '../../../services/notificationService';
   imports: [CommonModule, ReactiveFormsModule, JobCardForm, JobCardViewAndEdit, FormsModule],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
-  changeDetection: ChangeDetectionStrategy.OnPush // Explicitly managing manual renders
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JobCardView implements OnInit {
 
-  jobCards: JobCardProjection[] = [];
-  jobCard: JobCardProjection | undefined;
+  jobCards: any[] = [];
+  jobCard: any | undefined;
 
-  // Filter Bindings
-  searchTerm: string = '';
-  selectedVehicle: string = '';
-  selectedTechnician: string = '';
-  selectedStatus: string = '';
-  dateFrom: string = '';
-  dateTo: string = '';
+  // BEST PRACTICE: Unified Reactive Form Group for filters
+  filterForm!: FormGroup;
 
-  availableVehicles: string[] = ['CAH-1331', 'CAH-1231'];
-  availableTechnicians: string[] = ['Sarah Connor', 'Alex Smith', 'David Miller'];
+  availableVehicles: string[] = [];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -37,44 +33,72 @@ export class JobCardView implements OnInit {
   totalPagesCount: number = 0;
   pageSizes: number[] = [5, 10, 20, 50];
 
-  // Sorting Rules configuration
-  sortByField: string = 'dateAdded';
-  sortDirection: string = 'desc';
-
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  technicianNameProjection: TechnicianNameProjection[] = [];
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
-    private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
+    private readonly cdr: ChangeDetectorRef,
     private readonly notificationService: NotificationService
   ) {
+    this.initFilterForm();
   }
 
   ngOnInit(): void {
+    this.fetchVehicleRegNos();
+    this.loadTechnicianNames();
     this.fetchJobCards();
+  }
+
+  // Initialize form controls matching your backend search request DTO
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      search: [''],
+      vehicle: [''],
+      technicianId: [''],
+      status: [''],
+      dateFrom: [''],
+      dateTo: ['']
+    });
   }
 
   fetchJobCards(): void {
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getJobCardsPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    // Extract values directly from the form group
+    const formValues = this.filterForm.value;
+
+    // Send POST request with body parameters and query parameters for pagination
+    this.adminService.searchJobCards(formValues, backendPage, this.pageSize, 'jobId', 'desc').subscribe({
       next: (response: any) => {
         console.log(response);
+
+        // Extract page data safely from response.data or response fallback
+        let pageData = response?.data || response;
+
         // Stage updates in local variables first to prevent layout thrashing
-        let updatedJobCards: JobCardProjection[] = [];
+        let updatedJobCards: JobCardSummaryResponseDTO[] = [];
         let updatedTotalElements = 0;
         let updatedTotalPagesCount = 0;
 
-        if (response?.content !== undefined) {
-          updatedJobCards = response.content || [];
-          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
-          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
-        } else if (Array.isArray(response)) {
-          updatedJobCards = response;
-          updatedTotalElements = response.length;
-          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+        if (pageData?.content !== undefined) {
+          updatedJobCards = pageData.content || [];
+
+          // Handle various Spring Data Page or custom wrapper response formats safely
+          if (pageData.page) {
+            updatedTotalElements = pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
+            updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
+          } else {
+            updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
+            updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+          }
+        } else if (Array.isArray(pageData)) {
+          updatedJobCards = pageData;
+          updatedTotalElements = pageData.length;
+          updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
         }
 
         // Apply properties all at once
@@ -95,11 +119,29 @@ export class JobCardView implements OnInit {
     });
   }
 
+  onApplyFilters(): void {
+    this.currentPage = 1; // Reset to page 1 on new filter execution
+    this.fetchJobCards();
+  }
+
+  onResetFilters(): void {
+    this.filterForm.reset({
+      search: '',
+      vehicle: '',
+      technician: '',
+      status: '',
+      dateFrom: '',
+      dateTo: ''
+    });
+    this.currentPage = 1;
+    this.fetchJobCards();
+  }
+
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.pageSize = Number(select.value);
     this.currentPage = 1;
-    this.fetchJobCards(); // fetchJobCards will run cdr.markForCheck() when done
+    this.fetchJobCards();
   }
 
   goToPage(page: number): void {
@@ -123,7 +165,6 @@ export class JobCardView implements OnInit {
     }
   }
 
-  // Local action triggers require instant local checks
   onAddJobCard(): void {
     this.isAddModalOpen = true;
     this.cdr.markForCheck();
@@ -137,25 +178,16 @@ export class JobCardView implements OnInit {
     this.cdr.markForCheck();
   }
 
-  onSearch(event: Event): void {
-    console.log('Searching...');
-  }
-
   viewJob(id: number): void {
-    console.log('Viewing ID:', id);
-
     this.adminService.getJobCardById(id).subscribe({
       next: (response: any) => {
         this.jobCard = response.data;
-        console.log(response);
         this.isViewModalOpen = true;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load job card from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
+      error: () => {
+        this.notificationService.show('Failed to load job card details', 'error');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -164,15 +196,12 @@ export class JobCardView implements OnInit {
     this.adminService.getJobCardById(id).subscribe({
       next: (response: any) => {
         this.jobCard = response.data;
-        console.log(response);
         this.isEditModalOpen = true;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load job card from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
+      error: () => {
+        this.notificationService.show('Failed to load job card details', 'error');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -181,32 +210,34 @@ export class JobCardView implements OnInit {
     console.log('Deleting ID:', id);
   }
 
-  onSearchInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm = target.value;
-  }
+  private fetchVehicleRegNos(): void {
+    this.adminService.getAllVehicleRegNos().subscribe({
+      next: (response: any) => {
+        // Handle standard response wrapper (e.g., response.data or direct array)
+        const regNos = response?.data || response;
 
-  onApplyFilters(): void {
-    console.log('Applying filters:', {
-      search: this.searchTerm,
-      vehicle: this.selectedVehicle,
-      technician: this.selectedTechnician,
-      status: this.selectedStatus,
-      dateFrom: this.dateFrom,
-      dateTo: this.dateTo
+        if (Array.isArray(regNos)) {
+          this.availableVehicles = regNos;
+        } else {
+          this.availableVehicles = [];
+        }
+
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load vehicle registration numbers:', err);
+        this.availableVehicles = [];
+        this.cdr.markForCheck();
+      }
     });
-    this.currentPage = 1;
-    this.fetchJobCards();
   }
 
-  onResetFilters(): void {
-    this.searchTerm = '';
-    this.selectedVehicle = '';
-    this.selectedTechnician = '';
-    this.selectedStatus = '';
-    this.dateFrom = '';
-    this.dateTo = '';
-    this.currentPage = 1;
-    this.fetchJobCards();
+  loadTechnicianNames(): void {
+    this.adminService.getTechnicianNames().subscribe({
+      next: (res: TechnicianNameProjection[]) => {
+        this.technicianNameProjection = res;
+      },
+      error: (err: any) => console.error(err)
+    });
   }
 }

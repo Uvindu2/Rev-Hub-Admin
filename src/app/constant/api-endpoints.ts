@@ -42,4 +42,9 @@ export const API_ENDPOINTS = {
   GET_CUSTOMER_BY_ID: (customerId: number) => `${API_BASE_URL}/customer/get-customer-by-customerId/${customerId}`,
   VIEW_INVOICE_BY_ID: (invoiceId: number) => `${API_BASE_URL}/invoice/get-invoice-by-invoiceId/${invoiceId}/pdf`,
   GET_BY_VEHICLE_VIN_NUMBER: (vehicleVinNumber: string) => `${API_BASE_URL}/vehicle/get-vehicle-and-customer-by-vehicle-vin-number/${vehicleVinNumber}`,
+  SEARCH_JOB_CARDS: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/job-card/search?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
+  SEARCH_INVOICES: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/invoice/search?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
+  GET_ALL_VEHICLE_REG_NOS: `${API_BASE_URL}/vehicle/get-all-vehicle-reg-nos`,
 };

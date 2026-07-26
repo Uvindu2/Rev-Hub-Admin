@@ -1,5 +1,6 @@
 <div class="page-header">
-  <div class="card-container">
+  <div class="card-container" [formGroup]="filterForm">
+
     <!-- Search & Filter Card Section -->
     <div class="filter-card-section">
       <div class="filter-card-header">
@@ -9,7 +10,7 @@
         </div>
 
         <button class="btn-add" type="button" (click)="onAddInvoice()">
-          <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
+          <span class="icon-plus" aria-hidden="true">+</span> ADD INVOICE
         </button>
       </div>
 
@@ -21,7 +22,7 @@
           <label>Search Job ID / Invoice Id</label>
           <div class="search-box full-width-search">
             <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (input)="onSearchInput($event)">
+            <input type="text" placeholder="Search..." formControlName="search">
           </div>
         </div>
 
@@ -29,11 +30,10 @@
         <div class="filter-group">
           <label>Payment Status</label>
           <div class="select-wrapper">
-            <select [(ngModel)]="selectedStatus">
+            <select formControlName="paymentStatus">
               <option value="">All Status</option>
+              <option value="Paid">Paid</option>
               <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
             </select>
           </div>
         </div>
@@ -41,22 +41,19 @@
         <!-- Date From -->
         <div class="filter-group">
           <label>Date From</label>
-          <input type="date" [(ngModel)]="dateFrom">
+          <input type="date" formControlName="dateFrom">
         </div>
 
         <!-- Date To -->
         <div class="filter-group">
           <label>Date To</label>
-          <input type="date" [(ngModel)]="dateTo">
+          <input type="date" formControlName="dateTo">
         </div>
-
 
       </div>
 
-      <!-- Filter Inputs Grid Row 2 (Dates & Action Triggers) -->
+      <!-- Filter Inputs Grid Row 2 (Action Triggers) -->
       <div class="filter-grid-row filter-row-bottom">
-
-        <!-- Reset & Search Trigger Buttons -->
         <div class="filter-actions-group">
           <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
             🔄 RESET
@@ -65,10 +62,10 @@
             🔍 SEARCH
           </button>
         </div>
-
       </div>
     </div>
 
+    <!-- Table Section -->
     <div class="table-responsive">
       <table class="custom-table">
         <thead>
@@ -83,12 +80,17 @@
         </tr>
         </thead>
         <tbody>
+        <tr *ngIf="!invoices || invoices.length === 0">
+          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+            No invoices found matching current filter parameters.
+          </td>
+        </tr>
         <tr *ngFor="let invoice of invoices">
-          <td class="font-semibold">{{ invoice.invoiceId }}</td>
-          <td>{{ invoice.jobId }}</td>
+          <td class="font-semibold">{{ invoice.invoiceNumber }}</td>
+          <td>{{ invoice.jobCardNumber }}</td>
           <td>{{ invoice.customerName }}</td>
           <td class="font-numeric">Rs. {{ invoice.grandTotal | number:'1.2-2' }}</td>
-          <td>{{ invoice.invoiceId }}</td>
+          <td>{{ invoice.invoiceDate | date:'dd MMM yyyy' }}</td>
           <td>
             <span class="badge" [ngClass]="{
               'badge-paid': invoice.status === 'Paid',
@@ -110,14 +112,13 @@
       </table>
     </div>
 
+    <!-- Footer Summary & Pagination -->
     <div class="table-footer-summary custom-footer-layout">
-
       <div class="record-counter left-counter-anchor">
         Showing {{ invoices?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
       </div>
 
       <div class="pagination-group-wrapper right-controls-group">
-
         <div class="select-box footer-select">
           <label>Show:</label>
           <select (change)="onPageSizeChange($event)" [value]="pageSize">
@@ -136,9 +137,9 @@
           <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
           <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
         </div>
-
       </div>
     </div>
   </div>
 </div>
+
 <app-invoice-form *ngIf="isEditModalOpen" (cancel)="closeModal()"></app-invoice-form>

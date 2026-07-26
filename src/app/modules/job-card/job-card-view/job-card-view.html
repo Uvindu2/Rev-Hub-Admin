@@ -1,95 +1,97 @@
 <div class="page-header">
-  <div class="card-container">
-        <!-- Search & Filter Card Section -->
-        <div class="filter-card-section">
-          <div class="filter-card-header">
-            <div class="filter-title-wrapper">
-              <span class="filter-title-icon">🔍</span>
-              <h3>Search & Filter</h3>
-            </div>
+  <div class="card-container" [formGroup]="filterForm">
 
-            <button class="btn-add" type="button" (click)="onAddJobCard()">
-              <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
-            </button>
-          </div>
+    <!-- Search & Filter Card Section -->
+    <div class="filter-card-section">
+      <div class="filter-card-header">
+        <div class="filter-title-wrapper">
+          <span class="filter-title-icon">🔍</span>
+          <h3>Search & Filter</h3>
+        </div>
 
-          <!-- Filter Inputs Grid Row 1 -->
-          <div class="filter-grid-row">
+        <button class="btn-add" type="button" (click)="onAddJobCard()">
+          <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
+        </button>
+      </div>
 
-            <!-- Search Field -->
-            <div class="filter-group">
-              <label>Search Job Card / Customer / Vehicle</label>
-              <div class="search-box full-width-search">
-                <span class="search-icon">🔍</span>
-                <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (input)="onSearchInput($event)">
-              </div>
-            </div>
+      <!-- Filter Inputs Grid Row 1 -->
+      <div class="filter-grid-row">
 
-            <!-- Vehicle Dropdown Filter -->
-            <div class="filter-group">
-              <label>Vehicle</label>
-              <div class="select-wrapper">
-                <select [(ngModel)]="selectedVehicle">
-                  <option value="">All Vehicles</option>
-                  <option *ngFor="let vehicle of availableVehicles" [value]="vehicle">{{ vehicle }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Technician Dropdown Filter -->
-            <div class="filter-group">
-              <label>Technician</label>
-              <div class="select-wrapper">
-                <select [(ngModel)]="selectedTechnician">
-                  <option value="">All Technicians</option>
-                  <option *ngFor="let tech of availableTechnicians" [value]="tech">{{ tech }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Status Dropdown Filter -->
-            <div class="filter-group">
-              <label>Status</label>
-              <div class="select-wrapper">
-                <select [(ngModel)]="selectedStatus">
-                  <option value="">All Status</option>
-                  <option value="Pending">Pending</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Filter Inputs Grid Row 2 (Dates & Action Triggers) -->
-          <div class="filter-grid-row filter-row-bottom">
-
-            <!-- Date From -->
-            <div class="filter-group">
-              <label>Date From</label>
-              <input type="date" [(ngModel)]="dateFrom">
-            </div>
-
-            <!-- Date To -->
-            <div class="filter-group">
-              <label>Date To</label>
-              <input type="date" [(ngModel)]="dateTo">
-            </div>
-
-            <!-- Reset & Search Trigger Buttons -->
-            <div class="filter-actions-group">
-              <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
-                🔄 RESET
-              </button>
-              <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
-                🔍 SEARCH
-              </button>
-            </div>
-
+        <!-- Search Field -->
+        <div class="filter-group">
+          <label>Search Job Card</label>
+          <div class="search-box full-width-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search..." formControlName="search">
           </div>
         </div>
 
+        <!-- Vehicle Dropdown Filter -->
+        <div class="filter-group">
+          <label>Vehicle</label>
+          <div class="select-wrapper">
+            <select formControlName="vehicle">
+              <option value="">All Vehicles</option>
+              <option *ngFor="let vehicle of availableVehicles" [value]="vehicle">{{ vehicle }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Technician Dropdown Filter -->
+        <div class="filter-group">
+          <label>Technician</label>
+          <div class="select-wrapper">
+            <select formControlName="technicianId">
+              <option value="">All Technicians</option>
+              <option *ngFor="let technician of technicianNameProjection" [value]="technician.technicianId">{{ technician.technicianName }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Status Dropdown Filter -->
+        <div class="filter-group">
+          <label>Status</label>
+          <div class="select-wrapper">
+            <select formControlName="status">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Rejected">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Filter Inputs Grid Row 2 (Dates & Action Triggers) -->
+      <div class="filter-grid-row filter-row-bottom">
+
+        <!-- Date From -->
+        <div class="filter-group">
+          <label>Date From</label>
+          <input type="date" formControlName="dateFrom">
+        </div>
+
+        <!-- Date To -->
+        <div class="filter-group">
+          <label>Date To</label>
+          <input type="date" formControlName="dateTo">
+        </div>
+
+        <!-- Reset & Search Trigger Buttons -->
+        <div class="filter-actions-group">
+          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
+            🔄 RESET
+          </button>
+          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
+            🔍 SEARCH
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Table Section -->
     <div class="table-responsive">
       <table class="custom-table">
         <thead>
@@ -111,9 +113,9 @@
         </tr>
         <tr *ngFor="let job of jobCards">
           <td class="font-semibold">JC-{{ job.jobId }}</td>
-          <td>{{ job.vehicle?.customer?.customerName }}</td>
-          <td class="text-uppercase">{{ job.vehicle?.vehicleRegNo }}</td>
-          <td>{{ job.dateAdded | date:'dd MMM yyyy' }}</td>
+          <td>{{ job.customerName }}</td>
+          <td class="text-uppercase">{{ job.vehicleRegNumber }}</td>
+          <td>{{ job.createdDate | date:'dd MMM yyyy' }}</td>
           <td>
               <span class="badge" [ngClass]="{
                 'badge-progress': job.status === 'In Progress',
@@ -123,11 +125,7 @@
                 {{ job.status }}
               </span>
           </td>
-          <td>
-              <span *ngFor="let tech of job.technician; let last = last">
-                {{ tech.technicianName }}{{ !last ? ', ' : '' }}
-              </span>
-          </td>
+          <td>{{ job.technicianName }}</td>
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewJob(job.jobId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editJob(job.jobId)">✏️</button>
@@ -138,14 +136,13 @@
       </table>
     </div>
 
+    <!-- Footer Summary & Pagination -->
     <div class="table-footer-summary custom-footer-layout">
-
       <div class="record-counter left-counter-anchor">
         Showing {{ jobCards?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
       </div>
 
       <div class="pagination-group-wrapper right-controls-group">
-
         <div class="select-box footer-select">
           <label>Show:</label>
           <select (change)="onPageSizeChange($event)" [value]="pageSize">
@@ -164,7 +161,6 @@
           <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
           <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
         </div>
-
       </div>
     </div>
 
@@ -172,5 +168,4 @@
 </div>
 
 <app-job-card-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-job-card-form>
-
 <app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-job-card-view-and-edit>

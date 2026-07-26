@@ -170,4 +170,22 @@ export class AdminService {
       API_ENDPOINTS.GET_BY_VEHICLE_VIN_NUMBER(vehicleVinNumber)
     );
   }
+
+  searchJobCards(formValues: any, page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+    return this.http.post<any>(
+      API_ENDPOINTS.SEARCH_JOB_CARDS(page, size, sortBy, sortDir),
+      formValues
+    );
+  }
+
+  searchInvoices(formValues: any, backendPage: number, pageSize: number, sortByField: string, sortDirection: string): Observable<any> {
+    return this.http.post<any>(
+      API_ENDPOINTS.SEARCH_INVOICES(backendPage, pageSize, sortByField, sortDirection),
+      formValues
+    );
+  }
+
+  getAllVehicleRegNos(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_REG_NOS);
+  }
 }
