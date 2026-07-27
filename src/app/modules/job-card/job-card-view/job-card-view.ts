@@ -18,8 +18,8 @@ import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProj
 })
 export class JobCardView implements OnInit {
 
-  jobCards: any[] = [];
-  jobCard: any | undefined;
+  jobCards: JobCardSummaryResponseDTO[] = [];
+  jobCard: JobCardProjection | undefined;
 
   // BEST PRACTICE: Unified Reactive Form Group for filters
   filterForm!: FormGroup;

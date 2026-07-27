@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -19,9 +19,12 @@ import {InvoiceView} from '../../invoice/invoice-view/invoice-view';
 import {CustomerView} from '../../customer/customer-view/customer-view';
 import {TechnicianView} from '../../technician/technician-view/technician-view';
 import {VehicleView} from '../../vehicle/vehicle-view/vehicle-view';
-import {NgIf} from '@angular/common';
+import {LowerCasePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
-// Define the type here if you aren't using a shared types file
+import {forkJoin, of} from 'rxjs';
+import {catchError} from 'rxjs/operators';
+import {AdminService} from '../../../services/admin.service';
+
 export type ChartOptions = {
   series?: ApexAxisChartSeries | ApexNonAxisChartSeries;
   chart?: ApexChart;
@@ -51,18 +54,100 @@ type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' 
     TechnicianView,
     VehicleView,
     NgIf,
-    RouterLink
+    RouterLink,
+    NgForOf,
+    NgClass,
+    LowerCasePipe
   ],
   templateUrl: './dashboard-overview.html',
   styleUrl: './dashboard-overview.css',
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class DashboardOverview {
+export class DashboardOverview implements OnInit {
 
   // Map icons to properties
   isSidebarCollapsed = false;
   isDropdownOpen = false;
   activeView: View = 'dashboard';
+  isLoading = true;
+
+  customersCount: any;
+  jobCardStatus: any;
+  recentJobCards: any;
+  recentInvoices: any;
+  topLaborActivities: any=[];
+  invoicesCount: any;
+  jobCardsCount: any;
+  revenue: any;
+
+  constructor(private dashboardApi: AdminService,private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    console.log('DashboardOverview ngOnInit triggered!');
+    this.loadAllDashboardApis();
+  }
+
+  private loadAllDashboardApis(): void {
+    this.isLoading = true;
+    console.log('Firing forkJoin for dashboard APIs...');
+
+    forkJoin({
+      customersCount: this.dashboardApi.getAllCustomersCount().pipe(catchError(() => of(null))),
+      jobCardStatus: this.dashboardApi.getAllJobCardStatus().pipe(catchError(() => of(null))),
+      recentJobCards: this.dashboardApi.getRecentJobCards().pipe(catchError(() => of(null))),
+      recentInvoices: this.dashboardApi.getRecentInvoices().pipe(catchError(() => of(null))),
+      topLaborActivities: this.dashboardApi.getTopLaborActivities().pipe(catchError(() => of(null))),
+      invoicesCount: this.dashboardApi.getInvoicesCount().pipe(catchError(() => of(null))),
+      jobCardsCount: this.dashboardApi.getJobCardsCount().pipe(catchError(() => of(null))),
+      revenue: this.dashboardApi.getRevenue().pipe(catchError(() => of(null))),
+      chartData: this.dashboardApi.getRevenueChartData('MONTH').pipe(
+        catchError((err) => {
+          console.error('Revenue chart API failed safely via catchError:', err);
+          return of(null);
+        })
+      )
+    }).subscribe({
+      next: (res) => {
+        console.log('forkJoin successfully completed with responses:', res);
+
+        this.customersCount = res.customersCount?.data ?? res.customersCount;
+        this.jobCardStatus = res.jobCardStatus?.data ?? res.jobCardStatus;
+        this.recentJobCards = res.recentJobCards?.data ?? res.recentJobCards;
+        this.recentInvoices = res.recentInvoices?.data ?? res.recentInvoices;
+        this.topLaborActivities = res.topLaborActivities?.data ?? res.topLaborActivities;
+        this.invoicesCount = res.invoicesCount?.data ?? res.invoicesCount;
+        this.jobCardsCount = res.jobCardsCount?.data ?? res.jobCardsCount;
+        this.cdr.detectChanges();
+        console.log('Job Cards Count:', this.recentInvoices); // This will now log successfully!
+
+        this.revenue = res.revenue?.data ?? res.revenue;
+
+        this.chartOptions = {
+          ...this.chartOptions,
+          series: [
+            this.jobCardStatus?.pending || 44,
+            this.jobCardStatus?.rejected || 55,
+            this.jobCardStatus?.completed || 41
+          ]
+        };
+
+        const revenueChartData = res.chartData?.data || res.chartData;
+        if (revenueChartData) {
+          this.revenueChartOptions = {
+            ...this.revenueChartOptions,
+            series: [{ name: 'Revenue', data: revenueChartData.prices || [] }],
+            labels: revenueChartData.dates || []
+          };
+        }
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('*** FORKJOIN ERROR CAUGHT ***', err);
+        this.isLoading = false;
+      }
+    });
+  }
 
   setActive(view: View) {
     this.activeView = view;

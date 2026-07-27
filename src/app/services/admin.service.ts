@@ -188,4 +188,40 @@ export class AdminService {
   getAllVehicleRegNos(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_REG_NOS);
   }
+
+  getAllCustomersCount(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMERS_COUNT); // Update with your actual endpoint constant
+  }
+
+  getAllJobCardStatus(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_JOB_CARD_STATUS);
+  }
+
+  getRecentJobCards(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_RECENT_JOB_CARDS);
+  }
+
+  getRecentInvoices(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_RECENT_INVOICES);
+  }
+
+  getTopLaborActivities(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_TOP_LABOR_ACTIVITIES);
+  }
+
+  getInvoicesCount(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_INVOICES_COUNT);
+  }
+
+  getJobCardsCount(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_JOB_CARDS_COUNT);
+  }
+
+  getRevenue(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_REVENUE);
+  }
+
+  getRevenueChartData(filter: string): Observable<any> {
+    return this.http.get<any>(`${API_ENDPOINTS.GET_REVENUE_CHART}?filter=${filter}`);
+  }
 }

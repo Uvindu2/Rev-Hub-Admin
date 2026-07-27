@@ -9,7 +9,7 @@
 
         <div class="card-top">
           <h4>Today's Job Cards</h4>
-          <h2>12</h2>
+          <h2>{{this.jobCardsCount}}</h2>
         </div>
 
         <hr class="card-divider">
@@ -25,7 +25,7 @@
 
         <div class="card-top">
           <h4>Today's Invoices</h4>
-          <h2>8</h2>
+          <h2>{{this.invoicesCount}}</h2>
         </div>
 
         <hr class="card-divider">
@@ -41,10 +41,9 @@
 
         <div class="card-top">
           <h4>Today's Revenue</h4>
-          <h2>Rs. 125,750</h2>
+          <h2>Rs. {{this.revenue}}</h2>
           <p>↑ 18%</p>
         </div>
-
         <hr class="card-divider">
 
         <div class="card-footer">
@@ -58,7 +57,7 @@
 
         <div class="card-top">
           <h4>Total Customers</h4>
-          <h2>256</h2>
+          <h2>{{this.customersCount}}</h2>
         </div>
 
         <hr class="card-divider">
@@ -179,17 +178,18 @@
           </tr>
           </thead>
           <tbody>
-          <tr>
-            <td>#INV-001</td>
-            <td>John Doe</td>
-            <td>$120.00</td>
-            <td class="done">Paid</td>
+          <tr *ngFor="let inv of recentInvoices">
+            <td>{{ inv.invoiceNumber }}</td>
+            <td>{{ inv.customerName}}</td>
+            <td>${{ inv.grandTotal }}</td>
+            <td [ngClass]="(inv.status | lowercase) === 'paid' ? 'done' : 'pending'">
+              {{ inv.status }}
+            </td>
           </tr>
-          <tr>
-            <td>#INV-002</td>
-            <td>Jane Smith</td>
-            <td>$85.00</td>
-            <td class="pending">Pending</td>
+
+          <!-- Fallback row if there are no invoices -->
+          <tr *ngIf="!recentInvoices || recentInvoices.length === 0">
+            <td colspan="4" style="text-align: center; color: #8e8e8e;">No recent invoices found</td>
           </tr>
           </tbody>
         </table>
@@ -203,11 +203,19 @@
         </div>
 
         <div class="service-list">
-          <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
-          <div class="service-item"><span><i class="fa fa-circle-notch"></i> Brake Service</span> <span>15</span></div>
-          <div class="service-item"><span><i class="fa fa-oil-can"></i> Oil Change</span> <span>12</span></div>
-          <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
-          <div class="service-item"><span><i class="fa fa-cogs"></i> Engine Repair</span> <span>18</span></div>
+          <!-- Loop through topLaborActivities array -->
+          <div class="service-item" *ngFor="let activity of topLaborActivities">
+    <span>
+      <i [class]="activity.icon || 'fa fa-cogs'"></i> {{ activity.activityName}}
+    </span>
+            <span>{{ activity.activityCount}}</span>
+          </div>
+
+          <!-- Fallback if array is empty -->
+          <div class="service-item" *ngIf="!topLaborActivities || topLaborActivities.length === 0">
+            <span>No activities found</span>
+            <span>0</span>
+          </div>
         </div>
 
         <div class="car-illustration"></div>

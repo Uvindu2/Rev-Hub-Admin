@@ -47,4 +47,15 @@ export const API_ENDPOINTS = {
   SEARCH_INVOICES: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/invoice/search?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
   GET_ALL_VEHICLE_REG_NOS: `${API_BASE_URL}/vehicle/get-all-vehicle-reg-nos`,
+
+
+  GET_ALL_CUSTOMERS_COUNT: `${API_BASE_URL}/dashboard/get-all-customers-count/`,
+  GET_ALL_JOB_CARD_STATUS: `${API_BASE_URL}/dashboard/get-all-job-card-status/`,
+  GET_RECENT_JOB_CARDS: `${API_BASE_URL}/dashboard/get-recent-job-cards/`,
+  GET_RECENT_INVOICES: `${API_BASE_URL}/dashboard/get-recent-invoices/`,
+  GET_TOP_LABOR_ACTIVITIES: `${API_BASE_URL}/dashboard/get-top-labor-activities/`,
+  GET_INVOICES_COUNT: `${API_BASE_URL}/dashboard/get-invoices-count/`,
+  GET_JOB_CARDS_COUNT: `${API_BASE_URL}/dashboard/get-job-cards-count/`,
+  GET_REVENUE: `${API_BASE_URL}/dashboard/get-revenue/`,
+  GET_REVENUE_CHART: (filter: string) => `${API_BASE_URL}/dashboard/revenue/chart?filter=${filter}`,
 };

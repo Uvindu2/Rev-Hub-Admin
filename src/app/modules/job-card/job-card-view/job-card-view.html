@@ -96,7 +96,7 @@
       <table class="custom-table">
         <thead>
         <tr>
-          <th>Job Card ID</th>
+          <th>Job Number</th>
           <th>Customer Name</th>
           <th>Vehicle Reg Number</th>
           <th>Date Added</th>
@@ -112,7 +112,7 @@
           </td>
         </tr>
         <tr *ngFor="let job of jobCards">
-          <td class="font-semibold">JC-{{ job.jobId }}</td>
+          <td class="font-semibold">{{ job.jobCardNumber }}</td>
           <td>{{ job.customerName }}</td>
           <td class="text-uppercase">{{ job.vehicleRegNumber }}</td>
           <td>{{ job.createdDate | date:'dd MMM yyyy' }}</td>
