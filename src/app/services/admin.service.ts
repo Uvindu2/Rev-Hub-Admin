@@ -222,6 +222,7 @@ export class AdminService {
   }
 
   getRevenueChartData(filter: string): Observable<any> {
-    return this.http.get<any>(`${API_ENDPOINTS.GET_REVENUE_CHART}?filter=${filter}`);
+    // Invoke it correctly as a function passing the filter parameter
+    return this.http.get<any>(API_ENDPOINTS.GET_REVENUE_CHART(filter));
   }
 }

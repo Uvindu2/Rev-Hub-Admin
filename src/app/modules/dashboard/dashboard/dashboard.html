@@ -1,7 +1,6 @@
 <div class="layout">
 
   <!-- SIDEBAR -->
-<div class="layout">
   <div class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="logo-container">
       <img src="assets/images/revHub.jpeg" alt="RevHub Logo">
@@ -61,7 +60,7 @@
       <div class="menu-icon" (click)="toggleSidebar()">
         <fa-icon [icon]="faBars"></fa-icon>
       </div>
-      <h1 style="margin: 0;">{{ pageTitle }}</h1> <div class="right"></div>
+      <h1 style="margin: 0;">{{ pageTitle }}</h1>
       <div class="right">
         <span>📅 20 May 2024</span>
         <span>🔔 3</span>
@@ -85,5 +84,4 @@
 
     <router-outlet></router-outlet>
   </div>
-</div>
 </div>

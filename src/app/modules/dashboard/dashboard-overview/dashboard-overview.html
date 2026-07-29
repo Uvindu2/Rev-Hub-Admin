@@ -9,7 +9,7 @@
 
         <div class="card-top">
           <h4>Today's Job Cards</h4>
-          <h2>{{this.jobCardsCount}}</h2>
+          <h2>{{this.jobCardsCount ?? 0}}</h2>
         </div>
 
         <hr class="card-divider">
@@ -25,7 +25,7 @@
 
         <div class="card-top">
           <h4>Today's Invoices</h4>
-          <h2>{{this.invoicesCount}}</h2>
+          <h2>{{this.invoicesCount ?? 0}}</h2>
         </div>
 
         <hr class="card-divider">
@@ -41,7 +41,7 @@
 
         <div class="card-top">
           <h4>Today's Revenue</h4>
-          <h2>Rs. {{this.revenue}}</h2>
+          <h2>Rs. {{this.revenue ?? 0}}</h2>
           <p>↑ 18%</p>
         </div>
         <hr class="card-divider">
@@ -57,7 +57,7 @@
 
         <div class="card-top">
           <h4>Total Customers</h4>
-          <h2>{{this.customersCount}}</h2>
+          <h2>{{this.customersCount ?? 0}}</h2>
         </div>
 
         <hr class="card-divider">
@@ -105,24 +105,25 @@
 
         <table>
           <tr>
-            <th>ID</th>
+            <th>Job Number</th>
             <th>Customer</th>
             <th>Status</th>
           </tr>
-          <tr>
-            <td>JC-001</td>
-            <td>Nimal</td>
-            <td class="progress">In Progress</td>
+          <tr *ngFor="let jc of recentJobCards">
+            <td>{{ jc.jobId}}</td>
+            <td>{{ jc.customerName }}</td>
+            <td [ngClass]="{
+          'progress': (jc.status | lowercase) === 'rejected' || (jc.status | lowercase) === 'rejected',
+          'pending': (jc.status | lowercase) === 'pending',
+          'done': (jc.status | lowercase) === 'completed'
+        }">
+              {{ jc.status }}
+            </td>
           </tr>
-          <tr>
-            <td>JC-002</td>
-            <td>Kamal</td>
-            <td class="pending">Pending</td>
-          </tr>
-          <tr>
-            <td>JC-003</td>
-            <td>Saman</td>
-            <td class="done">Completed</td>
+
+          <!-- Fallback row if there are no job cards -->
+          <tr *ngIf="!recentJobCards || recentJobCards.length === 0">
+            <td colspan="3" style="text-align: center; color: #8e8e8e;">No recent job cards found</td>
           </tr>
         </table>
       </div>
@@ -130,21 +131,21 @@
       <div class="box chart">
         <div class="header-container-revenue">
           <h4>Revenue Overview</h4>
-          <select class="filter-dropdown">
+          <!-- Added template reference #revenueFilter and (change) event binding -->
+          <select class="filter-dropdown" #revenueFilter (change)="filterRevenue($any(revenueFilter.value))">
             <option value="week">This Week</option>
-            <option value="month">This Month</option>
+            <option value="month" selected>This Month</option>
             <option value="year">This Year</option>
           </select>
         </div>
         <div class="header-container-revenue">
-          <h2>Rs. 125,750</h2>
+          <h2>Rs. {{ revenue ?? 0 }}</h2>
           <p class="green">
             <span class="colour">↑ 18%</span> vs last month
           </p>
         </div>
 
         <div id="chart" *ngIf="revenueChartOptions && revenueChartOptions.series">
-          <!-- Remove the title and subtitle attributes if they aren't used -->
           <apx-chart
             [series]="revenueChartOptions.series!"
             [chart]="revenueChartOptions.chart!"
@@ -160,6 +161,7 @@
           ></apx-chart>
         </div>
       </div>
+
 
       <!-- RECENT INVOICES -->
       <div class="abox recent-invoices-card">
