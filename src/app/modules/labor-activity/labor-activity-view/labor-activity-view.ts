@@ -5,7 +5,6 @@ import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
-import JobCardForm from '../../job-card/job-card-form/job-card-form';
 import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
 
 @Component({

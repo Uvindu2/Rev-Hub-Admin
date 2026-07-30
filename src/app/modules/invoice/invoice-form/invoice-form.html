@@ -9,10 +9,10 @@
       <div class="split-workspace">
 
         <div class="left-panel">
-          <div class="search-box">
-            <input type="text" formControlName="jobCardSearch" placeholder="[ SEARCH LABOR TASKS BY JOB ID...]">
-            <i class="search-icon-invoice" (click)="onJobCardSearchClick()">🔍</i>
-          </div>
+            <div class="search-box" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+              <input type="text" formControlName="jobCardSearch" placeholder="Search job number..." style="flex: 1;">
+              <button type="button" class="btn-search-action" (click)="onJobCardSearchClick()">Search</button>
+            </div>
 
           <div class="sidebar-list" formArrayName="laborActivities">
             <div *ngFor="let labor of laborActivities.controls; let i = index"

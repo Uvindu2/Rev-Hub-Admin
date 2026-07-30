@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import JobCardForm from '../job-card-form/job-card-form';
 import { AdminService } from '../../../services/admin.service';
 import { JobCardViewAndEdit } from '../job-card-view-and-edit/job-card-view-and-edit';
 import { NotificationService } from '../../../services/notificationService';
 import {JobCardSummaryResponseDTO} from '../../../dto/response/JobCardSummaryResponseDTO';
 import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
+import {JobCardForm} from '../job-card-form/job-card-form';
 
 @Component({
   selector: 'app-job-card-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, JobCardForm, JobCardViewAndEdit, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, JobCardViewAndEdit, FormsModule, JobCardForm],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush

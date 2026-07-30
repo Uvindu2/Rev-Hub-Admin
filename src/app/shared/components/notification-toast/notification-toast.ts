@@ -16,10 +16,7 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
   private sub!: Subscription;
   private timeoutId: any;
 
-  constructor(
-    private readonly notificationService: NotificationService
-  ) {
-  }
+  constructor(private readonly notificationService: NotificationService) {}
 
   ngOnInit(): void {
     this.sub = this.notificationService.notification$.subscribe(state => {
@@ -28,11 +25,18 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
       if (this.timeoutId) clearTimeout(this.timeoutId);
 
       if (state) {
+        // Auto-dismiss after duration if buttons aren't clicked
         this.timeoutId = setTimeout(() => {
-          this.toast = null;
+          this.dismissToast();
         }, state.duration || 3500);
       }
     });
+  }
+
+  // Manual dismiss function linked to OK and Close buttons
+  dismissToast(): void {
+    if (this.timeoutId) clearTimeout(this.timeoutId);
+    this.toast = null;
   }
 
   ngOnDestroy(): void {

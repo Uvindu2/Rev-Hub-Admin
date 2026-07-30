@@ -1,22 +1,71 @@
 .notification-toast {
+  position: relative; /* Required for absolute positioning of top-right close button */
   position: fixed;
   top: 25px;
   right: 25px;
-  z-index: 9999; /* Higher than any modal backdrop overlays */
+  z-index: 9999;
   min-width: 320px;
+  max-width: 420px;
   padding: 16px 20px;
+  padding-right: 36px; /* Extra space so text doesn't flow under the close button */
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Absolute Positioning for Top-Right Close Button */
+.toast-top-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 4px;
+  line-height: 1;
+  transition: opacity 0.2s;
+}
+
+.toast-top-close-btn:hover {
+  opacity: 1;
+}
+
 .notification-toast.success { background-color: #1c3d22; border: 1px solid #34c759; color: #34c759; }
 .notification-toast.error { background-color: #3d1c1c; border: 1px solid #d32f2f; color: #ff453a; }
-.notification-content { display: flex; align-items: center; gap: 12px; }
-.notification-message { margin: 0; font-size: 0.9rem; font-weight: 500; }
+.notification-toast.warning { background-color: #3d331c; border: 1px solid #ff9500; color: #ff9500; }
+
+.notification-content { display: flex; align-items: flex-start; gap: 12px; width: 100%; }
+.notification-text-area { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.notification-message { margin: 0; font-size: 0.9rem; font-weight: 500; line-height: 1.4; color: inherit; }
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.toast-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid currentColor;
+  color: inherit;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toast-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
 
 @keyframes slideInRight {
   from { transform: translateX(120%); opacity: 0; }

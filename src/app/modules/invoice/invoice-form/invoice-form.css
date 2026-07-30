@@ -9,20 +9,20 @@
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.6); /* Softly dims the background list layout */
-  backdrop-filter: blur(3px);          /* Blurs out the grid text behind it */
-  z-index: 999;                         /* Placed right below the builder card */
+  backdrop-filter: blur(3px); /* Blurs out the grid text behind it */
+  z-index: 999; /* Placed right below the builder card */
 }
 
 .revhub-builder-card {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);   /* Centers the panel perfectly on screen */
-  z-index: 1000;                       /* Places it over the data table */
+  transform: translate(-50%, -50%); /* Centers the panel perfectly on screen */
+  z-index: 1000; /* Places it over the data table */
   width: 90%;
   max-width: 1200px;
-  max-height: 85vh;                    /* Prevents content from falling off vertical viewports */
-  overflow-y: auto;                    /* Makes inner contents scrollable if too tall */
+  max-height: 85vh; /* Prevents content from falling off vertical viewports */
+  overflow-y: auto; /* Makes inner contents scrollable if too tall */
   background-color: #1a1a1a;
   color: #d1d5db;
   font-family: Arial, sans-serif;
@@ -32,8 +32,12 @@
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* ==========================================================================
@@ -527,7 +531,7 @@
 
 .payment-radio-tile:has(input:checked) {
   background-color: #2d0b0f; /* Crimson tint highlight surface map */
-  border-color: #b91c1c;      /* Border match brand color */
+  border-color: #b91c1c; /* Border match brand color */
   box-shadow: 0 0 8px rgba(185, 28, 28, 0.2);
 }
 
@@ -623,9 +627,22 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
 /* Right layout area containing search and addition action handles */
 .actions-right {
   display: flex;
   align-items: center;
   gap: 15px;
+}
+
+.btn-search-action {
+  background-color: #b91c1c;
+  color: #ffffff;
+  border: none;
+  padding: 8px 13px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.9rem;
 }

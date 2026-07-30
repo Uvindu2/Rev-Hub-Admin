@@ -81,6 +81,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       email: data.vehicle?.customer?.email,
       drivingLicenseNumber: data.vehicle?.customer?.drivingLicenseNumber,
       complaint: data.customerComplaintText,
+      currentMileage: data.currentMileage,
       laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
       assignedTechniciansSelected: data.technician?.map(t => t.technicianId) || []
     }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops

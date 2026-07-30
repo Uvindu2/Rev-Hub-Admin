@@ -463,3 +463,18 @@ html, body {
   color: #9e9e9e;
   margin: 0 8px;
 }
+
+.error-msg {
+  color: #dc3545; /* Red */
+  font-size: 13px;
+}
+
+.warning-msg {
+  color: #ffc107; /* Amber / Yellow */
+  font-size: 13px;
+}
+
+.success-msg {
+  color: #28a745; /* Green */
+  font-size: 13px;
+}

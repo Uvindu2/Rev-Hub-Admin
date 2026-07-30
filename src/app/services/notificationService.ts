@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
+export type NotificationType = 'success' | 'error' | 'warning';
+
 export interface NotificationState {
   message: string;
-  type: 'success' | 'error';
-  duration?: number;
+  type: NotificationType;
+  duration: number;
 }
 
 @Injectable({
@@ -15,7 +17,7 @@ export class NotificationService {
   // Components will subscribe to this stream to listen for toast requests
   notification$ = this.notificationSubject.asObservable();
 
-  show(message: string, type: 'success' | 'error' = 'success', duration: number = 3500): void {
+  show(message: string, type: 'success' | 'error' | 'warning' = 'success', duration: number = 3500): void {
     this.notificationSubject.next({ message, type, duration });
   }
 

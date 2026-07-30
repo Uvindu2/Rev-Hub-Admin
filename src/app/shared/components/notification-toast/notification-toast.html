@@ -1,10 +1,21 @@
 @if (toast; as activeToast) {
   <div class="notification-toast" [ngClass]="activeToast.type">
+    <!-- Top-Right Close Icon Button -->
+    <button type="button" class="toast-top-close-btn" (click)="dismissToast()">✕</button>
+
     <div class="notification-content">
       <span class="notification-icon">
-        @if (activeToast.type === 'success') { ✓ } @else { ✕ }
+        @if (activeToast.type === 'success') { ✓ }
+        @else if (activeToast.type === 'warning') { ⚠ }
       </span>
-      <p class="notification-message">{{ activeToast.message }}</p>
+      <div class="notification-text-area">
+        <p class="notification-message">{{ activeToast.message }}</p>
+
+        <!-- Action Button for manual dismissal -->
+        <div class="notification-actions">
+          <button type="button" class="toast-btn ok-btn" (click)="dismissToast()">OK</button>
+        </div>
+      </div>
     </div>
   </div>
 }

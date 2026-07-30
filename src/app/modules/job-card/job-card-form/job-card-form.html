@@ -11,7 +11,8 @@
 
         <section class="form-section">
           <h3>1. VEHICLE ENTRY TYPE</h3>
-          <!-- NEW: Registered / Unregistered Selection Dropdown -->
+
+          <!-- Registered / Unregistered Selection Dropdown -->
           <div class="form-group">
             <label>Vehicle Registration Status <span class="required">*</span></label>
             <div class="custom-dropdown-container">
@@ -24,20 +25,35 @@
             </div>
           </div>
 
-          <!-- 2. The Conditional Search Box (Appears only when 'unregistered' is selected) -->
+          <!-- Unregistered Vehicle Search Box -->
           <div class="form-group search-transition" *ngIf="jobCardForm.get('vehicleRegStatus')?.value === 'unregistered'">
-            <label>Search Vehicle:</label>
-            <div class="search-input-wrapper">
-              <input type="text" formControlName="unRegVehicleSearch" placeholder="Type Vehicle Vin No...">
-              <i class="search-icon-job" (click)="onUnRegVehicleSearchClick()">🔍</i>
+            <label>Search Vehicle (Vin No):</label>
+            <div class="search-input-wrapper" style="display: flex; gap: 10px; align-items: center;">
+              <input type="text" formControlName="unRegVehicleSearch" placeholder="Type Vehicle Vin No..." style="flex: 1;">
+              <button type="button" class="btn-search-action" (click)="onUnRegVehicleSearchClick()">Search</button>
+            </div>
+            <div *ngIf="isInvalid('vehicleSearch')" class="error-msg" style="margin-top: 5px;">Search Vehicle Vin No is required.</div>
+            <div *ngIf="jobCardForm.get('vehicleSearch')?.valid && vehicleNotFound" class="warning-msg" style="margin-top: 5px;">
+              No record found for registration number "{{ jobCardForm.get('vehicleVinNo')?.value }}".
+            </div>
+            <div *ngIf="jobCardForm.get('vehicleSearch')?.valid && vehicleFound" class="success-msg" style="margin-top: 5px;">
+              Vehicle found successfully for registration number "{{ jobCardForm.get('vehicleVinNo')?.value }}".
             </div>
           </div>
 
+          <!-- Registered Vehicle Search Box -->
           <div class="form-group search-transition" *ngIf="jobCardForm.get('vehicleRegStatus')?.value === 'registered'">
-            <label>Search Vehicle:</label>
-            <div class="search-input-wrapper">
-              <input type="text" formControlName="vehicleSearch" placeholder="Type Vehicle Reg No...">
-              <i class="search-icon-job" (click)="onVehicleSearchClick()">🔍</i>
+            <label>Search Vehicle (Reg No):</label>
+            <div class="search-input-wrapper" style="display: flex; gap: 10px; align-items: center;">
+              <input type="text" formControlName="vehicleSearch" placeholder="Type Vehicle Reg No..." style="flex: 1;">
+              <button type="button" class="btn-search-action" (click)="onVehicleSearchClick()">Search</button>
+            </div>
+            <div *ngIf="isInvalid('vehicleSearch')" class="error-msg" style="margin-top: 5px;">Search Vehicle Reg No is required.</div>
+            <div *ngIf="jobCardForm.get('vehicleSearch')?.valid && vehicleNotFound" class="warning-msg" style="margin-top: 5px;">
+              No record found for registration number "{{ jobCardForm.get('vehicleRegNo')?.value }}".
+            </div>
+            <div *ngIf="jobCardForm.get('vehicleSearch')?.valid && vehicleFound" class="success-msg" style="margin-top: 5px;">
+              Vehicle found successfully for registration number "{{ jobCardForm.get('vehicleRegNo')?.value }}".
             </div>
           </div>
         </section>
@@ -104,7 +120,14 @@
               <label>Search Customer:</label>
               <div class="search-input-wrapper">
                 <input type="text" formControlName="customerSearch" placeholder="Type Customer Contact Number...">
-                <i class="search-icon-job" (click)="onCustomerSearchClick()">🔍</i>
+                <button type="button" class="btn-search-action" (click)="onCustomerSearchClick()">Search</button>
+              </div>
+              <div *ngIf="isInvalid('customerSearch')" class="error-msg" style="margin-top: 5px;">Search contact number is required.</div>
+              <div *ngIf="jobCardForm.get('customerSearch')?.valid && customerNotFound" class="warning-msg" style="margin-top: 5px;">
+                No record found for contact Number "{{ jobCardForm.get('contactNumber')?.value }}".
+              </div>
+              <div *ngIf="jobCardForm.get('customerSearch')?.valid && customerFound" class="success-msg" style="margin-top: 5px;">
+                Vehicle found successfully for contact Number "{{ jobCardForm.get('contactNumber')?.value }}".
               </div>
             </div>
           </ng-template>
@@ -130,7 +153,7 @@
             <div class="form-group">
               <label>Contact Number: <span class="required">*</span></label>
               <input type="text" formControlName="contactNumber" placeholder="[ e.g., +94 77 123 4567 ]"
-                     [readonly]="isExistingVehicle || isExistingCustomer">
+                     readonly>
               <div *ngIf="isInvalid('contactNumber')" class="error-msg">Contact number is required.</div>
             </div>
 

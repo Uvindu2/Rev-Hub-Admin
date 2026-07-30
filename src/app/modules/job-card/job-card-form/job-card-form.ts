@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -6,8 +7,7 @@ import {
   HostListener,
   OnInit,
   Output,
-  ViewChild,
-  ChangeDetectionStrategy
+  ViewChild
 } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
@@ -28,7 +28,7 @@ import {CustomerProjection} from '../../../dto/response/CustomerProjection';
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, FormsModule, CommonModule, MatOptionModule, MultiSelectDropdown]
 })
-class JobCardForm implements OnInit {
+export class JobCardForm implements OnInit {
 
   @Output() cancel = new EventEmitter<void>();
   @ViewChild('dropdownWrapper') dropdownWrapper!: ElementRef;
@@ -41,6 +41,12 @@ class JobCardForm implements OnInit {
   isDropdownOpen = false;
   isExistingVehicle = true;
   isExistingCustomer = true;
+  hasSearchedVehicle = false;
+  hasSearchedCustomer = false;
+  vehicleNotFound = false;
+  vehicleFound = false;
+  customerNotFound = false;
+  customerFound = false;
 
   technicianNameProjection: TechnicianNameProjection[] = [];
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
@@ -82,17 +88,17 @@ class JobCardForm implements OnInit {
   initForm(): void {
     this.jobCardForm = this.fb.group({
       vehicleRegStatus: ['registered'],
-      vehicleSearch: [''],
+      vehicleSearch: ['', Validators.required],
       unRegVehicleSearch: [''],
-      customerSearch: [''],
+      customerSearch: ['', Validators.required],
       entryMode: ['new'],
 
-      // Adding core validations
-      vehicleRegNo: ['', Validators.required],
-      vehicleVinNo: ['', Validators.required],
-      make: ['', Validators.required],
-      model: ['', Validators.required],
-      year: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
+      // Vehicle specification fields initialized without required validation until search resolves
+      vehicleRegNo: ['N/A'],
+      vehicleVinNo: ['N/A'],
+      make: [''],
+      model: [''],
+      year: [''],
       colour: [''],
       otherSpecs: [''],
 
@@ -109,21 +115,40 @@ class JobCardForm implements OnInit {
   }
 
   onSubmit(): void {
-    // 1. Trigger validations across ALL controls (including the common dropdown components)
+    if (!this.hasSearchedVehicle) {
+      this.notificationService.show('Please search and verify the vehicle number before submitting the job card.', 'warning');
+      return;
+    }
+
+    const vehicleFields = ['vehicleRegNo', 'make', 'model', 'year'];
+    const isVehicleInvalid = vehicleFields.some(field => this.jobCardForm.get(field)?.invalid);
+    if (isVehicleInvalid) {
+      vehicleFields.forEach(field => this.jobCardForm.get(field)?.markAsTouched());
+      this.notificationService.show('Please fill out all required vehicle specification fields.', 'warning');
+      return;
+    }
+
+    if (!this.hasSearchedCustomer) {
+      this.notificationService.show('Please search and verify the customer contact number before submitting the job card.', 'warning');
+      return;
+    }
+
+    // 1. Trigger validations across ALL controls
     if (this.jobCardForm.invalid) {
       this.jobCardForm.markAllAsTouched();
-      this.notificationService.show('Please fill out all required fields before submitting.', 'error');
-      return; // Block submission execution completely
+      this.notificationService.show('Please fill out all required fields before submitting.', 'warning');
+      return;
     }
 
     const formValue = this.jobCardForm.value;
 
-    // 2. Safely construct the exact payload contract structure expected by the backend
+    // 2. Construct backend payload
     const backendPayload = {
       dateAdded: new Date().toISOString(),
       estimatedCompletionTime: null,
       status: 'PENDING',
       customerComplaintText: formValue.complaint,
+      currentMileage: formValue.currentMileage,
       existVehicle: formValue.entryMode === 'existing',
       customerSaveRequestDTO: {
         customerName: formValue.customerName,
@@ -140,40 +165,28 @@ class JobCardForm implements OnInit {
         colour: formValue.colour,
         otherSpecs: formValue.otherSpecs
       },
-      // Safe arrays extraction mapping precisely to your reactive form keys
       laborActivitiesSelected: formValue.laborActivitiesSelected || [],
       assignedTechniciansSelected: formValue.assignedTechniciansSelected || []
     };
 
-
-    // 3. Dispatch the payload request
+    // 3. Dispatch payload request
     this.adminService.saveJobCardBlobVariant(backendPayload).subscribe({
       next: (res: any) => {
         this.notificationService.show('Job Card saved successfully!', 'success');
 
         if (res && res.data) {
           try {
-            // Clean up any potential whitespace/newlines from the base64 string
             const base64Data = res.data.replace(/\s/g, '');
-
-            // Decode the Base64 string into a raw binary string
             const byteCharacters = atob(base64Data);
-
-            // Allocate an ArrayBuffer matching the exact character length
             const byteNumbers = new Uint8Array(byteCharacters.length);
 
-            // Populate the typed array with actual numeric character codes
             for (let i = 0; i < byteCharacters.length; i++) {
               byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
 
-            // Create the Blob explicitly binding the 'application/pdf' MIME type
-            const pdfBlob = new Blob([byteNumbers], { type: 'application/pdf' });
-
-            // Generate the unique internal blob URL
+            const pdfBlob = new Blob([byteNumbers], {type: 'application/pdf'});
             const fileURL = window.URL.createObjectURL(pdfBlob);
 
-            // Open a clean view tab
             const pdfWindow = window.open();
             if (pdfWindow) {
               pdfWindow.location.href = fileURL;
@@ -181,7 +194,6 @@ class JobCardForm implements OnInit {
               this.notificationService.show('Popup blocked! Please allow popups for this site.', 'error');
             }
 
-            // Give the browser ample time to load the tab before destroying the reference object
             setTimeout(() => window.URL.revokeObjectURL(fileURL), 5000);
 
           } catch (encodeError) {
@@ -204,15 +216,24 @@ class JobCardForm implements OnInit {
   }
 
   onCustomerSearchClick(): void {
+    this.customerNotFound = false;
+    this.customerFound = false;
     const customerFields = ['customerName', 'email', 'contactNumber', 'drivingLicenseNumber'];
     customerFields.forEach(field => this.jobCardForm.get(field)?.reset());
     const value = this.jobCardForm.get('customerSearch')?.value;
+
+    if (!value) {
+      this.notificationService.show('Please type a customer contact number first.', 'warning');
+      return;
+    }
+    this.hasSearchedCustomer = true;
     this.adminService.getCustomerByContactNumber(value).subscribe({
       next: (res: any) => {
+        this.customerFound = true;
         this.customer = res.data;
-        this.isExistingCustomer=true
+        this.isExistingCustomer = true;
         this.jobCardForm.patchValue({
-          contactNumber: this.customer?.contactNumber,
+          contactNumber: this.customer?.contactNumber || value,
           customerName: this.customer?.customerName,
           email: this.customer?.email,
           drivingLicenseNumber: this.customer?.drivingLicenseNumber
@@ -221,9 +242,13 @@ class JobCardForm implements OnInit {
       },
       error: (err) => {
         setTimeout(() => {
+          this.customerNotFound = true;
           console.log(err);
-          this.isExistingCustomer=false
-          this.notificationService.show('No Customer found with that contact number.', 'error');
+          this.jobCardForm.patchValue({
+            contactNumber: this.customer?.contactNumber || value,
+          });
+          this.isExistingCustomer = false;
+          this.notificationService.show('No Customer found with that contact number.', 'warning');
           this.cdr.detectChanges();
         }, 0);
       }
@@ -255,6 +280,7 @@ class JobCardForm implements OnInit {
 
   private setupFormListeners(): void {
     this.jobCardForm.get('vehicleRegStatus')?.valueChanges.subscribe((status) => {
+      this.hasSearchedVehicle = false;
       const currentRegSearch = this.jobCardForm.get('vehicleSearch')?.value?.trim();
       const currentUnRegSearch = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
 
@@ -264,28 +290,36 @@ class JobCardForm implements OnInit {
           vehicleRegNo: currentRegSearch || 'N/A',
           vehicleVinNo: 'N/A',
           entryMode: 'new'
-        }, { emitEvent: false });
+        }, {emitEvent: false});
       } else {
         this.jobCardForm.patchValue({
           vehicleSearch: '',
           vehicleRegNo: 'N/A',
           vehicleVinNo: currentUnRegSearch || 'N/A',
           entryMode: 'new'
-        }, { emitEvent: false });
+        }, {emitEvent: false});
       }
       this.isExistingVehicle = false;
     });
   }
 
   onVehicleSearchClick(): void {
+    this.vehicleFound = false;
+    this.vehicleNotFound = false;
     const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value?.trim();
-    if (!currentSearchValue) return;
+    if (!currentSearchValue || currentSearchValue == '') {
+      this.notificationService.show('Please enter a vehicle registration number first.', 'warning');
+      return;
+    }
+    this.hasSearchedVehicle = true;
 
     this.adminService.getVehicleAndCustomerByVehicleRegNumber(currentSearchValue).subscribe({
       next: (res: any) => {
+        this.vehicleFound = true;
         this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
       },
       error: (err) => {
+        this.vehicleNotFound = true;
         console.error(err);
         this.handleVehicleLookupError(currentSearchValue, 'registered');
       }
@@ -293,14 +327,22 @@ class JobCardForm implements OnInit {
   }
 
   onUnRegVehicleSearchClick(): void {
+    this.vehicleFound = false;
+    this.vehicleNotFound = false;
     const currentSearchValue = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
-    if (!currentSearchValue) return;
+    if (!currentSearchValue) {
+      this.notificationService.show('Please enter a vehicle VIN number first.', 'warning');
+      return;
+    }
+    this.hasSearchedVehicle = true;
 
     this.adminService.getVehicleAndCustomerByVehicleVinNumber(currentSearchValue).subscribe({
       next: (res: any) => {
+        this.vehicleFound = true;
         this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');
       },
       error: (err) => {
+        this.vehicleNotFound = true;
         console.error(err);
         this.handleVehicleLookupError(currentSearchValue, 'unregistered');
       }
@@ -310,6 +352,13 @@ class JobCardForm implements OnInit {
   private handleVehicleLookupSuccess(res: any, searchValue: string, status: string): void {
     this.vehicleAndCustomerDTO = res;
     this.isExistingVehicle = true;
+
+    // Clear required validators for auto-filled existing data
+    ['make', 'model', 'year', 'vehicleRegNo', 'vehicleVinNo'].forEach(field => {
+      const control = this.jobCardForm.get(field);
+      control?.clearValidators();
+      control?.updateValueAndValidity();
+    });
 
     this.jobCardForm.patchValue({
       entryMode: 'existing',
@@ -330,6 +379,17 @@ class JobCardForm implements OnInit {
 
   private handleVehicleLookupError(searchValue: string, status: string): void {
     this.isExistingVehicle = false;
+
+    // Dynamically apply required validators for manual entry since records were not found
+    this.jobCardForm.get('vehicleRegNo')?.setValidators([Validators.required]);
+    this.jobCardForm.get('vehicleVinNo')?.setValidators([Validators.required]);
+    this.jobCardForm.get('make')?.setValidators([Validators.required]);
+    this.jobCardForm.get('model')?.setValidators([Validators.required]);
+    this.jobCardForm.get('year')?.setValidators([Validators.required, Validators.pattern('^[0-9]{4}$')]);
+
+    ['vehicleRegNo', 'vehicleVinNo', 'make', 'model', 'year'].forEach(field => {
+      this.jobCardForm.get(field)?.updateValueAndValidity();
+    });
 
     this.jobCardForm.patchValue({
       entryMode: 'new',
@@ -353,4 +413,3 @@ class JobCardForm implements OnInit {
   }
 }
 
-export default JobCardForm

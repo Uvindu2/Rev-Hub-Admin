@@ -4,6 +4,7 @@ interface JobCardProjection {
   estimatedCompletionTime: string;
   status: string;
   customerComplaintText: string;
+  currentMileage: number;
   vehicle: {
     vehicleId: number;
     vehicleRegNo: string;
