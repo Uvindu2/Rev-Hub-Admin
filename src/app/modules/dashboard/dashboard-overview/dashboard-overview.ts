@@ -126,7 +126,6 @@ export class DashboardOverview implements OnInit {
         this.jobCardsCount = res.jobCardsCount?.data ?? res.jobCardsCount;
         this.revenue = res.revenue?.data ?? res.revenue;
         this.revenueChartData = res.chartData?.data ?? res.chartData;
-
         if (this.jobCardStatus) {
           this.chartOptions = {
             ...this.chartOptions,
@@ -292,8 +291,8 @@ export class DashboardOverview implements OnInit {
         const chartData = res?.data || res;
         if (chartData) {
           // Updates the total revenue dynamically based on the selected filter
-          this.revenue = chartData.totalRevenue ?? 0;
-          console.log(res.data);
+          this.revenueChartData.totalRevenue = chartData.totalRevenue;
+          console.log(chartData.totalRevenue);
           // Updates the ApexCharts series and labels
           this.revenueChartOptions = {
             ...this.revenueChartOptions,

@@ -1,5 +1,6 @@
 <div class="modal-overlay">
   <div class="revhub-builder-card">
+    <button class="close-btn" (click)="onCancel()">&times;</button>
     <div class="form-title-bar">
       <h2>CREATE INVOICE</h2>
       <span class="actor-tag">Actor</span>
@@ -38,10 +39,11 @@
               </div>
             </div>
           </div>
-
-          <button type="button" class="add-labor-btn" (click)="addLaborActivity('', false, 0)">
-            ➕ ADD ADDITIONAL LABOR
-          </button>
+          <ng-template [ngIf]="laborActivityAvailable">
+            <button type="button" class="add-labor-btn" (click)="addLaborActivity('', false, 0)">
+              ➕ ADD ADDITIONAL LABOR
+            </button>
+          </ng-template>
         </div>
 
         <div class="right-panel" *ngIf="laborActivities.length > 0" [formGroup]="$any(laborActivities.at(selectedLaborIndex))">
@@ -213,7 +215,7 @@
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" (click)="cancel.emit()">Cancel</button>
-          <button type="submit" class="btn-submit" [disabled]="invoiceForm.invalid" (click)="onSubmit()">Generate & Post Invoice</button>
+          <button type="submit" class="btn-submit" (click)="onSubmit()">Generate & Post Invoice</button>
         </div>
       </div>
     </form>

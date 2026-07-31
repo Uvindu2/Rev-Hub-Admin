@@ -1,8 +1,7 @@
 <div class="modal-container">
-  <button class="close-btn" (click)="onCancel()">&times;</button>
-
   <div class="modal-header">
     <h2>Create New Technician</h2>
+    <button class="close-btn" (click)="onCancel()">&times;</button>
   </div>
 
   <form [formGroup]="technicianForm" (ngSubmit)="onSubmit()">

@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { ItemProjection } from '../../../dto/response/ItemProjection';
+import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {ItemProjection} from '../../../dto/response/ItemProjection';
 
 @Component({
   selector: 'app-invoice-form',
@@ -29,6 +29,7 @@ export class InvoiceForm implements OnInit {
   protected partDropdownOpenRowIndex: number | null = null;
   protected filteredItemParts: ItemProjection[] = [];
   protected isDropdownOpen: boolean = false;
+  protected laborActivityAvailable = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -36,7 +37,8 @@ export class InvoiceForm implements OnInit {
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
     private readonly http: HttpClient
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -98,7 +100,7 @@ export class InvoiceForm implements OnInit {
       name: [name, Validators.required],
       qty: [qty, [Validators.required, Validators.min(1)]],
       unitPrice: [unitPrice, [Validators.required, Validators.min(0)]],
-      total: [{ value: qty * unitPrice, disabled: true }]
+      total: [{value: qty * unitPrice, disabled: true}]
     });
 
     const qty$ = partGroup.get('qty')?.valueChanges;
@@ -108,7 +110,7 @@ export class InvoiceForm implements OnInit {
       partGroup.valueChanges.subscribe(() => {
         const currentQty = partGroup.get('qty')?.value || 0;
         const currentPrice = partGroup.get('unitPrice')?.value || 0;
-        partGroup.get('total')?.setValue(currentQty * currentPrice, { emitEvent: false });
+        partGroup.get('total')?.setValue(currentQty * currentPrice, {emitEvent: false});
       });
     }
 
@@ -162,6 +164,11 @@ export class InvoiceForm implements OnInit {
   }
 
   onSubmit() {
+    console.log(this.laborActivities.length)
+    if (this.laborActivities.length < 1) {
+      this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
+      return;
+    }
     if (this.invoiceForm.invalid) {
       this.markAllAsTouched(this.invoiceForm);
       this.notificationService.show('Please resolve all validation errors before proceeding.', 'error');
@@ -193,7 +200,7 @@ export class InvoiceForm implements OnInit {
                 numericBytes[i] = binaryCharacters.charCodeAt(i);
               }
 
-              const invoiceBlob = new Blob([numericBytes], { type: 'application/pdf' });
+              const invoiceBlob = new Blob([numericBytes], {type: 'application/pdf'});
               const currentBlobUrl = window.URL.createObjectURL(invoiceBlob);
 
               // 2. REDIRECT THE EXISTING TAB TO THE PDF URL
@@ -311,6 +318,7 @@ export class InvoiceForm implements OnInit {
         this.laborActivities.clear();
         this.partDropdownOpenRowIndex = null;
         const incomingActivities = res?.data || [];
+        this.laborActivityAvailable = true;
 
         if (incomingActivities.length === 0) {
           this.notificationService.show('No activities linked to this Job Card.', 'error');
@@ -372,5 +380,9 @@ export class InvoiceForm implements OnInit {
     this.filteredItemParts = this.availableItemParts.filter(p =>
       p.itemName?.toLowerCase().includes(query)
     );
+  }
+
+  onCancel() {
+    this.cancel.emit();
   }
 }

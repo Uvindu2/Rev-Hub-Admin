@@ -50,7 +50,7 @@
   gap: 15px;
   border-bottom: 1px solid #2d2d2d;
   padding-bottom: 12px;
-  margin-bottom: 15px;
+
 }
 
 .form-title-bar h2 {
@@ -646,3 +646,15 @@
   display: inline-flex;
   font-size: 0.9rem;
 }
+.close-btn {
+  background: none;
+  border: none;
+  color: #666666;
+  font-size: 30pt;
+  cursor: pointer;
+  /* --- UPDATED: Pin to top-left --- */
+  position: absolute;
+  left: 96%; /* Changed from 'right' to 'left' */
+  top: 1pt;
+}
+
