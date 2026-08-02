@@ -7,6 +7,7 @@ import {TechnicianNameProjection} from '../dto/response/TechnicianNameProjection
 import {LaborActivityNameProjection} from '../dto/response/LaborActivityNameProjection';
 import {ItemProjection} from '../dto/response/ItemProjection';
 import {CustomerProjection} from '../dto/response/CustomerProjection';
+import {RoleNameDTO} from '../dto/response/RoleNameDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -224,5 +225,24 @@ export class AdminService {
   getRevenueChartData(filter: string): Observable<any> {
     // Invoke it correctly as a function passing the filter parameter
     return this.http.get<any>(API_ENDPOINTS.GET_REVENUE_CHART(filter));
+  }
+
+  searchUsers(formValues: any, page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+    return this.http.post<any>(
+      API_ENDPOINTS.SEARCH_USERS(page, size, sortBy, sortDir),
+      formValues
+    );
+  }
+  getUserById(userId: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_USER_BY_ID(userId));
+  }
+
+  saveUser(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.post<any>(API_ENDPOINTS.SAVE_USER, backendPayload);
+  }
+
+  getRoles(): Observable<RoleNameDTO[]> {
+    return this.http.get<RoleNameDTO[]>(API_ENDPOINTS.GET_ROLE_NAMES);
   }
 }

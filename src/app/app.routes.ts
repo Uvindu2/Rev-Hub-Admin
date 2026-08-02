@@ -9,6 +9,7 @@ import {DashboardOverview} from './modules/dashboard/dashboard-overview/dashboar
 import {ItemView} from './modules/item/item-view/item-view';
 import {LaborActivityView} from './modules/labor-activity/labor-activity-view/labor-activity-view';
 import { Login } from './modules/login/login/login';
+import {UserView} from './modules/user/user-view/user-view';
 
 // app.routes.ts
 export const routes: Routes = [
@@ -27,7 +28,8 @@ export const routes: Routes = [
       { path: 'technicians', component: TechnicianView },
       { path: 'vehicles', component: VehicleView },
       { path: 'items', component: ItemView },
-      { path: 'labor-activities', component: LaborActivityView }
+      { path: 'labor-activities', component: LaborActivityView },
+      { path: 'users', component: UserView },
     ]
   }
 ];

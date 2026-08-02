@@ -58,4 +58,9 @@ export const API_ENDPOINTS = {
   GET_JOB_CARDS_COUNT: `${API_BASE_URL}/dashboard/get-job-cards-count/`,
   GET_REVENUE: `${API_BASE_URL}/dashboard/get-revenue/`,
   GET_REVENUE_CHART: (filter: string) => `${API_BASE_URL}/dashboard/revenue/chart?filter=${filter}`,
+  SEARCH_USERS: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/user/search?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
+  GET_USER_BY_ID: (userId: number) => `${API_BASE_URL}/user/get-user-by-userId/${userId}`,
+  SAVE_USER: `${API_BASE_URL}/user/save`,
+  GET_ROLE_NAMES: `${API_BASE_URL}/role/get-all-role-names`,
 };
