@@ -245,4 +245,9 @@ export class AdminService {
   getRoles(): Observable<RoleNameDTO[]> {
     return this.http.get<RoleNameDTO[]>(API_ENDPOINTS.GET_ROLE_NAMES);
   }
+
+  modifyUser(backendPayload: any): Observable<any> {
+    // Return standard JSON response object containing code, response, and data
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_USER, backendPayload);
+  }
 }
