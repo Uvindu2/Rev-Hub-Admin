@@ -1,0 +1,51 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <h2>CREATE NEW USER</h2>
+    <button class="close-btn" (click)="onCancel()">&times;</button> <!-- Fixed typo from onCancel if needed, or keep your handler -->
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Username <span class="required">*</span></label>
+        <input type="text" formControlName="username" placeholder="e.g. johndoe">
+        <div *ngIf="isInvalid('username')" class="error-msg">Username is required.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Password <span class="required">*</span></label>
+        <input type="password" formControlName="password" placeholder="Enter password">
+        <div *ngIf="isInvalid('password')" class="error-msg">Password must be at least 6 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" formControlName="fullName" placeholder="e.g. John Doe">
+        <div *ngIf="isInvalid('fullName')" class="error-msg">Name is required.</div>
+      </div>
+
+      <!-- Multi-select element mapped to roleIds array -->
+      <app-multi-select-dropdown
+        label="User Role:"
+        [formControl]="userRoleSelectedControl"
+        [b]="rolesList"
+        bindLabel="roleName"
+        bindValue="roleId"
+        errorMessage="Please select at least one user role.">
+      </app-multi-select-dropdown>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="active"> Active Account
+        </label>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn-submit">SUBMIT</button>
+      <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
+    </div>
+  </form>
+</div>

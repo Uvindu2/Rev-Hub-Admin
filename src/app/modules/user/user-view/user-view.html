@@ -1,0 +1,107 @@
+<div class="page-header">
+  <div class="card-container" [formGroup]="filterForm">
+
+    <!-- Search & Filter Card Section -->
+    <div class="filter-card-section">
+      <div class="filter-card-header">
+        <div class="filter-title-wrapper">
+          <span class="filter-title-icon">🔍</span>
+          <h3>Search & Filter</h3>
+        </div>
+
+        <button class="btn-add" type="button" (click)="onAddUser()">
+          <span class="icon-plus" aria-hidden="true">+</span> ADD USER
+        </button>
+      </div>
+
+      <!-- Filter Inputs Grid Row 1 -->
+      <div class="filter-grid-row">
+
+        <!-- Search Field -->
+        <div class="filter-group">
+          <label>Search User</label>
+          <div class="search-box full-width-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search..." formControlName="search">
+          </div>
+        </div>
+
+      </div>
+        <!-- Reset & Search Trigger Buttons -->
+        <div class="filter-actions-group">
+          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
+            🔄 RESET
+          </button>
+          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
+            🔍 SEARCH
+          </button>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+        <tr>
+          <th>User ID</th>
+          <th>User Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="!users || users.length === 0">
+          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+            No user cards found matching current filter parameters.
+          </td>
+        </tr>
+        <tr *ngFor="let user of users">
+          <td class="font-semibold">{{ user.userId }}</td>
+          <td class="font-semibold">{{ user.username }}</td>
+          <td class="font-semibold">{{ this.roleName(user.role) }}</td>
+          <td>{{ user.active }}</td>
+          <td class="actions-cell">
+            <button class="btn-table-action view-btn" (click)="viewUser(user.userId)">👁️</button>
+            <button class="btn-table-action edit-btn" (click)="editUser(user.userId)">✏️</button>
+            <button class="btn-table-action delete-btn" (click)="deleteUser(user.userId)">🗑️</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer Summary & Pagination -->
+    <div class="table-footer-summary custom-footer-layout">
+      <div class="record-counter left-counter-anchor">
+        Showing {{ users?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+          </span>
+
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-user-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-user-form>
+<app-user-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [user]="user" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-user-view-and-edit>
+

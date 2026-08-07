@@ -43,7 +43,8 @@ export class Login {
         this.router.navigate(['dashboard/overview']);
       },
       error: (err) => {
-        this.statusError = err.error?.message || 'Connection refused by server engine.';
+        console.log(err)
+        this.statusError = err.error?.message || err.error?.data || 'Connection refused by server engine.';
         this.notificationService.show(this.statusError, 'error');
       },
     });
