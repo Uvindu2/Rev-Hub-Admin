@@ -2,20 +2,20 @@
   <div class="login-container">
     <div class="login-card">
       <h2>Welcome to RevHub GMS</h2>
-      
+
 <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
   <div class="input-group">
     <label for="username">Username / Email</label>
     <input type="text" id="username" formControlName="username" placeholder="Enter admin username">
   </div>
-  
+
   <div class="input-group">
     <label for="password">Password</label>
     <input type="password" id="password" formControlName="password" placeholder="Enter your password">
   </div>
-  
+
   <button type="submit" class="login-btn">REV ENGINE & LOGIN</button>
-  
+
   <div *ngIf="statusError" class="message error">{{ statusError }}</div>
 </form>
     </div>

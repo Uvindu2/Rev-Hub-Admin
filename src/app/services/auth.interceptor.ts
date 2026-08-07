@@ -1,20 +1,43 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from './auth.service';
+import { catchError, throwError } from 'rxjs';
+
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService); // Modern functional dependency injection
-  const token = authService.getToken();
+
+  const token = sessionStorage.getItem('token');
+
+  let request = req;
+
 
   if (token) {
-    // Clone request and securely attach the RevHub Bearer token
-    const clonedReq = req.clone({
+
+    request = req.clone({
+
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
+
     });
-    return next(clonedReq);
+
   }
 
-  return next(req);
+
+  return next(request).pipe(
+
+    catchError(error => {
+
+      if (error.status === 401) {
+
+        sessionStorage.clear();
+
+        window.location.href = '/login';
+
+      }
+
+      return throwError(() => error);
+
+    })
+
+  );
+
 };

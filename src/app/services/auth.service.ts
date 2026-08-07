@@ -12,14 +12,40 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(this.loginUrl, { username, password }).pipe(
-      tap(res => {
-        if (res && res.token) {
-          localStorage.setItem('revhub_access_token', res.token);
-        }
+  login(username: string, password: string) {
+
+    return this.http.post<any>(
+      `${this.loginUrl}`,
+      {
+        username,
+        password
+      }
+    ).pipe(
+
+      tap(response => {
+
+        sessionStorage.setItem(
+          'token',
+          response.token
+        );
+
+
+        sessionStorage.setItem(
+          'user',
+          JSON.stringify(response)
+        );
+
       })
+
     );
+
+  }
+
+  logout(){
+
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+
   }
 
   getToken(): string | null {
@@ -28,9 +54,5 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.getToken();
-  }
-
-  logout(): void {
-    localStorage.removeItem('revhub_access_token');
   }
 }

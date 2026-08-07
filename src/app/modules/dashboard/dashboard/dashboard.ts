@@ -14,6 +14,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { Subscription, filter } from 'rxjs';
+import {AuthService} from '../../../services/auth.service';
 
 type View = 'dashboard' | 'job-cards' | 'invoices' | 'customers' | 'technicians' | 'vehicles' | 'items' | 'labor-activities';
 
@@ -57,7 +58,7 @@ export class Dashboard implements OnInit, OnDestroy {
   currentTitle: string = 'Dashboard';
   private routerSubscription?: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(private authService:AuthService, private router:Router) {}
 
   ngOnInit(): void {
     // Listen to route changes to update the title dynamically
@@ -91,7 +92,9 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.router.navigate(['login']);
+    this.authService.logout();
+
+    this.router.navigate(['/login']);
   }
 
   ngOnDestroy(): void {
