@@ -313,3 +313,14 @@ input.ng-invalid.ng-touched,
 textarea.ng-invalid.ng-touched {
   border: 1px solid #dc3545 !important;
 }
+.btn-search-action {
+  background-color: #b91c1c;
+  color: #ffffff;
+  border: none;
+  padding: 8px 13px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.9rem;
+}

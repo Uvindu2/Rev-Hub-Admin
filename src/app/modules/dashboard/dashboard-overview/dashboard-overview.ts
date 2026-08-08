@@ -21,10 +21,12 @@ import {TechnicianView} from '../../technician/technician-view/technician-view';
 import {VehicleView} from '../../vehicle/vehicle-view/vehicle-view';
 import {LowerCasePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
-import {forkJoin, of} from 'rxjs';
+import {finalize, forkJoin, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {AdminService} from '../../../services/admin.service';
 import {JobCardStatusProjection} from '../../../dto/response/JobCardStatusProjection';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
+import {faXRay} from '@fortawesome/free-solid-svg-icons';
 
 export type ChartOptions = {
   series?: ApexAxisChartSeries | ApexNonAxisChartSeries;
@@ -67,11 +69,9 @@ type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' 
 export class DashboardOverview implements OnInit {
 
   // Map icons to properties
-  isSidebarCollapsed = false;
-  isDropdownOpen = false;
   activeView: View = 'dashboard';
   isLoading = true;
-
+  isRevenueLoading = false;
   customersCount: any;
   jobCardStatus: JobCardStatusProjection | undefined;
   recentJobCards: any;
@@ -113,7 +113,18 @@ export class DashboardOverview implements OnInit {
           return of(null);
         })
       )
-    }).subscribe({
+    }).pipe(
+
+      finalize(() => {
+
+        // Always stop global loader
+        this.isLoading = false;
+
+        this.cdr.detectChanges();
+
+      })
+
+    ).subscribe({
       next: (res) => {
         console.log('forkJoin successfully completed with responses:', res);
 
@@ -280,12 +291,28 @@ export class DashboardOverview implements OnInit {
   public filterRevenue(range: 'week' | 'month' | 'year') {
     const filterValue = range.toUpperCase(); // Matches backend RevenueFilter enum (WEEK, MONTH, YEAR)
 
-    this.isLoading = true;
+    this.isRevenueLoading = true;
     this.dashboardApi.getRevenueChartData(filterValue).pipe(
+
       catchError((err) => {
-        console.error('Failed to fetch revenue chart data for filter:', err);
+
+        console.error(
+          'Failed to fetch revenue chart data:',
+          err
+        );
+
         return of(null);
+
+      }),
+
+      finalize(() => {
+
+        this.isRevenueLoading = false;
+
+        this.cdr.detectChanges();
+
       })
+
     ).subscribe({
       next: (res) => {
         const chartData = res?.data || res;
@@ -300,12 +327,12 @@ export class DashboardOverview implements OnInit {
             labels: chartData.dates || chartData.labels || []
           };
         }
-        this.isLoading = false;
+        this.isRevenueLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error in filterRevenue subscription:', err);
-        this.isLoading = false;
+        this.isRevenueLoading = false;
       }
     });
   }

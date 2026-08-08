@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
@@ -6,6 +6,7 @@ import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
 import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-labor-activity-view',
@@ -19,7 +20,7 @@ import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',
 })
-export class LaborActivityView {
+export class LaborActivityView implements OnInit {
 
   laborActivities: LaborActivityProjection[] = [];
   laborActivity: LaborActivityProjection | undefined;
@@ -38,6 +39,7 @@ export class LaborActivityView {
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private readonly adminService: AdminService,
@@ -51,9 +53,20 @@ export class LaborActivityView {
   }
 
   fetchLaborActivities(): void {
+
+    // Start loader
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getLaborActivitiesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    this.adminService.getLaborActivitiesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+      finalize(() => {
+        // Stop loader for both success and error
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (response: any) => {
         console.log(response);
         // Stage updates in local variables first to prevent layout thrashing

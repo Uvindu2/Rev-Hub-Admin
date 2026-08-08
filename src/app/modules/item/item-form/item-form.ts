@@ -6,6 +6,7 @@ import {NotificationService} from '../../../services/notificationService';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-item-form',
@@ -25,6 +26,8 @@ export class ItemForm implements OnInit {
   itemForm!: FormGroup;
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
   unitTypesList = Object.keys(MeasuringUnitType);
+
+  isSubmitting = false;
 
   unitDisplayMap: Record<string, string> = {
     [MeasuringUnitType.KILO_GRAM]: 'Kilogram (kg)',
@@ -68,11 +71,18 @@ export class ItemForm implements OnInit {
   }
 
   onSubmit(): void {
+
+    if (this.isSubmitting) {
+      return;
+    }
+
     if (this.itemForm.invalid) {
       this.itemForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
+
+    this.isSubmitting = true;
 
     const formValue = this.itemForm.value;
 
@@ -85,7 +95,12 @@ export class ItemForm implements OnInit {
       laborActivitiesSelected: formValue.laborActivitiesSelected || [],
     };
 
-    this.adminService.saveItem(backendPayload).subscribe({
+    this.adminService.saveItem(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Item saved successfully!', 'success');
         this.cancel.emit();

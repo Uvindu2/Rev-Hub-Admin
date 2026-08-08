@@ -7,6 +7,7 @@ import { NotificationService } from '../../../services/notificationService';
 import {JobCardSummaryResponseDTO} from '../../../dto/response/JobCardSummaryResponseDTO';
 import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
 import {JobCardForm} from '../job-card-form/job-card-form';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-job-card-view',
@@ -36,6 +37,7 @@ export class JobCardView implements OnInit {
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  isLoading: boolean = false;
   technicianNameProjection: TechnicianNameProjection[] = [];
 
   constructor(
@@ -71,52 +73,100 @@ export class JobCardView implements OnInit {
     // Extract values directly from the form group
     const formValues = this.filterForm.value;
 
-    // Send POST request with body parameters and query parameters for pagination
-    this.adminService.searchJobCards(formValues, backendPage, this.pageSize, 'jobId', 'desc').subscribe({
-      next: (response: any) => {
-        console.log(response);
+    // Start loader
+    this.isLoading = true;
+    this.cdr.markForCheck();
 
-        // Extract page data safely from response.data or response fallback
-        let pageData = response?.data || response;
+    this.adminService
+      .searchJobCards(
+        formValues,
+        backendPage,
+        this.pageSize,
+        'jobId',
+        'desc'
+      )
+      .pipe(
+        finalize(() => {
+          // Stop loader for both success and error
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
 
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedJobCards: JobCardSummaryResponseDTO[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+          console.log(response);
 
-        if (pageData?.content !== undefined) {
-          updatedJobCards = pageData.content || [];
+          // Extract page data safely
+          const pageData = response?.data || response;
 
-          // Handle various Spring Data Page or custom wrapper response formats safely
-          if (pageData.page) {
-            updatedTotalElements = pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
-            updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
-          } else {
-            updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
-            updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+          let updatedJobCards: JobCardSummaryResponseDTO[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
+
+          if (pageData?.content !== undefined) {
+
+            updatedJobCards = pageData.content || [];
+
+            // Handle custom page wrapper
+            if (pageData.page) {
+
+              updatedTotalElements =
+                pageData.page.totalElements ??
+                pageData.page.total_elements ??
+                0;
+
+              updatedTotalPagesCount =
+                pageData.page.totalPages ??
+                pageData.page.total_pages ??
+                0;
+
+            } else {
+
+              // Standard Spring Page
+              updatedTotalElements =
+                pageData.totalElements ??
+                pageData.total_elements ??
+                0;
+
+              updatedTotalPagesCount =
+                pageData.totalPages ??
+                pageData.total_pages ??
+                0;
+            }
+
+          } else if (Array.isArray(pageData)) {
+
+            updatedJobCards = pageData;
+
+            updatedTotalElements = pageData.length;
+
+            updatedTotalPagesCount =
+              Math.ceil(pageData.length / this.pageSize) || 1;
           }
-        } else if (Array.isArray(pageData)) {
-          updatedJobCards = pageData;
-          updatedTotalElements = pageData.length;
-          updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
+
+          // Apply data
+          this.jobCards = updatedJobCards;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
+
+          this.cdr.markForCheck();
+        },
+
+        error: (err: any) => {
+
+          console.error(
+            'Failed to load job cards from server:',
+            err
+          );
+
+          this.jobCards = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+
+          this.cdr.markForCheck();
         }
-
-        // Apply properties all at once
-        this.jobCards = updatedJobCards;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
-
-        // Notify Angular to redraw on the next frame paint seamlessly
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load job cards from server:', err);
-        this.jobCards = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+      });
   }
 
   onApplyFilters(): void {

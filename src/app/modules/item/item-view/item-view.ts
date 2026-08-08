@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
 import {AdminService} from '../../../services/admin.service';
@@ -6,6 +6,7 @@ import {NotificationService} from '../../../services/notificationService';
 import {ItemProjection} from '../../../dto/response/ItemProjection';
 import {ItemForm} from '../item-form/item-form';
 import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-item-view',
@@ -19,7 +20,7 @@ import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
   templateUrl: './item-view.html',
   styleUrl: './item-view.css',
 })
-export class ItemView {
+export class ItemView implements OnInit {
 
   items: ItemProjection[] = [];
   item: ItemProjection | undefined;
@@ -38,6 +39,7 @@ export class ItemView {
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private readonly adminService: AdminService,
@@ -51,9 +53,19 @@ export class ItemView {
   }
 
   fetchItems(): void {
+    // Start loader
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getItemsPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    this.adminService.getItemsPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+      finalize(() => {
+        // Stop loader for both success and error
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (response: any) => {
         console.log(response);
         // Stage updates in local variables first to prevent layout thrashing

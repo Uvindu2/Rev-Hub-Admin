@@ -6,7 +6,8 @@ import {FormsModule} from '@angular/forms';
 import {TechnicianProjectionWithJobStatus} from '../../../dto/response/TechnicianProjectionWithJobStatus';
 import {TechnicianForm} from '../technician-form/technician-form';
 import {TechnicianViewAndEdit} from '../technician-view-and-edit/technician-view-and-edit';
-import {TechnicianProjection} from '../../../dto/response/TechnicianProjection'; // Fixed: Added CommonModule import
+import {TechnicianProjection} from '../../../dto/response/TechnicianProjection';
+import {finalize} from 'rxjs'; // Fixed: Added CommonModule import
 
 // Fixed: Added missing Technician interface definition
 interface Technician {
@@ -44,6 +45,8 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  isLoading: boolean = false;
+
 
   constructor(
     private readonly adminService: AdminService,
@@ -57,9 +60,19 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
   }
 
   fetchTechnicians(): void {
+    // Start loader
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getTechniciansPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    this.adminService.getTechniciansPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+        finalize(() => {
+          // Stop loader for both success and error
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      ).subscribe({
       next: (response: any) => {
         console.log(response);
         // Stage updates in local variables first to prevent layout thrashing

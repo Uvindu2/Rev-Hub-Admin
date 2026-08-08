@@ -80,12 +80,20 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngIf="!invoices || invoices.length === 0">
+        <tr *ngIf="isLoading">
+          <td colspan="7" class="table-loader-cell">
+            <div class="table-loader">
+              <span class="spinner"></span>
+              <span>Loading Invoices...</span>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="!isLoading && (!invoices || invoices.length === 0)">
           <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
             No invoices found matching current filter parameters.
           </td>
         </tr>
-        <tr *ngFor="let invoice of invoices">
+        <tr *ngFor="let invoice of invoices" [class.loading-hidden]="isLoading">
           <td class="font-semibold">{{ invoice.invoiceNumber }}</td>
           <td>{{ invoice.jobCardNumber }}</td>
           <td>{{ invoice.customerName }}</td>

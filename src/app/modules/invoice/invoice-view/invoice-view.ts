@@ -5,6 +5,7 @@ import { InvoiceForm } from '../invoice-form/invoice-form';
 import { InvoiceSummaryProjection } from '../../../dto/InvoiceSummaryProjection';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-invoice-view',
@@ -33,6 +34,7 @@ export class InvoiceView implements OnInit {
   sortDirection: string = 'desc';
 
   isEditModalOpen: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -57,11 +59,21 @@ export class InvoiceView implements OnInit {
   }
 
   fetchInvoices(): void {
+    this.isLoading = true;
+    this.cdr.markForCheck();
     const backendPage = this.currentPage - 1;
     const formValues = this.filterForm.value;
 
     // Use search endpoint passing filters in body, pageable config in URL params
-    this.adminService.searchInvoices(formValues, backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    this.adminService.searchInvoices(formValues, backendPage, this.pageSize, this.sortByField, this.sortDirection)
+      .pipe(
+        finalize(() => {
+          // Stop loader for both success and error
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
       next: (response: any) => {
         let pageData = response.data || response;
 

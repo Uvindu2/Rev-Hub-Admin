@@ -5,6 +5,7 @@ import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {RoleNameDTO} from '../../../dto/response/RoleNameDTO';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
@@ -22,6 +23,8 @@ export class UserForm implements OnInit {
 
   userForm!: FormGroup;
   rolesList: RoleNameDTO[] = [];
+
+  isSubmitting = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -56,12 +59,15 @@ export class UserForm implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
-
+    this.isSubmitting = true;
     const formValue = this.userForm.value;
 
     // Payload matches UserSaveRequestDTO expected by Spring Boot backend
@@ -73,7 +79,12 @@ export class UserForm implements OnInit {
       active: formValue.active,
     };
 
-    this.adminService.saveUser(backendPayload).subscribe({
+    this.adminService.saveUser(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('User saved successfully!', 'success');
         this.cancel.emit();

@@ -12,7 +12,11 @@
         <div class="left-panel">
             <div class="search-box" style="display: flex; gap: 10px; align-items: center; width: 100%;">
               <input type="text" formControlName="jobCardSearch" placeholder="Search job number..." style="flex: 1;">
-              <button type="button" class="btn-search-action" (click)="onJobCardSearchClick()">Search</button>
+              <button type="button" class="btn-search-action" (click)="onJobCardSearchClick()" [disabled]="isSearching">
+                <span *ngIf="isSearching" class="buttonSpinner"></span>
+
+                {{ isSearching ? 'Searching...' : 'Search' }}
+              </button>
             </div>
 
           <div class="sidebar-list" formArrayName="laborActivities">
@@ -215,7 +219,12 @@
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" (click)="cancel.emit()">Cancel</button>
-          <button type="submit" class="btn-submit" (click)="onSubmit()">Generate & Post Invoice</button>
+          <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting" class="icon">+</span>
+            <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+
+            {{ isSubmitting ? 'GENERATING...' : 'Generate Invoice' }}
+          </button>
         </div>
       </div>
     </form>

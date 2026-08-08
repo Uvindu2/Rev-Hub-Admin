@@ -51,12 +51,21 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngIf="!users || users.length === 0">
+        <tr *ngIf="isLoading">
+          <td colspan="7" class="table-loader-cell">
+            <div class="table-loader">
+              <span class="spinner"></span>
+              <span>Loading job cards...</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!isLoading && (!users || users.length === 0)">
           <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
             No user cards found matching current filter parameters.
           </td>
         </tr>
-        <tr *ngFor="let user of users">
+        <tr *ngFor="let user of users" [class.loading-hidden]="isLoading">
           <td class="font-semibold">{{ user.userId }}</td>
           <td class="font-semibold">{{ user.username }}</td>
           <td class="font-semibold">{{ this.roleName(user.role) }}</td>

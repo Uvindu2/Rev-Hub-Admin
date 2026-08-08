@@ -6,6 +6,7 @@ import {NotificationService} from '../../../services/notificationService';
 import {UserForm} from '../user-form/user-form';
 import {UserViewAndEdit} from '../user-view-and-edit/user-view-and-edit';
 import {UserResponseDTO} from '../../../dto/response/UserResponseDTO';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-user-view',
@@ -37,6 +38,7 @@ export class UserView implements OnInit {
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -59,13 +61,24 @@ export class UserView implements OnInit {
   }
 
   fetchUsers(): void {
+
+    // Start loader
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     const backendPage = this.currentPage - 1;
 
     // Extract values directly from the form group
     const formValues = this.filterForm.value;
 
     // Send POST request with body parameters and query parameters for pagination
-    this.adminService.searchUsers(formValues, backendPage, this.pageSize, 'userId', 'desc').subscribe({
+    this.adminService.searchUsers(formValues, backendPage, this.pageSize, 'userId', 'desc').pipe(
+      finalize(() => {
+        // Stop loader for both success and error
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (response: any) => {
         console.log(response);
 

@@ -1,4 +1,11 @@
 <div class="main">
+  <!-- GLOBAL DASHBOARD API LOADER -->
+  <div class="dashboard-loader" *ngIf="isLoading">
+    <div class="dashboard-loader-spinner"></div>
+    <span>Loading dashboard...</span>
+  </div>
+
+  <!-- TOP BAR -->
   <div *ngIf="activeView === 'dashboard'">
 
     <!-- CARDS -->
@@ -145,8 +152,16 @@
           </p>
         </div>
 
-        <div id="chart" *ngIf="revenueChartOptions && revenueChartOptions.series">
+        <div id="chart"
+             *ngIf="revenueChartOptions && revenueChartOptions.series">
+
+          <div class="revenue-loader" *ngIf="isRevenueLoading">
+            <div class="small-spinner"></div>
+            <span>Loading revenue...</span>
+          </div>
+
           <apx-chart
+            *ngIf="!isRevenueLoading"
             [series]="revenueChartOptions.series!"
             [chart]="revenueChartOptions.chart!"
             [dataLabels]="revenueChartOptions.dataLabels!"
@@ -159,6 +174,7 @@
             [fill]="revenueChartOptions.fill!"
             [grid]="revenueChartOptions.grid!"
           ></apx-chart>
+
         </div>
       </div>
 
@@ -226,7 +242,6 @@
     </div>
 
   </div>
-
   <div *ngIf="activeView === 'jobCards'">
 
     <!-- your job card form or table here -->

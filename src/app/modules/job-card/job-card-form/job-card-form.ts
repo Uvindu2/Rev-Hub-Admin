@@ -19,6 +19,7 @@ import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProj
 import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
 import {NotificationService} from '../../../services/notificationService';
 import {CustomerProjection} from '../../../dto/response/CustomerProjection';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-job-card-form',
@@ -47,6 +48,10 @@ export class JobCardForm implements OnInit {
   vehicleFound = false;
   customerNotFound = false;
   customerFound = false;
+  isSubmitting = false;
+  isSearchingRegVehicle = false;
+  isSearchingUnRegVehicle = false;
+  isSearchingCustomer = false;
 
   technicianNameProjection: TechnicianNameProjection[] = [];
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
@@ -115,11 +120,13 @@ export class JobCardForm implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (!this.hasSearchedVehicle) {
       this.notificationService.show('Please search and verify the vehicle number before submitting the job card.', 'warning');
       return;
     }
-
     const vehicleFields = ['vehicleRegNo', 'make', 'model', 'year'];
     const isVehicleInvalid = vehicleFields.some(field => this.jobCardForm.get(field)?.invalid);
     if (isVehicleInvalid) {
@@ -139,7 +146,7 @@ export class JobCardForm implements OnInit {
       this.notificationService.show('Please fill out all required fields before submitting.', 'warning');
       return;
     }
-
+    this.isSubmitting = true;
     const formValue = this.jobCardForm.value;
 
     // 2. Construct backend payload
@@ -170,7 +177,12 @@ export class JobCardForm implements OnInit {
     };
 
     // 3. Dispatch payload request
-    this.adminService.saveJobCardBlobVariant(backendPayload).subscribe({
+    this.adminService.saveJobCardBlobVariant(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Job Card saved successfully!', 'success');
 
@@ -198,10 +210,11 @@ export class JobCardForm implements OnInit {
 
           } catch (encodeError) {
             console.error('Base64 parsing failed:', encodeError);
+            this.isSubmitting = false;
             this.notificationService.show('Failed to render PDF layout data.', 'error');
           }
         }
-
+        this.isSubmitting = false;
         this.cancel.emit();
       },
       error: (err: any) => {
@@ -216,6 +229,9 @@ export class JobCardForm implements OnInit {
   }
 
   onCustomerSearchClick(): void {
+    if (this.isSearchingCustomer) {
+      return;
+    }
     this.customerNotFound = false;
     this.customerFound = false;
     const customerFields = ['customerName', 'email', 'contactNumber', 'drivingLicenseNumber'];
@@ -227,7 +243,13 @@ export class JobCardForm implements OnInit {
       return;
     }
     this.hasSearchedCustomer = true;
-    this.adminService.getCustomerByContactNumber(value).subscribe({
+    this.isSearchingCustomer = true;
+    this.adminService.getCustomerByContactNumber(value).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSearchingCustomer = false;
+      })).subscribe({
       next: (res: any) => {
         this.customerFound = true;
         this.customer = res.data;
@@ -304,6 +326,9 @@ export class JobCardForm implements OnInit {
   }
 
   onVehicleSearchClick(): void {
+    if (this.isSearchingRegVehicle) {
+      return;
+    }
     this.vehicleFound = false;
     this.vehicleNotFound = false;
     const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value?.trim();
@@ -312,8 +337,13 @@ export class JobCardForm implements OnInit {
       return;
     }
     this.hasSearchedVehicle = true;
-
-    this.adminService.getVehicleAndCustomerByVehicleRegNumber(currentSearchValue).subscribe({
+    this.isSearchingRegVehicle = true;
+    this.adminService.getVehicleAndCustomerByVehicleRegNumber(currentSearchValue).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSearchingRegVehicle = false;
+      })).subscribe({
       next: (res: any) => {
         this.vehicleFound = true;
         this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
@@ -327,6 +357,9 @@ export class JobCardForm implements OnInit {
   }
 
   onUnRegVehicleSearchClick(): void {
+    if (this.isSearchingUnRegVehicle) {
+      return;
+    }
     this.vehicleFound = false;
     this.vehicleNotFound = false;
     const currentSearchValue = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
@@ -335,8 +368,13 @@ export class JobCardForm implements OnInit {
       return;
     }
     this.hasSearchedVehicle = true;
-
-    this.adminService.getVehicleAndCustomerByVehicleVinNumber(currentSearchValue).subscribe({
+    this.isSearchingUnRegVehicle = true;
+    this.adminService.getVehicleAndCustomerByVehicleVinNumber(currentSearchValue).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSearchingUnRegVehicle = false;
+      })).subscribe({
       next: (res: any) => {
         this.vehicleFound = true;
         this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');

@@ -26,7 +26,21 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let tech of technicians">
+      <tr *ngIf="isLoading">
+        <td colspan="7" class="table-loader-cell">
+          <div class="table-loader">
+            <span class="spinner"></span>
+            <span>Loading Technicians...</span>
+          </div>
+        </td>
+      </tr>
+
+      <tr *ngIf="!isLoading && (!technicians || technicians.length === 0)">
+        <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+          No Technician found matching current filter parameters.
+        </td>
+      </tr>
+      <tr *ngFor="let tech of technicians" [class.loading-hidden]="isLoading">
         <td class="font-semibold">{{ tech.technicianId }}</td>
         <td>{{ tech.technicianName }}</td>
         <td>{{ tech.specialty }}</td>

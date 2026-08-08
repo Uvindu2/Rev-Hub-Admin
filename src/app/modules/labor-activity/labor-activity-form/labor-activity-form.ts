@@ -3,6 +3,7 @@ import {NgIf} from "@angular/common";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-labor-activity-form',
@@ -18,6 +19,8 @@ export class LaborActivityForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   laborActivityForm!: FormGroup;
+
+  isSubmitting = false;
 
   constructor(
     private fb: FormBuilder,
@@ -41,11 +44,18 @@ export class LaborActivityForm implements OnInit {
 
   onSubmit(): void {
     // 1. Trigger validations across ALL controls (including the common dropdown components)
+
+    if (this.isSubmitting) {
+      return;
+    }
+
     if (this.laborActivityForm.invalid) {
       this.laborActivityForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields before submitting.', 'error');
       return; // Block submission execution completely
     }
+
+    this.isSubmitting = true;
 
     const formValue = this.laborActivityForm.value;
 
@@ -56,7 +66,12 @@ export class LaborActivityForm implements OnInit {
     };
 
     // 3. Dispatch the payload request
-    this.adminService.saveLaborActivity(backendPayload).subscribe({
+    this.adminService.saveLaborActivity(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Labor Activity saved successfully!', 'success');
         this.cancel.emit();

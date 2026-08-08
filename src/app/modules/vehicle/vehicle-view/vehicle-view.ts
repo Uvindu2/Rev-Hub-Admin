@@ -6,6 +6,7 @@ import {VehicleSummaryProjection} from '../../../dto/response/VehicleSummaryProj
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {VehicleProjection} from '../../../dto/response/VehicleProjection';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-vehicle-view',
@@ -35,6 +36,7 @@ export class VehicleView implements OnInit {
   // Modal State Control Properties
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false; // 🌟 Added: Track display overlay visibility for your view form
+  isLoading: boolean = false;
   selectedVehicle: VehicleProjection | undefined;
 
   constructor(
@@ -126,9 +128,19 @@ export class VehicleView implements OnInit {
   }
 
   fetchVehicles() {
+    // Start loader
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getVehiclesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    this.adminService.getVehiclesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+        finalize(() => {
+          // Stop loader for both success and error
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      ).subscribe({
       next: (response: any) => {
         console.log(response);
         // Stage updates in local variables first to prevent layout thrashing

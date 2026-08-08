@@ -6,6 +6,7 @@ import {CustomerSummaryProjection} from '../../../dto/response/CustomerSummaryPr
 import {CustomerViewAndEdit} from '../customer-view-and-edit/customer-view-and-edit';
 import {NotificationService} from '../../../services/notificationService';
 import {CustomerProjection} from '../../../dto/response/CustomerProjection';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-customer-view',
@@ -33,6 +34,7 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
 
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private readonly adminService: AdminService,
@@ -106,9 +108,17 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   }
 
   private fetchCustomers() {
+    // Start loader
+    this.isLoading = true;
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getCustomersPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).subscribe({
+    this.adminService.getCustomersPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+        finalize(() => {
+          // Stop loader for both success and error
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      ).subscribe({
       next: (response: any) => {
         console.log(response);
         // Stage updates in local variables first to prevent layout thrashing

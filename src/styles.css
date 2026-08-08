@@ -478,3 +478,65 @@ html, body {
   color: #28a745; /* Green */
   font-size: 13px;
 }
+
+
+/*Button Loader*/
+
+.buttonSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.table-loader-cell {
+  height: 220px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 180px;
+  color: #757575;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid #757575;
+  border-top-color: #dc2626;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spinner-animation 0.7s linear infinite;
+}
+
+@keyframes spinner-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-hidden {
+  display: none;
+}

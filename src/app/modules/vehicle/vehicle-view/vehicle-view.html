@@ -62,7 +62,21 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let vehicle of allVehicles">
+        <tr *ngIf="isLoading">
+          <td colspan="7" class="table-loader-cell">
+            <div class="table-loader">
+              <span class="spinner"></span>
+              <span>Loading Vehicles...</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!isLoading && (!allVehicles || allVehicles.length === 0)">
+          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+            No vehicles found matching current filter parameters.
+          </td>
+        </tr>
+        <tr *ngFor="let vehicle of allVehicles" [class.loading-hidden]="isLoading">
           <td class="font-semibold text-uppercase">{{ vehicle.vehicleRegNo }}</td>
           <td>{{ vehicle.vehicleMake }} {{ vehicle.vehicleModel }}</td>
           <td class="text-center font-numeric">{{ vehicle.vehicleYear }}</td>

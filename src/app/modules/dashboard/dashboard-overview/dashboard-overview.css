@@ -489,3 +489,115 @@ th, td {
   background: #b30000;
   color: white;
 }
+
+
+
+
+/* =========================================================
+   GLOBAL DASHBOARD API LOADER
+   ========================================================= */
+
+.main {
+  position: relative;
+}
+
+
+/* Loader overlay */
+
+.dashboard-loader {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 9999;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 14px;
+
+  background: rgba(18, 18, 18, 0.75);
+
+  backdrop-filter: blur(2px);
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  font-weight: 500;
+}
+
+
+/* Spinner */
+
+.dashboard-loader-spinner {
+
+  width: 42px;
+
+  height: 42px;
+
+  border: 4px solid rgba(255, 255, 255, 0.25);
+
+  border-top-color: #b30000;
+
+  border-radius: 50%;
+
+  animation: dashboard-loader-spin
+  0.75s linear infinite;
+}
+
+
+/* Animation */
+
+@keyframes dashboard-loader-spin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+.revenue-loader {
+  height: 150px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  color: #8e8e8e;
+
+  font-size: 13px;
+}
+
+.small-spinner {
+  width: 28px;
+
+  height: 28px;
+
+  border: 3px solid #e5e5e5;
+
+  border-top-color: #b30000;
+
+  border-radius: 50%;
+
+  animation: dashboard-loader-spin
+  0.7s linear infinite;
+}

@@ -106,12 +106,22 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngIf="!jobCards || jobCards.length === 0">
+
+        <tr *ngIf="isLoading">
+          <td colspan="7" class="table-loader-cell">
+            <div class="table-loader">
+              <span class="spinner"></span>
+              <span>Loading job cards...</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!isLoading && (!jobCards || jobCards.length === 0)">
           <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
             No job cards found matching current filter parameters.
           </td>
         </tr>
-        <tr *ngFor="let job of jobCards">
+        <tr *ngFor="let job of jobCards" [class.loading-hidden]="isLoading">
           <td class="font-semibold">{{ job.jobCardNumber }}</td>
           <td>{{ job.customerName }}</td>
           <td class="text-uppercase">{{ job.vehicleRegNumber }}</td>

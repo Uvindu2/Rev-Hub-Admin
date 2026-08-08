@@ -50,7 +50,12 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="btn-submit">SUBMIT</button>
+      <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting" class="icon">+</span>
+        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+
+        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
+      </button>
       <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
     </div>
   </form>
