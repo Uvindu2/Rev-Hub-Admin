@@ -18,6 +18,7 @@ import {finalize} from 'rxjs';
   ],
   templateUrl: './item-form.html',
   styleUrl: './item-form.css',
+  standalone: true
 })
 export class ItemForm implements OnInit {
 
@@ -71,7 +72,6 @@ export class ItemForm implements OnInit {
   }
 
   onSubmit(): void {
-
     if (this.isSubmitting) {
       return;
     }

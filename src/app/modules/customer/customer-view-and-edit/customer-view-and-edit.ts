@@ -1,13 +1,10 @@
 import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
-import {NgForOf, NgIf} from '@angular/common';
-import {ItemProjection} from '../../../dto/response/ItemProjection';
-import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
-import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {NgIf} from '@angular/common';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {CustomerProjection} from '../../../dto/response/CustomerProjection';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-customer-view-and-edit',
@@ -18,6 +15,7 @@ import {CustomerProjection} from '../../../dto/response/CustomerProjection';
   ],
   templateUrl: './customer-view-and-edit.html',
   styleUrl: './customer-view-and-edit.css',
+  standalone: true
 })
 export class CustomerViewAndEdit implements OnInit, AfterViewInit {
   @Input() customer: CustomerProjection | undefined;
@@ -26,6 +24,7 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
   @Output() cancel = new EventEmitter<void>();
 
   customerForm!: FormGroup;
+  isSubmitting = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -68,12 +67,15 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
-
+    this.isSubmitting = true;
     const formValue = this.customerForm.value;
 
     const backendPayload = {
@@ -84,7 +86,12 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
       customerAddress: formValue.customerAddress
     };
 
-    this.adminService.modifyCustomer(backendPayload).subscribe({
+    this.adminService.modifyCustomer(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Customer saved successfully!', 'success');
         this.cancel.emit();

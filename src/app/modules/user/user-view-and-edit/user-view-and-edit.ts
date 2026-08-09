@@ -6,6 +6,7 @@ import {NgIf} from '@angular/common';
 import {RoleNameDTO} from '../../../dto/response/RoleNameDTO';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-user-view-and-edit',
@@ -17,6 +18,7 @@ import {NotificationService} from '../../../services/notificationService';
   ],
   templateUrl: './user-view-and-edit.html',
   styleUrl: './user-view-and-edit.css',
+  standalone: true
 })
 export class UserViewAndEdit implements OnInit, AfterViewInit{
   @Input() user!: UserResponseDTO | undefined;
@@ -26,6 +28,7 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
 
   userForm!: FormGroup;
   rolesList: RoleNameDTO[] = [];
+  isSubmitting = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -66,12 +69,15 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
-
+    this.isSubmitting = true;
     const formValue = this.userForm.value;
 
     // Payload matches UserSaveRequestDTO expected by Spring Boot backend
@@ -82,7 +88,12 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
       active: formValue?.active,
     };
 
-    this.adminService.modifyUser(backendPayload).subscribe({
+    this.adminService.modifyUser(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('User modified successfully!', 'success');
         this.cancel.emit();

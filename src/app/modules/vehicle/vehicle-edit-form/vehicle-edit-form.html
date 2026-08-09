@@ -5,7 +5,7 @@
       <button class="close-header-btn" (click)="closeForm()">&times;</button>
     </div>
 
-    <form [formGroup]="vehicleForm" (ngSubmit)="submitForm()">
+    <form [formGroup]="vehicleForm">
       <div class="modal-body">
 
         <!-- Standard Inputs -->
@@ -71,7 +71,12 @@
       </div>
 
       <div class="modal-footer">
-        <button type="submit" class="btn-primary" [disabled]="vehicleForm.invalid">SUBMIT</button>
+        <button type="submit" class="btn-submit"  (click)="submitForm()" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting" class="icon">+</span>
+          <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+
+          {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
+        </button>
         <button type="button" class="btn-secondary" (click)="closeForm()">CANCEL</button>
       </div>
     </form>

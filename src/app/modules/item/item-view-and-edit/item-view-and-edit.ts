@@ -7,12 +7,14 @@ import { MeasuringUnitType } from '../../../shared/enums/measuring-unit-type.enu
 import { MultiSelectDropdown } from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
 import { ItemProjection } from '../../../dto/response/ItemProjection';
 import { CommonModule } from '@angular/common';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-item-view-and-edit',
-  imports: [CommonModule ,MultiSelectDropdown,ReactiveFormsModule],
+  imports: [CommonModule, MultiSelectDropdown, ReactiveFormsModule],
   templateUrl: './item-view-and-edit.html',
   styleUrl: './item-view-and-edit.css',
+  standalone: true
 })
 export class ItemViewAndEdit implements OnInit, AfterViewInit {
   @Input() item: ItemProjection | undefined;
@@ -23,6 +25,8 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
   itemForm!: FormGroup;
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
   unitTypesList = Object.keys(MeasuringUnitType);
+
+  isSubmitting = false;
 
   unitDisplayMap: Record<string, string> = {
     [MeasuringUnitType.KILO_GRAM]: 'Kilogram (kg)',
@@ -91,12 +95,15 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (this.itemForm.invalid) {
       this.itemForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
-
+    this.isSubmitting = true;
     const formValue = this.itemForm.value;
 
     const backendPayload = {
@@ -109,7 +116,12 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
       laborActivitiesSelected: formValue.laborActivitiesSelected || [],
     };
 
-    this.adminService.modifyItem(backendPayload).subscribe({
+    this.adminService.modifyItem(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Item saved successfully!', 'success');
         this.cancel.emit();

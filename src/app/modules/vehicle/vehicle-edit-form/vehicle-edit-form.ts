@@ -15,6 +15,7 @@ import { VehicleProjection } from '../../../dto/response/VehicleProjection';
 import { CustomerProjection } from '../../../dto/response/CustomerProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-vehicle-edit-form',
@@ -33,6 +34,7 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
   vehicleForm!: FormGroup;
   currentCustomer: CustomerProjection | null = null;
   showCustomerPopup = false;
+  isSubmitting = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -80,7 +82,10 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
   submitForm(): void {
-    // 1. Validation check
+    if (this.isSubmitting) {
+      return;
+    }
+    // Validation check
     if (this.vehicleForm.invalid) {
       this.vehicleForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields.', 'error');
@@ -91,8 +96,8 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
       this.notificationService.show('Please assign a customer.', 'error');
       return;
     }
-
-    // 2. Define the payload structure inline
+    this.isSubmitting = true;
+    // Define the payload structure inline
     const backendPayload = {
       vehicleRegNo: this.vehicleForm.value.vehicleRegNo,
       vehicleMake: this.vehicleForm.value.vehicleMake,
@@ -116,8 +121,13 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
     console.log('Payload sending to backend:', backendPayload);
 
-    // 3. Send
-    this.adminService.modifyVehicle(backendPayload).subscribe({
+    // Send
+    this.adminService.modifyVehicle(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Vehicle modified successfully!', 'success');
         this.cancel.emit();

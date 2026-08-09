@@ -1,79 +1,62 @@
 import { Routes } from '@angular/router';
-
-import { Dashboard } from './modules/dashboard/dashboard/dashboard';
-import { JobCardView } from './modules/job-card/job-card-view/job-card-view';
-import { CustomerView } from './modules/customer/customer-view/customer-view';
-import { TechnicianView } from './modules/technician/technician-view/technician-view';
-import { VehicleView } from './modules/vehicle/vehicle-view/vehicle-view';
-import { InvoiceView } from './modules/invoice/invoice-view/invoice-view';
-import { DashboardOverview } from './modules/dashboard/dashboard-overview/dashboard-overview';
-import { ItemView } from './modules/item/item-view/item-view';
-import { LaborActivityView } from './modules/labor-activity/labor-activity-view/labor-activity-view';
-import { Login } from './modules/login/login/login';
-import { UserView } from './modules/user/user-view/user-view';
-import {authGuard} from './modules/guards/auth.guard';
-
+import { authGuard } from './modules/guards/auth.guard';
 
 export const routes: Routes = [
 
-  // Login page
   {
     path: 'login',
-    component: Login
+    loadComponent: () => import('./modules/login/login/login').then(m => m.Login)
   },
 
-
-  // Protected dashboard
   {
     path: 'dashboard',
-    component: Dashboard,
     canActivate: [authGuard],
-
+    loadComponent: () => import('./modules/dashboard/dashboard/dashboard').then(m => m.Dashboard),
     children: [
 
       {
         path: 'overview',
-        component: DashboardOverview
+        loadComponent: () => import('./modules/dashboard/dashboard-overview/dashboard-overview').then(m => m.DashboardOverview)
       },
 
       {
         path: 'job-cards',
-        component: JobCardView
+        loadComponent: () => import('./modules/job-card/job-card-view/job-card-view').then(m => m.JobCardView)
       },
 
       {
         path: 'invoices',
-        component: InvoiceView
+        loadComponent: () => import('./modules/invoice/invoice-view/invoice-view').then(m => m.InvoiceView)
       },
 
       {
         path: 'customers',
-        component: CustomerView
+        loadComponent: () => import('./modules/customer/customer-view/customer-view').then(m => m.CustomerView)
       },
 
       {
         path: 'technicians',
-        component: TechnicianView
+        loadComponent: () => import('./modules/technician/technician-view/technician-view').then(m => m.TechnicianView)
       },
 
       {
         path: 'vehicles',
-        component: VehicleView
+        loadComponent: () => import('./modules/vehicle/vehicle-view/vehicle-view').then(m => m.VehicleView)
       },
 
       {
         path: 'items',
-        component: ItemView
+        loadComponent: () => import('./modules/item/item-view/item-view').then(m => m.ItemView)
       },
 
       {
         path: 'labor-activities',
-        component: LaborActivityView
+        loadComponent: () => import('./modules/labor-activity/labor-activity-view/labor-activity-view').then(m => m.LaborActivityView)
       },
 
       {
         path: 'users',
-        component: UserView
+        loadComponent: () => import('./modules/user/user-view/user-view').then(m => m.UserView)
       },
 
       // Default dashboard page
@@ -86,14 +69,12 @@ export const routes: Routes = [
     ]
   },
 
-
   // Default route
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
   },
-
 
   // Invalid URL
   {

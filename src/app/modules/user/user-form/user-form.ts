@@ -16,6 +16,7 @@ import {finalize} from 'rxjs';
   ],
   templateUrl: './user-form.html',
   styleUrl: './user-form.css',
+  standalone: true
 })
 export class UserForm implements OnInit {
 

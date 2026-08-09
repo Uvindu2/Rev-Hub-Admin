@@ -19,6 +19,7 @@ import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProj
 import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-job-card-view-and-edit',
@@ -29,6 +30,7 @@ import {NotificationService} from '../../../services/notificationService';
   ],
   templateUrl: './job-card-view-and-edit.html',
   styleUrl: './job-card-view-and-edit.css',
+  standalone: true
 })
 export class JobCardViewAndEdit implements OnInit, AfterViewInit {
 
@@ -43,6 +45,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
   customer: Customer | undefined;
 
   isDropdownOpen = false;
+  isSubmitting = false;
 
   technicianNameProjection: TechnicianNameProjection[] = [];
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
@@ -141,13 +144,16 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     // 1. Trigger validations across ALL controls (including the common dropdown components)
     if (this.jobCardForm.invalid) {
       this.jobCardForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields before submitting.', 'error');
       return; // Block submission execution completely
     }
-
+    this.isSubmitting = true;
     const formValue = this.jobCardForm.value;
 
     // 2. Safely construct the exact payload contract structure expected by the backend
@@ -158,7 +164,12 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       customerComplaintText: formValue.complaint || null
     };
     // 3. Dispatch the payload request
-    this.adminService.modifyJobCardBlobVariant(backendPayload).subscribe({
+    this.adminService.modifyJobCardBlobVariant(backendPayload).pipe(
+      // Always reset submit loader
+      // success OR error
+      finalize(() => {
+        this.isSubmitting = false;
+      })).subscribe({
       next: (res: any) => {
         this.notificationService.show('Job Card modified successfully!', 'success');
 

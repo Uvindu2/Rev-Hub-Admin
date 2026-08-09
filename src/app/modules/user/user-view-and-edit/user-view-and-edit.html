@@ -4,7 +4,7 @@
     <button class="close-btn" (click)="onCancel()">&times;</button> <!-- Fixed typo from onCancel if needed, or keep your handler -->
   </div>
 
-  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="userForm">
     <div class="modal-body">
 
       <div class="form-group">
@@ -38,7 +38,12 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="btn-submit">SUBMIT</button>
+      <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting" class="icon">+</span>
+        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+
+        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
+      </button>
       <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
     </div>
   </form>

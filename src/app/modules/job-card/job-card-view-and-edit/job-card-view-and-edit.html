@@ -132,8 +132,11 @@
 
     <ng-template [ngIf]="isEditModalOpen">
     <div class="modal-footer">
-      <button type="submit" (click)="onSubmit()" class="btn-submit">
-        <span class="icon">+</span> SUBMIT JOB CARD
+      <button type="submit" class="btn-submit"  (click)="onSubmit()" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting" class="icon">+</span>
+        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+
+        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT JOB CARD' }}
       </button>
       <button type="button" class="btn-cancel" (click)="$event.preventDefault(); onCancel()">
         CANCEL

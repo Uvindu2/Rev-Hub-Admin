@@ -13,6 +13,7 @@ import {finalize} from 'rxjs';
   ],
   templateUrl: './labor-activity-form.html',
   styleUrl: './labor-activity-form.css',
+  standalone: true
 })
 export class LaborActivityForm implements OnInit {
 
@@ -44,7 +45,6 @@ export class LaborActivityForm implements OnInit {
 
   onSubmit(): void {
     // 1. Trigger validations across ALL controls (including the common dropdown components)
-
     if (this.isSubmitting) {
       return;
     }

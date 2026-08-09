@@ -4,7 +4,7 @@
     <h2>CREATE NEW LABOR ACTIVITY</h2>
   </div>
 
-  <form [formGroup]="laborActivityForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="laborActivityForm">
     <div class="modal-body">
 
       <div class="form-group">
@@ -30,8 +30,11 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="btn-submit">
-        SUBMIT
+      <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting" class="icon">+</span>
+        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+
+        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
       </button>
       <button type="button" class="btn-cancel" (click)="onCancel()">
         CANCEL
