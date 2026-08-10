@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
+  production: true,
   apiUrl: 'https://rev-hub-admin-glqa.vercel.app/api'
 };
