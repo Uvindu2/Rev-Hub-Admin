@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
-import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {UserForm} from '../user-form/user-form';
@@ -15,7 +15,8 @@ import {finalize} from 'rxjs';
     NgIf,
     ReactiveFormsModule,
     UserForm,
-    UserViewAndEdit
+    UserViewAndEdit,
+    FormsModule
   ],
   templateUrl: './user-view.html',
   styleUrl: './user-view.css',
@@ -39,6 +40,7 @@ export class UserView implements OnInit {
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
+  isSearch: boolean = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -221,5 +223,12 @@ export class UserView implements OnInit {
       return '';
     }
     return roles.map(role => role.roleName).join(', ');
+  }
+
+  search() {
+    if (this.isSearch) {
+      return;
+    }
+    this.isSearch = true;
   }
 }

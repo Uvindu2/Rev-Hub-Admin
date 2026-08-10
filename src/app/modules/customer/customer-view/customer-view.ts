@@ -35,6 +35,7 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
+  isSearch: boolean = false;
 
   constructor(
     private readonly adminService: AdminService,
@@ -168,4 +169,10 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
     this.cdr.markForCheck();
   }
 
+  search() {
+    if (this.isSearch) {
+      return;
+    }
+    this.isSearch = true;
+  }
 }

@@ -37,6 +37,7 @@ export class VehicleView implements OnInit {
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false; // 🌟 Added: Track display overlay visibility for your view form
   isLoading: boolean = false;
+  isSearch: boolean = false;
   selectedVehicle: VehicleProjection | undefined;
 
   constructor(
@@ -194,5 +195,12 @@ export class VehicleView implements OnInit {
     this.searchTerm = '';
     this.currentPage = 1;
     this.fetchVehicles();
+  }
+
+  search() {
+    if (this.isSearch) {
+      return;
+    }
+    this.isSearch = true;
   }
 }

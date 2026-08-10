@@ -4,7 +4,11 @@
     <h2>All Customers</h2>
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search Customers..." (input)="onSearch($event)">
+      <input type="text" placeholder="Search Customers...">
+      <button type="button" class="btn-filter-search-action" (click)="search()" [disabled]="isSearch">
+        <span *ngIf="isSearch"></span>
+        {{ isSearch ? 'Searching...' : 'Search' }}
+      </button>
     </div>
   </div>
 

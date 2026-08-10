@@ -540,3 +540,17 @@ html, body {
 .loading-hidden {
   display: none;
 }
+
+
+.btn-filter-search-action {
+  background-color: #b91c1c;
+  color: #ffffff;
+  border: none;
+  padding: 8px 13px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.9rem;
+  margin-left: 5pt;
+}
