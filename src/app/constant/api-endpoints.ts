@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:8085';
+export const API_BASE_URL = 'https://daring-perfection-production-fbe1.up.railway.app';
 
 export const API_ENDPOINTS = {
   GET_ALL: `${API_BASE_URL}/customer`,
