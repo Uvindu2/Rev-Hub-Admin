@@ -8,12 +8,12 @@ import { NotificationService } from '../../../services/notificationService';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], // Added CommonModule for structural directives
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
-  loginForm: FormGroup; // Defined the form tracking group
+  loginForm: FormGroup;
   statusError = '';
 
   constructor(
@@ -22,7 +22,6 @@ export class Login {
     private notificationService: NotificationService,
     private router: Router,
   ) {
-    // Initialize your reactive form controls
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -35,15 +34,15 @@ export class Login {
       return;
     }
 
-    // FIX: Pull directly from reactive form control values instead of blank credentials object
     const { username, password } = this.loginForm.value;
 
     this.authService.login(username, password).subscribe({
       next: () => {
-        this.router.navigate(['dashboard/overview']);
+        // Absolute routing path
+        this.router.navigate(['/dashboard/overview']);
       },
       error: (err) => {
-        console.log(err)
+        console.log(err);
         this.statusError = err.error?.message || err.error?.data || 'Connection refused by server engine.';
         this.notificationService.show(this.statusError, 'error');
       },
