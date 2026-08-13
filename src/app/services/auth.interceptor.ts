@@ -1,43 +1,34 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { tap } from 'rxjs/operators';
+import {environment} from '../../environment/environment';
 
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private loginUrl = `${environment.apiUrl}/api/login`;
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  constructor(private http: HttpClient) {}
 
-  const token = sessionStorage.getItem('token');
-
-  let request = req;
-
-
-  if (token) {
-
-    request = req.clone({
-
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-
-    });
-
+  login(username: string, password: string) {
+    return this.http.post<any>(this.loginUrl, { username, password }).pipe(
+      tap(response => {
+        if (response && response.token) {
+          // MUST match sessionStorage in interceptor
+          sessionStorage.setItem('token', response.token);
+          sessionStorage.setItem('user', JSON.stringify(response));
+        }
+      })
+    );
   }
 
+  isLoggedIn(): boolean {
+    // MUST match sessionStorage
+    return !!sessionStorage.getItem('token');
+  }
 
-  return next(request).pipe(
-
-    catchError(error => {
-
-      if (error.status === 401) {
-
-        sessionStorage.clear();
-
-        window.location.href = '/login';
-
-      }
-
-      return throwError(() => error);
-
-    })
-
-  );
-
-};
+  logout(): void {
+    sessionStorage.clear();
+  }
+}
