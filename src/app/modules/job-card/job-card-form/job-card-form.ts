@@ -270,7 +270,7 @@ export class JobCardForm implements OnInit {
             contactNumber: this.customer?.contactNumber || value,
           });
           this.isExistingCustomer = false;
-          this.notificationService.show('No Customer found with that contact number.', 'warning');
+          console.warn('No Customer found with that contact number.');
           this.cdr.detectChanges();
         }, 0);
       }
@@ -445,7 +445,7 @@ export class JobCardForm implements OnInit {
     });
 
     setTimeout(() => {
-      this.notificationService.show('No Vehicle or Customer records found.', 'error');
+      console.warn('No Vehicle or Customer records found.');
       this.cdr.detectChanges();
     }, 0);
   }

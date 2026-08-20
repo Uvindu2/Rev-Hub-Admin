@@ -1,5 +1,4 @@
 .login-page {
-
   background-size: cover;
   min-height: 100vh;
   display: flex;
@@ -24,12 +23,32 @@
   backdrop-filter: blur(5px);
   border: 1px solid #444;
 
-  .logo { width: 180px; margin-bottom: 20px; }
+  h2 {
+    color: #ffffff;
+    margin-bottom: 25px;
+  }
 
-  h3 { color: #ffffff; margin-bottom: 25px; }
+  .logo { 
+    width: 180px; 
+    margin-bottom: 20px; 
+  }
+
+  h3 { 
+    color: #ffffff; 
+    margin-bottom: 25px; 
+  }
 
   .input-group {
     margin-bottom: 15px;
+    
+    label {
+      display: block;
+      text-align: left;
+      color: #ffffff;
+      margin-bottom: 8px; /* Fixed typo from 8s px */
+      font-size: 0.9rem;
+    }
+
     input {
       width: 100%;
       padding: 14px;
@@ -57,6 +76,15 @@
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    &:hover { background-color: #8c0000; }
+    
+    &:hover { 
+      background-color: #8c0000; 
+    }
+  }
+
+  .message.error {
+    margin-top: 15px;
+    color: #ff6b6b;
+    font-size: 0.85rem;
   }
 }

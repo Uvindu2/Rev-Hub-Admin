@@ -2,11 +2,12 @@ import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ChangeDetect
 import {CommonModule} from '@angular/common';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {ItemProjection} from '../../../dto/response/ItemProjection';
-import {finalize} from 'rxjs';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-invoice-form',
@@ -31,17 +32,21 @@ export class InvoiceForm implements OnInit {
   protected filteredItemParts: ItemProjection[] = [];
   protected isDropdownOpen: boolean = false;
   protected laborActivityAvailable = false;
-  protected isSubmitting = false;
-  protected isSearching = false;
+  
+  // Submission & Print Preview Modal states
+  protected isSubmitting: boolean = false;
+  protected showPrintPreviewModal: boolean = false;
+  protected invoicePdfUrl: SafeResourceUrl | null = null;
+isSearching: any;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly http: HttpClient
-  ) {
-  }
+    private readonly http: HttpClient,
+    private readonly sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
@@ -166,275 +171,85 @@ export class InvoiceForm implements OnInit {
     return this.totalPartsCost + this.totalLaborCost + (this.invoiceForm.get('additionalFees')?.value || 0);
   }
 
-  onSubmit(): void {
-
-    console.log(this.laborActivities.length);
-
-    // =========================================================
-    // VALIDATE LABOR ACTIVITIES
-    // =========================================================
-
+  onSubmit() {
     if (this.laborActivities.length < 1) {
-
-      this.notificationService.show(
-        'An invoice must contain at least one labor activity.',
-        'error'
-      );
-
+      this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
       return;
     }
-
-
-    // =========================================================
-    // VALIDATE FORM
-    // =========================================================
-
+    
     if (this.invoiceForm.invalid) {
-
       this.markAllAsTouched(this.invoiceForm);
-
-      this.notificationService.show(
-        'Please resolve all validation errors before proceeding.',
-        'error'
-      );
-
+      this.notificationService.show('Please resolve all validation errors before proceeding.', 'error');
       return;
     }
-
-
-    // =========================================================
-    // PREVENT DOUBLE SUBMISSION
-    // =========================================================
 
     if (this.isSubmitting) {
       return;
     }
-
     this.isSubmitting = true;
+    this.cdr.markForCheck();
 
-
-    // =========================================================
-    // OPEN PDF TAB IMMEDIATELY
-    // =========================================================
-
-    const viewerTab =
-      window.open('about:blank', '_blank');
-
-
-    if (viewerTab) {
-
-      viewerTab.document.write(
-        'Generating Invoice PDF, please wait...'
-      );
-
-    }
-
-
-    // =========================================================
-    // GET FORM PAYLOAD
-    // =========================================================
-
-    const payload =
-      this.invoiceForm.getRawValue();
-
-
-    // =========================================================
-    // SAVE INVOICE
-    // =========================================================
+    const payload = this.invoiceForm.getRawValue();
 
     this.adminService.saveInvoice(payload).pipe(
-      // Always reset submit loader
-      // success OR error
       finalize(() => {
         this.isSubmitting = false;
-      })).subscribe({
-      // =======================================================
-      // SUCCESS
-      // =======================================================
-      next: (res) => {
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (res: any) => {
+        const dataContainer = res?.data || res;
 
-        if (res.code === 200 || res.success) {
+        if (dataContainer && dataContainer.pdfBytes) {
           this.notificationService.show(
-            'Invoice generated and posted successfully!',
+            dataContainer.response || 'Invoice generated and posted successfully!',
             'success'
           );
-
-          // ===================================================
-          // PDF DATA
-          // ===================================================
-
-          const dataContainer =
-            res.data;
-
-          if (dataContainer && dataContainer.pdfBytes) {
-            try {
-
-              // Remove whitespace from Base64
-              const cleanBase64 =
-                dataContainer.pdfBytes.replace(/\s/g, '');
-
-
-              // Base64 -> Binary
-              const binaryCharacters =
-                atob(cleanBase64);
-
-
-              const binaryLength =
-                binaryCharacters.length;
-
-
-              const numericBytes =
-                new Uint8Array(binaryLength);
-
-
-              for (
-                let i = 0;
-                i < binaryLength;
-                i++
-              ) {
-
-                numericBytes[i] =
-                  binaryCharacters.charCodeAt(i);
-
-              }
-
-
-              // =================================================
-              // CREATE PDF BLOB
-              // =================================================
-
-              const invoiceBlob =
-                new Blob(
-                  [numericBytes],
-                  {
-                    type: 'application/pdf'
-                  }
-                );
-
-
-              const currentBlobUrl =
-                window.URL.createObjectURL(
-                  invoiceBlob
-                );
-
-
-              // =================================================
-              // OPEN PDF IN EXISTING TAB
-              // =================================================
-
-              if (viewerTab) {
-
-                viewerTab.location.href =
-                  currentBlobUrl;
-
-              }
-
-
-              // =================================================
-              // CLEAN BLOB URL
-              // =================================================
-
-              setTimeout(() => {
-
-                window.URL.revokeObjectURL(
-                  currentBlobUrl
-                );
-
-              }, 6000);
-
-
-            } catch (decodeErr) {
-
-              console.error(
-                'Binary compilation breakdown:',
-                decodeErr
-              );
-
-
-              if (viewerTab) {
-                viewerTab.close();
-              }
-
-
-              this.notificationService.show(
-                'Warning: Transaction processed, but unable to compile invoice layout.',
-                'error'
-              );
-
-            }
-
-          } else {
-
-            // No PDF returned
-            if (viewerTab) {
-              viewerTab.close();
-            }
-
-          }
-
-
-          // ===================================================
-          // RESET FORM
-          // ===================================================
-
+          this.printInvoice(res.data.invoiceId);
           this.resetFormState();
-
-          this.cancel.emit();
-
-        }
-
-          // =====================================================
-          // BACKEND RETURNED FAILURE
-        // =====================================================
-
-        else {
-          if (viewerTab) {
-            viewerTab.close();
-          }
-
-
+        } else {
           this.notificationService.show(
-            res.message ||
-            'Failed to parse invoice transaction.',
+            'Failed to parse invoice transaction or missing PDF data.',
             'error'
           );
-
+          this.cdr.markForCheck();
         }
-
       },
-
-
-      // =======================================================
-      // HTTP ERROR
-      // =======================================================
-
       error: (err) => {
-
-        console.error(
-          'Submission crash details:',
-          err
-        );
-
-
-        if (viewerTab) {
-          viewerTab.close();
-        }
-
-
+        console.error('Submission crash details:', err);
         const serverErrorMessage =
-          err.error?.data?.error ||
-          'Database constraint violation encountered.';
-
+          err.error?.data?.error || 'Database constraint violation encountered.';
 
         this.notificationService.show(
           'Error: ' + serverErrorMessage,
           'error'
         );
-
+        this.cdr.markForCheck();
       }
-
     });
+  }
 
+    printInvoice(invoiceId: number): void {
+    this.adminService.viewInvoice(invoiceId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          iframe.contentWindow?.print();
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+            window.URL.revokeObjectURL(url);
+          }, 1000);
+        };
+      },
+      error: () => {
+        this.notificationService.show('Failed to print invoice', 'error');
+      }
+    });
   }
 
   private resetFormState() {
@@ -513,20 +328,9 @@ export class InvoiceForm implements OnInit {
 
   onJobCardSearchClick(): void {
     const value = this.invoiceForm.get('jobCardSearch')?.value;
-
     if (!value) return;
-    if (this.isSearching) {
-      return;
-    }
 
-    this.isSearching = true;
-
-    this.adminService.getLaborActivitiesByJobId(value).pipe(
-      // Always reset submit loader
-      // success OR error
-      finalize(() => {
-        this.isSearching = false;
-      })).subscribe({
+    this.adminService.getLaborActivitiesByJobId(value).subscribe({
       next: (res: any) => {
         this.laborActivities.clear();
         this.partDropdownOpenRowIndex = null;
@@ -534,7 +338,6 @@ export class InvoiceForm implements OnInit {
         this.laborActivityAvailable = true;
 
         if (incomingActivities.length === 0) {
-          this.isSearching = false;
           this.notificationService.show('No activities linked to this Job Card.', 'error');
           this.cdr.detectChanges();
           return;
@@ -543,11 +346,10 @@ export class InvoiceForm implements OnInit {
         incomingActivities.forEach((activity: any) => {
           this.addLaborActivity(activity.laborActivityId, true, 0);
         });
-        this.isSearching = false;
+
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        this.isSearching = false;
         console.error(err);
         this.notificationService.show('No Job Card found with that Job Id.', 'error');
         this.cdr.detectChanges();

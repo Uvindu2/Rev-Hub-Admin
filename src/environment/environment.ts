@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://daring-perfection-production-fbe1.up.railway.app'
+  production: false,
+  apiUrl: 'http://localhost:8080'
 };

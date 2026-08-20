@@ -16,7 +16,7 @@ import { NgIf } from '@angular/common';
 import { Subscription, filter } from 'rxjs';
 import {AuthService} from '../../../services/auth.service';
 
-type View = 'dashboard' | 'job-cards' | 'invoices' | 'customers' | 'technicians' | 'vehicles' | 'items' | 'labor-activities';
+type View = 'dashboard' | 'job-cards' | 'invoices' | 'customers' | 'technicians' | 'vehicles' | 'items' | 'users' | 'labor-activities';
 
 @Component({
   selector: 'app-dashboard',
@@ -52,6 +52,7 @@ export class Dashboard implements OnInit, OnDestroy {
     'technicians': 'Technicians',
     'vehicles': 'Vehicles',
     'items': 'Items',
+    'users': 'Users',
     'labor-activities': 'Labor Activities'
   };
 

@@ -1,5 +1,5 @@
-export const API_BASE_URL = 'https://daring-perfection-production-fbe1.up.railway.app';
-
+import { environment } from "../../environment/environment";
+export const API_BASE_URL = environment.apiUrl;
 export const API_ENDPOINTS = {
   GET_ALL: `${API_BASE_URL}/customer`,
   GET_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-names`,

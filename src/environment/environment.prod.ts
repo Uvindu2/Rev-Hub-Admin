@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://rev-hub-admin-glqa.vercel.app/api'
+  apiUrl: 'https://daring-perfection-production-fbe1.up.railway.app'
 };
