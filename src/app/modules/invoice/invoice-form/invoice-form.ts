@@ -1,12 +1,26 @@
-import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {ItemProjection} from '../../../dto/response/ItemProjection';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { ItemProjection } from '../../../dto/response/ItemProjection';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -19,6 +33,7 @@ import { finalize } from 'rxjs';
 })
 export class InvoiceForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
+  @Output() invoiceGenerated = new EventEmitter<SafeResourceUrl>();
 
   invoiceForm!: FormGroup;
   selectedLaborIndex: number = 0;
@@ -32,12 +47,13 @@ export class InvoiceForm implements OnInit {
   protected filteredItemParts: ItemProjection[] = [];
   protected isDropdownOpen: boolean = false;
   protected laborActivityAvailable = false;
-  
+
   // Submission & Print Preview Modal states
   protected isSubmitting: boolean = false;
   protected showPrintPreviewModal: boolean = false;
   protected invoicePdfUrl: SafeResourceUrl | null = null;
-isSearching: any;
+
+  isSearching: boolean = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -45,7 +61,7 @@ isSearching: any;
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
     private readonly http: HttpClient,
-    private readonly sanitizer: DomSanitizer
+    private readonly sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +76,7 @@ isSearching: any;
       paymentMethod: ['Cash', Validators.required],
       jobCardSearch: ['', Validators.required],
       additionalFees: [1500, [Validators.required, Validators.min(0)]],
-      status: ['PAID']
+      status: ['PAID'],
     });
   }
 
@@ -87,7 +103,7 @@ isSearching: any;
       name: [displayTitle, Validators.required],
       isAutoFetched: [isAuto],
       laborFee: [fee, [Validators.required, Validators.min(0)]],
-      parts: this.fb.array([])
+      parts: this.fb.array([]),
     });
 
     this.laborActivities.push(laborGroup);
@@ -97,18 +113,24 @@ isSearching: any;
   getLaborActivityName(id: string | number | null | undefined): string {
     if (id === null || id === undefined || id === '') return '';
     const activity = this.availableLaborActivities?.find(
-      act => act.laborActivityId?.toString() === id.toString()
+      (act) => act.laborActivityId?.toString() === id.toString(),
     );
     return activity ? activity.activityName : id.toString();
   }
 
-  addPartToLabor(laborIndex: number, name: string = '', qty: number = 1, unitPrice: number = 0, itemId: number | null = null) {
+  addPartToLabor(
+    laborIndex: number,
+    name: string = '',
+    qty: number = 1,
+    unitPrice: number = 0,
+    itemId: number | null = null,
+  ) {
     const partGroup = this.fb.group({
       itemId: [itemId, Validators.required],
       name: [name, Validators.required],
       qty: [qty, [Validators.required, Validators.min(1)]],
       unitPrice: [unitPrice, [Validators.required, Validators.min(0)]],
-      total: [{value: qty * unitPrice, disabled: true}]
+      total: [{ value: qty * unitPrice, disabled: true }],
     });
 
     const qty$ = partGroup.get('qty')?.valueChanges;
@@ -118,7 +140,7 @@ isSearching: any;
       partGroup.valueChanges.subscribe(() => {
         const currentQty = partGroup.get('qty')?.value || 0;
         const currentPrice = partGroup.get('unitPrice')?.value || 0;
-        partGroup.get('total')?.setValue(currentQty * currentPrice, {emitEvent: false});
+        partGroup.get('total')?.setValue(currentQty * currentPrice, { emitEvent: false });
       });
     }
 
@@ -140,7 +162,7 @@ isSearching: any;
       currentRow.patchValue({
         itemId: item.itemId || item.id,
         name: item.itemName,
-        unitPrice: item.sellingPrice
+        unitPrice: item.sellingPrice,
       });
     }
 
@@ -156,7 +178,7 @@ isSearching: any;
   get totalPartsCost(): number {
     let sum = 0;
     this.laborActivities.controls.forEach((_, lIdx) => {
-      this.getParts(lIdx).controls.forEach(p => {
+      this.getParts(lIdx).controls.forEach((p) => {
         sum += (p.get('qty')?.value || 0) * (p.get('unitPrice')?.value || 0);
       });
     });
@@ -164,22 +186,35 @@ isSearching: any;
   }
 
   get totalLaborCost(): number {
-    return this.laborActivities.controls.reduce((acc, curr) => acc + (curr.get('laborFee')?.value || 0), 0);
+    return this.laborActivities.controls.reduce(
+      (acc, curr) => acc + (curr.get('laborFee')?.value || 0),
+      0,
+    );
   }
 
   get grandTotal(): number {
-    return this.totalPartsCost + this.totalLaborCost + (this.invoiceForm.get('additionalFees')?.value || 0);
+    return (
+      this.totalPartsCost +
+      this.totalLaborCost +
+      (this.invoiceForm.get('additionalFees')?.value || 0)
+    );
   }
 
   onSubmit() {
     if (this.laborActivities.length < 1) {
-      this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
+      this.notificationService.show(
+        'An invoice must contain at least one labor activity.',
+        'error',
+      );
       return;
     }
-    
+
     if (this.invoiceForm.invalid) {
       this.markAllAsTouched(this.invoiceForm);
-      this.notificationService.show('Please resolve all validation errors before proceeding.', 'error');
+      this.notificationService.show(
+        'Please resolve all validation errors before proceeding.',
+        'error',
+      );
       return;
     }
 
@@ -191,65 +226,60 @@ isSearching: any;
 
     const payload = this.invoiceForm.getRawValue();
 
-    this.adminService.saveInvoice(payload).pipe(
-      finalize(() => {
-        this.isSubmitting = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (res: any) => {
-        const dataContainer = res?.data || res;
-
-        if (dataContainer && dataContainer.pdfBytes) {
-          this.notificationService.show(
-            dataContainer.response || 'Invoice generated and posted successfully!',
-            'success'
-          );
-          this.printInvoice(res.data.invoiceId);
-          this.resetFormState();
-        } else {
-          this.notificationService.show(
-            'Failed to parse invoice transaction or missing PDF data.',
-            'error'
-          );
+    this.adminService
+      .saveInvoice(payload)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
           this.cdr.markForCheck();
-        }
-      },
-      error: (err) => {
-        console.error('Submission crash details:', err);
-        const serverErrorMessage =
-          err.error?.data?.error || 'Database constraint violation encountered.';
+        }),
+      )
+      .subscribe({
+        next: (res: any) => {
+          const dataContainer = res?.data || res;
 
-        this.notificationService.show(
-          'Error: ' + serverErrorMessage,
-          'error'
-        );
-        this.cdr.markForCheck();
-      }
-    });
-  }
+          // Check if pdfBytes base64 string exists in backend response
+          if (dataContainer && dataContainer.pdfBytes) {
+            this.notificationService.show(
+              dataContainer.response || 'Invoice generated and posted successfully!',
+              'success',
+            );
 
-    printInvoice(invoiceId: number): void {
-    this.adminService.viewInvoice(invoiceId).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
+            // Decode the Base64 string into a binary array for the PDF blob
+            const base64String = dataContainer.pdfBytes;
+            const binaryString = window.atob(base64String);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
 
-        iframe.onload = () => {
-          iframe.contentWindow?.print();
-          setTimeout(() => {
-            document.body.removeChild(iframe);
-            window.URL.revokeObjectURL(url);
-          }, 1000);
-        };
-      },
-      error: () => {
-        this.notificationService.show('Failed to print invoice', 'error');
-      }
-    });
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const unsafeUrl = window.URL.createObjectURL(blob);
+
+            // Bypass security to make it safe for iframe binding in the modal
+            const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
+
+            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
+            this.resetFormState();
+            this.invoiceGenerated.emit(safePdfUrl);
+          } else {
+            this.notificationService.show(
+              'Failed to parse invoice transaction or missing PDF data.',
+              'error',
+            );
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => {
+          console.error('Submission crash details:', err);
+          const serverErrorMessage =
+            err.error?.data?.error || 'Database constraint violation encountered.';
+
+          this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   private resetFormState() {
@@ -257,7 +287,7 @@ isSearching: any;
       paymentMethod: 'Cash',
       jobCardSearch: '',
       additionalFees: 1500,
-      status: 'PENDING'
+      status: 'PENDING',
     });
     this.laborActivities.clear();
     this.selectedLaborIndex = 0;
@@ -266,7 +296,7 @@ isSearching: any;
   }
 
   private markAllAsTouched(formGroup: FormGroup | FormArray) {
-    Object.values(formGroup.controls).forEach(control => {
+    Object.values(formGroup.controls).forEach((control) => {
       if (control instanceof FormGroup || control instanceof FormArray) {
         this.markAllAsTouched(control);
       } else {
@@ -278,7 +308,10 @@ isSearching: any;
   removeLaborActivity(index: number, event: Event) {
     event.stopPropagation();
     if (this.laborActivities.length <= 1) {
-      this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
+      this.notificationService.show(
+        'An invoice must contain at least one labor activity.',
+        'error',
+      );
       return;
     }
 
@@ -300,7 +333,7 @@ isSearching: any;
         this.filteredLaborActivities = [...this.availableLaborActivities];
         this.cdr.markForCheck();
       },
-      error: (err: any) => console.error('Failed to load names', err)
+      error: (err: any) => console.error('Failed to load names', err),
     });
   }
 
@@ -311,7 +344,7 @@ isSearching: any;
         this.filteredItemParts = [...this.availableItemParts];
         this.cdr.markForCheck();
       },
-      error: (err: any) => console.error('Failed to load item parts', err)
+      error: (err: any) => console.error('Failed to load item parts', err),
     });
   }
 
@@ -321,8 +354,8 @@ isSearching: any;
       this.filteredLaborActivities = [...this.availableLaborActivities];
       return;
     }
-    this.filteredLaborActivities = this.availableLaborActivities.filter(act =>
-      act.activityName?.toLowerCase().includes(query)
+    this.filteredLaborActivities = this.availableLaborActivities.filter((act) =>
+      act.activityName?.toLowerCase().includes(query),
     );
   }
 
@@ -353,7 +386,7 @@ isSearching: any;
         console.error(err);
         this.notificationService.show('No Job Card found with that Job Id.', 'error');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -372,7 +405,7 @@ isSearching: any;
     if (activeGroup) {
       activeGroup.patchValue({
         id: Number(activityId),
-        name: resolvedName
+        name: resolvedName,
       });
     }
 
@@ -394,8 +427,8 @@ isSearching: any;
       this.filteredItemParts = [...this.availableItemParts];
       return;
     }
-    this.filteredItemParts = this.availableItemParts.filter(p =>
-      p.itemName?.toLowerCase().includes(query)
+    this.filteredItemParts = this.availableItemParts.filter((p) =>
+      p.itemName?.toLowerCase().includes(query),
     );
   }
 

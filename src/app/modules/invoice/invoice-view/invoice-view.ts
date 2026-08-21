@@ -6,11 +6,13 @@ import { InvoiceSummaryProjection } from '../../../dto/InvoiceSummaryProjection'
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import {finalize} from 'rxjs';
+import { SafeResourceUrl } from '@angular/platform-browser';
+import { PrintPreview } from "../print-preview/print-preview";
 
 @Component({
   selector: 'app-invoice-view',
   standalone: true,
-  imports: [CommonModule, InvoiceForm, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, InvoiceForm, ReactiveFormsModule, FormsModule, PrintPreview],
   templateUrl: './invoice-view.html',
   styleUrl: './invoice-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +37,11 @@ export class InvoiceView implements OnInit {
 
   isEditModalOpen: boolean = false;
   isLoading: boolean = false;
+
+  showInvoiceForm: boolean = false;
+  showPrintModal: boolean = false;
+  generatedPdfUrl: SafeResourceUrl | null = null;
+  invoicePdfUrl: SafeResourceUrl | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -211,5 +218,18 @@ export class InvoiceView implements OnInit {
         this.notificationService.show('Failed to print invoice', 'error');
       }
     });
+  }
+
+handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
+    this.isEditModalOpen = false;     // Close the invoice form modal
+    this.invoicePdfUrl = pdfUrl;     // Assign to invoicePdfUrl for the print preview modal
+    this.showPrintModal = true;      // Open the print preview modal
+    this.cdr.markForCheck();
+  }
+
+  // Triggered when the user clicks 'Close' inside the print preview modal
+  closePrintPreview() {
+    this.showPrintModal = false;
+    this.invoicePdfUrl = null;
   }
 }

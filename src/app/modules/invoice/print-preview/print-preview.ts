@@ -9,9 +9,17 @@ import { SafeResourceUrl } from '@angular/platform-browser';
 })
 export class PrintPreview {
   @Input() pdfUrl: SafeResourceUrl | null = null;
-    @Output() close = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 
-    onClose(): void {
-      this.close.emit();
+  onClose() {
+    this.close.emit();
+  }
+
+  printPdf(): void {
+    const iframeElement = document.querySelector('.custom-preview-body iframe') as HTMLIFrameElement;
+    if (iframeElement && iframeElement.contentWindow) {
+      iframeElement.contentWindow.focus();
+      iframeElement.contentWindow.print();
     }
   }
+}

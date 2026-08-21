@@ -150,4 +150,10 @@
   </div>
 </div>
 
-<app-invoice-form *ngIf="isEditModalOpen" (cancel)="closeModal()"></app-invoice-form>
+<app-invoice-form *ngIf="isEditModalOpen" (cancel)="closeModal()" (invoiceGenerated)="handleInvoiceGenerated($event)"></app-invoice-form>
+
+<app-print-preview 
+  *ngIf="showPrintModal" 
+  [pdfUrl]="invoicePdfUrl" 
+  (close)="closePrintPreview()">
+</app-print-preview>
