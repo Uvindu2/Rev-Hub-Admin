@@ -146,7 +146,7 @@
           </select>
         </div>
         <div class="header-container-revenue">
-          <h2>Rs. {{ this.revenueChartData.totalRevenue ?? 0 }}</h2>
+          <h2>Rs. {{ formatCurrency(this.revenueChartData.totalRevenue ?? 0) }}</h2>
           <p class="green">
             <span class="colour">↑ 18%</span> vs last month
           </p>

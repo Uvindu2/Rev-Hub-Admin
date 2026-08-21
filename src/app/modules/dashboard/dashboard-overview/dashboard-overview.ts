@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -12,21 +12,21 @@ import {
   ApexStroke,
   ApexXAxis,
   ApexYAxis,
-  ChartComponent
+  ChartComponent,
 } from 'ng-apexcharts';
-import {JobCardView} from '../../job-card/job-card-view/job-card-view';
-import {InvoiceView} from '../../invoice/invoice-view/invoice-view';
-import {CustomerView} from '../../customer/customer-view/customer-view';
-import {TechnicianView} from '../../technician/technician-view/technician-view';
-import {VehicleView} from '../../vehicle/vehicle-view/vehicle-view';
-import {LowerCasePipe, NgClass, NgForOf, NgIf} from '@angular/common';
-import {RouterLink} from '@angular/router';
-import {finalize, forkJoin, of} from 'rxjs';
-import {catchError} from 'rxjs/operators';
-import {AdminService} from '../../../services/admin.service';
-import {JobCardStatusProjection} from '../../../dto/response/JobCardStatusProjection';
-import {FaIconComponent} from '@fortawesome/angular-fontawesome';
-import {faXRay} from '@fortawesome/free-solid-svg-icons';
+import { JobCardView } from '../../job-card/job-card-view/job-card-view';
+import { InvoiceView } from '../../invoice/invoice-view/invoice-view';
+import { CustomerView } from '../../customer/customer-view/customer-view';
+import { TechnicianView } from '../../technician/technician-view/technician-view';
+import { VehicleView } from '../../vehicle/vehicle-view/vehicle-view';
+import { LowerCasePipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { finalize, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AdminService } from '../../../services/admin.service';
+import { JobCardStatusProjection } from '../../../dto/response/JobCardStatusProjection';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faXRay } from '@fortawesome/free-solid-svg-icons';
 
 export type ChartOptions = {
   series?: ApexAxisChartSeries | ApexNonAxisChartSeries;
@@ -60,14 +60,13 @@ type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' 
     RouterLink,
     NgForOf,
     NgClass,
-    LowerCasePipe
+    LowerCasePipe,
   ],
   templateUrl: './dashboard-overview.html',
   styleUrl: './dashboard-overview.css',
-  changeDetection: ChangeDetectionStrategy.Eager
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class DashboardOverview implements OnInit {
-
   // Map icons to properties
   activeView: View = 'dashboard';
   isLoading = true;
@@ -80,15 +79,17 @@ export class DashboardOverview implements OnInit {
   invoicesCount: any;
   jobCardsCount: any;
   revenue: any;
-// Define revenueChartData property
+  // Define revenueChartData property
   revenueChartData: any = {
     prices: [],
     dates: [],
-    totalRevenue: 0
+    totalRevenue: 0,
   };
 
-  constructor(private dashboardApi: AdminService, private cdr: ChangeDetectorRef) {
-  }
+  constructor(
+    private dashboardApi: AdminService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     console.log('DashboardOverview ngOnInit triggered!');
@@ -104,67 +105,68 @@ export class DashboardOverview implements OnInit {
       jobCardStatus: this.dashboardApi.getAllJobCardStatus().pipe(catchError(() => of(null))),
       recentJobCards: this.dashboardApi.getRecentJobCards().pipe(catchError(() => of(null))),
       recentInvoices: this.dashboardApi.getRecentInvoices().pipe(catchError(() => of(null))),
-      topLaborActivities: this.dashboardApi.getTopLaborActivities().pipe(catchError(() => of(null))),
+      topLaborActivities: this.dashboardApi
+        .getTopLaborActivities()
+        .pipe(catchError(() => of(null))),
       invoicesCount: this.dashboardApi.getInvoicesCount().pipe(catchError(() => of(null))),
       jobCardsCount: this.dashboardApi.getJobCardsCount().pipe(catchError(() => of(null))),
       revenue: this.dashboardApi.getRevenue().pipe(catchError(() => of(null))),
-      chartData: this.dashboardApi.getRevenueChartData('MONTH').pipe(catchError((err) => {
+      chartData: this.dashboardApi.getRevenueChartData('MONTH').pipe(
+        catchError((err) => {
           console.error('Revenue chart API failed safely via catchError:', err);
           return of(null);
-        })
+        }),
+      ),
+    })
+      .pipe(
+        finalize(() => {
+          // Always stop global loader
+          this.isLoading = false;
+
+          this.cdr.detectChanges();
+        }),
       )
-    }).pipe(
+      .subscribe({
+        next: (res) => {
+          console.log('forkJoin successfully completed with responses:', res);
 
-      finalize(() => {
+          this.customersCount = res.customersCount?.data ?? res.customersCount;
+          this.jobCardStatus = res.jobCardStatus?.data ?? res.jobCardStatus;
+          this.recentJobCards = res.recentJobCards?.data ?? res.recentJobCards;
+          this.recentInvoices = res.recentInvoices?.data ?? res.recentInvoices;
+          this.topLaborActivities = res.topLaborActivities?.data ?? res.topLaborActivities;
+          this.invoicesCount = res.invoicesCount?.data ?? res.invoicesCount;
+          this.jobCardsCount = res.jobCardsCount?.data ?? res.jobCardsCount;
+          this.revenue = res.revenue?.data ?? res.revenue;
+          this.revenueChartData = res.chartData?.data ?? res.chartData;
+          if (this.jobCardStatus) {
+            this.chartOptions = {
+              ...this.chartOptions,
+              series: [
+                this.jobCardStatus.pendingCount || 0,
+                this.jobCardStatus.rejectedCount || 0,
+                this.jobCardStatus.completedCount || 0,
+              ],
+            };
+          }
 
-        // Always stop global loader
-        this.isLoading = false;
+          if (this.revenueChartData) {
+            this.revenueChartOptions = {
+              ...this.revenueChartOptions,
+              series: [{ name: 'Revenue', data: this.revenueChartData.prices || [] }],
+              labels: this.revenueChartData.dates || [],
+            };
+          }
+          console.log('Job Cards Count:', this.revenueChartData.totalRevenue);
 
-        this.cdr.detectChanges();
-
-      })
-
-    ).subscribe({
-      next: (res) => {
-        console.log('forkJoin successfully completed with responses:', res);
-
-        this.customersCount = res.customersCount?.data ?? res.customersCount;
-        this.jobCardStatus = res.jobCardStatus?.data ?? res.jobCardStatus;
-        this.recentJobCards = res.recentJobCards?.data ?? res.recentJobCards;
-        this.recentInvoices = res.recentInvoices?.data ?? res.recentInvoices;
-        this.topLaborActivities = res.topLaborActivities?.data ?? res.topLaborActivities;
-        this.invoicesCount = res.invoicesCount?.data ?? res.invoicesCount;
-        this.jobCardsCount = res.jobCardsCount?.data ?? res.jobCardsCount;
-        this.revenue = res.revenue?.data ?? res.revenue;
-        this.revenueChartData = res.chartData?.data ?? res.chartData;
-        if (this.jobCardStatus) {
-          this.chartOptions = {
-            ...this.chartOptions,
-            series: [
-              this.jobCardStatus.pendingCount || 0,
-              this.jobCardStatus.rejectedCount || 0,
-              this.jobCardStatus.completedCount || 0
-            ]
-          };
-        }
-
-        if (this.revenueChartData) {
-          this.revenueChartOptions = {
-            ...this.revenueChartOptions,
-            series: [{name: 'Revenue', data: this.revenueChartData.prices || []}],
-            labels: this.revenueChartData.dates || []
-          };
-        }
-        console.log('Job Cards Count:', this.revenueChartData.totalRevenue);
-
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('*** FORKJOIN ERROR CAUGHT ***', err);
-        this.isLoading = false;
-      }
-    });
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('*** FORKJOIN ERROR CAUGHT ***', err);
+          this.isLoading = false;
+        },
+      });
   }
 
   setActive(view: View) {
@@ -189,20 +191,20 @@ export class DashboardOverview implements OnInit {
       },
       itemMargin: {
         vertical: 5,
-        horizontal: 10
+        horizontal: 10,
       },
       markers: {
         // Replace 'radius' with 'shape'
         shape: 'square', // Options: 'circle', 'square', 'rect'
-        size: 5          // You can also control the size of the marker here
-      }
+        size: 5, // You can also control the size of the marker here
+      },
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
     stroke: {
       width: 2,
-      colors: ['#121212']
+      colors: ['#121212'],
     },
     // Add this block to show the total in the center
     plotOptions: {
@@ -216,24 +218,24 @@ export class DashboardOverview implements OnInit {
               label: 'Total',
               fontSize: '15px',
               color: '#fff',
-              offsetY: -10
+              offsetY: -10,
             } as any,
             value: {
               color: '#fff',
               fontSize: '22px',
-              offsetY: 20
-            } as any
-          }
-        }
-      }
+              offsetY: 20,
+            } as any,
+          },
+        },
+      },
     },
     labels: ['Pending', 'Rejected', 'Completed'],
     responsive: [
       {
         breakpoint: 480,
         options: {
-          chart: {width: 200},
-          legend: {position: 'bottom'},
+          chart: { width: 200 },
+          legend: { position: 'bottom' },
         },
       },
     ],
@@ -250,27 +252,27 @@ export class DashboardOverview implements OnInit {
       type: 'area',
       height: 150,
       toolbar: {
-        show: false
+        show: false,
       },
-      zoom: {enabled: false}
+      zoom: { enabled: false },
     },
     colors: ['#b30000'],
     stroke: {
       curve: 'smooth',
       width: 3,
-      colors: ['#b30000']
+      colors: ['#b30000'],
     },
     grid: {
       show: false,
       padding: {
         left: 0,
-        right: 0
-      }
+        right: 0,
+      },
     },
     labels: this.revenueChartData?.dates || [],
     xaxis: {
       // Change from 'datetime' to 'category' so text labels like month names or numbers render properly for all filters
-      type: 'category'
+      type: 'category',
     },
     yaxis: {
       opposite: true,
@@ -278,62 +280,59 @@ export class DashboardOverview implements OnInit {
       labels: {
         show: true,
         align: 'left',
-        formatter: (val) => (val != null ? val.toFixed(0) : '0')
-      }
+        formatter: (val) => (val != null ? val.toFixed(0) : '0'),
+      },
     },
     legend: {
       horizontalAlign: 'left',
     },
-    dataLabels: {enabled: false},
+    dataLabels: { enabled: false },
   };
-
 
   public filterRevenue(range: 'week' | 'month' | 'year') {
     const filterValue = range.toUpperCase(); // Matches backend RevenueFilter enum (WEEK, MONTH, YEAR)
 
     this.isRevenueLoading = true;
-    this.dashboardApi.getRevenueChartData(filterValue).pipe(
+    this.dashboardApi
+      .getRevenueChartData(filterValue)
+      .pipe(
+        catchError((err) => {
+          console.error('Failed to fetch revenue chart data:', err);
 
-      catchError((err) => {
+          return of(null);
+        }),
 
-        console.error(
-          'Failed to fetch revenue chart data:',
-          err
-        );
+        finalize(() => {
+          this.isRevenueLoading = false;
 
-        return of(null);
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          const chartData = res?.data || res;
+          if (chartData) {
+            // Updates the total revenue dynamically based on the selected filter
+            this.revenueChartData.totalRevenue = chartData.totalRevenue;
+            console.log(chartData.totalRevenue);
+            // Updates the ApexCharts series and labels
+            this.revenueChartOptions = {
+              ...this.revenueChartOptions,
+              series: [{ name: 'Revenue', data: chartData.prices || [] }],
+              labels: chartData.dates || chartData.labels || [],
+            };
+          }
+          this.isRevenueLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error in filterRevenue subscription:', err);
+          this.isRevenueLoading = false;
+        },
+      });
+  }
 
-      }),
-
-      finalize(() => {
-
-        this.isRevenueLoading = false;
-
-        this.cdr.detectChanges();
-
-      })
-
-    ).subscribe({
-      next: (res) => {
-        const chartData = res?.data || res;
-        if (chartData) {
-          // Updates the total revenue dynamically based on the selected filter
-          this.revenueChartData.totalRevenue = chartData.totalRevenue;
-          console.log(chartData.totalRevenue);
-          // Updates the ApexCharts series and labels
-          this.revenueChartOptions = {
-            ...this.revenueChartOptions,
-            series: [{name: 'Revenue', data: chartData.prices || []}],
-            labels: chartData.dates || chartData.labels || []
-          };
-        }
-        this.isRevenueLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error in filterRevenue subscription:', err);
-        this.isRevenueLoading = false;
-      }
-    });
+  formatCurrency(amount: number): string {
+    return amount.toLocaleString('en-US');
   }
 }
