@@ -3,7 +3,6 @@
     <button class="close-btn" (click)="onCancel()">&times;</button>
     <div class="form-title-bar">
       <h2>CREATE INVOICE</h2>
-      <span class="actor-tag">Actor</span>
     </div>
 
     <form [formGroup]="invoiceForm">
@@ -234,13 +233,13 @@
 <!-- Print Preview Modal Popup -->
 <div *ngIf="showPrintPreviewModal" class="print-preview-backdrop">
   <div class="print-preview-card">
-    
+
     <!-- Title Bar -->
     <div class="form-title-bar">
       <h2>Invoice Print Preview</h2>
       <button type="button" class="close-btn" (click)="showPrintPreviewModal = false">&times;</button>
     </div>
-    
+
     <!-- PDF Document Frame Viewer -->
     <div class="preview-body-container">
       <iframe [src]="invoicePdfUrl" title="Invoice PDF Preview"></iframe>
