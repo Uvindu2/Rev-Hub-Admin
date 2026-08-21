@@ -71,10 +71,6 @@ html, body {
   gap: 6px;
 }
 
-/*.filter-group.half-width {*/
-/*  width: 49%;*/
-/*}*/
-
 .filter-group label {
   font-size: 0.75rem;
   font-weight: 600;
@@ -465,23 +461,21 @@ html, body {
 }
 
 .error-msg {
-  color: #dc3545; /* Red */
+  color: #dc3545;
   font-size: 13px;
 }
 
 .warning-msg {
-  color: #ffc107; /* Amber / Yellow */
+  color: #ffc107;
   font-size: 13px;
 }
 
 .success-msg {
-  color: #28a745; /* Green */
+  color: #28a745;
   font-size: 13px;
 }
 
-
 /*Button Loader*/
-
 .buttonSpinner {
   width: 16px;
   height: 16px;
@@ -531,7 +525,6 @@ html, body {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }
@@ -540,7 +533,6 @@ html, body {
 .loading-hidden {
   display: none;
 }
-
 
 .btn-filter-search-action {
   background-color: #b91c1c;
@@ -553,4 +545,98 @@ html, body {
   display: inline-flex;
   font-size: 0.9rem;
   margin-left: 5pt;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN FOR MOBILE & TABLETS
+   ========================================= */
+
+@media screen and (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+  }
+
+  .card-container, 
+  .filter-card-section {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-header {
+    padding-top: 16px;
+  }
+
+  .filter-grid-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .filter-actions-group {
+    grid-column: span 1;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter-actions-group button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .controls-left, 
+  .actions-right {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .search-box, 
+  .search-box input {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .btn-add {
+    width: 100%;
+  }
+
+  .custom-footer-layout, 
+  .table-footer-summary {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+  }
+
+  .left-counter-anchor, 
+  .right-controls-group {
+    margin: 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    text-align: center;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .custom-table th, 
+  .custom-table td {
+    padding: 10px 8px;
+    font-size: 0.75rem;
+  }
+
+  .filter-title-wrapper {
+    font-size: 0.85rem;
+  }
 }
