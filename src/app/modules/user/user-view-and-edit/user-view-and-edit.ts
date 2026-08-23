@@ -53,6 +53,7 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
     this.userForm = this.fb.group({
       username: ['', Validators.required],
       fullName: ['', Validators.required],
+      speciality: [''],
       userRoleSelected: [[], Validators.required],
       active: [true, Validators.required]
     });
@@ -84,6 +85,7 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
     const backendPayload = {
       userId: this.user?.userId,
       fullName: formValue?.fullName,
+      speciality: formValue?.speciality,
       roleIds: formValue?.userRoleSelected || [],
       active: formValue?.active,
     };
@@ -124,6 +126,7 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
     this.userForm.patchValue({
       username: data.username,
       fullName: data.fullName,
+      speciality: data.speciality,
       userRoleSelected: data.role?.map((r: { roleId: any; }) => r.roleId) || [],
       active: data.active,
     }, {emitEvent: false});

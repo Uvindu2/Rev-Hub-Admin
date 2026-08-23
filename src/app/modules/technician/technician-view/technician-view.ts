@@ -9,15 +9,6 @@ import {TechnicianViewAndEdit} from '../technician-view-and-edit/technician-view
 import {TechnicianProjection} from '../../../dto/response/TechnicianProjection';
 import {finalize} from 'rxjs'; // Fixed: Added CommonModule import
 
-// Fixed: Added missing Technician interface definition
-interface Technician {
-  id: string;
-  name: string;
-  specialty: string;
-  activeTechnicians: number;
-  status: 'Available' | 'Busy' | 'On Leave';
-}
-
 @Component({
   selector: 'app-technician-view',
   standalone: true,

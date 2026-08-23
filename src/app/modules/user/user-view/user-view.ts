@@ -1,28 +1,20 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {UserForm} from '../user-form/user-form';
-import {UserViewAndEdit} from '../user-view-and-edit/user-view-and-edit';
-import {UserResponseDTO} from '../../../dto/response/UserResponseDTO';
-import {finalize} from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { UserForm } from '../user-form/user-form';
+import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
+import { UserResponseDTO } from '../../../dto/response/UserResponseDTO';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-user-view',
-  imports: [
-    NgForOf,
-    NgIf,
-    ReactiveFormsModule,
-    UserForm,
-    UserViewAndEdit,
-    FormsModule
-  ],
+  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule],
   templateUrl: './user-view.html',
   styleUrl: './user-view.css',
 })
 export class UserView implements OnInit {
-
   users: UserResponseDTO[] = [];
   user: UserResponseDTO | undefined;
 
@@ -46,7 +38,7 @@ export class UserView implements OnInit {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {
     this.initFilterForm();
   }
@@ -58,12 +50,11 @@ export class UserView implements OnInit {
   // Initialize form controls matching your backend search request DTO
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      search: ['']
+      search: [''],
     });
   }
 
   fetchUsers(): void {
-
     // Start loader
     this.isLoading = true;
     this.cdr.markForCheck();
@@ -74,57 +65,61 @@ export class UserView implements OnInit {
     const formValues = this.filterForm.value;
 
     // Send POST request with body parameters and query parameters for pagination
-    this.adminService.searchUsers(formValues, backendPage, this.pageSize, 'userId', 'desc').pipe(
-      finalize(() => {
-        // Stop loader for both success and error
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (response: any) => {
-        console.log(response);
+    this.adminService
+      .searchUsers(formValues, backendPage, this.pageSize, 'userId', 'desc')
+      .pipe(
+        finalize(() => {
+          // Stop loader for both success and error
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log(response);
 
-        // Extract page data safely from response.data or response fallback
-        let pageData = response?.data || response;
+          // Extract page data safely from response.data or response fallback
+          let pageData = response?.data || response;
 
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedUsers: UserResponseDTO[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+          // Stage updates in local variables first to prevent layout thrashing
+          let updatedUsers: UserResponseDTO[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
 
-        if (pageData?.content !== undefined) {
-          updatedUsers = pageData.content || [];
+          if (pageData?.content !== undefined) {
+            updatedUsers = pageData.content || [];
 
-          // Handle various Spring Data Page or custom wrapper response formats safely
-          if (pageData.page) {
-            updatedTotalElements = pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
-            updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
-          } else {
-            updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
-            updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+            // Handle various Spring Data Page or custom wrapper response formats safely
+            if (pageData.page) {
+              updatedTotalElements =
+                pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
+              updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
+            } else {
+              updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
+              updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+            }
+          } else if (Array.isArray(pageData)) {
+            updatedUsers = pageData;
+            updatedTotalElements = pageData.length;
+            updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
           }
-        } else if (Array.isArray(pageData)) {
-          updatedUsers = pageData;
-          updatedTotalElements = pageData.length;
-          updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
-        }
 
-        // Apply properties all at once
-        this.users = updatedUsers;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
+          // Apply properties all at once
+          this.users = updatedUsers;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
 
-        // Notify Angular to redraw on the next frame paint seamlessly
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load user cards from server:', err);
-        this.users = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+          // Notify Angular to redraw on the next frame paint seamlessly
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load user cards from server:', err);
+          this.users = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onApplyFilters(): void {
@@ -139,7 +134,7 @@ export class UserView implements OnInit {
       technician: '',
       status: '',
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
     });
     this.currentPage = 1;
     this.fetchUsers();
@@ -196,7 +191,7 @@ export class UserView implements OnInit {
       error: () => {
         this.notificationService.show('Failed to load user card details', 'error');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -210,7 +205,7 @@ export class UserView implements OnInit {
       error: () => {
         this.notificationService.show('Failed to load user card details', 'error');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -222,7 +217,7 @@ export class UserView implements OnInit {
     if (!roles || !Array.isArray(roles)) {
       return '';
     }
-    return roles.map(role => role.roleName).join(', ');
+    return roles.map((role) => role.roleName).join(', ');
   }
 
   search() {
@@ -230,5 +225,12 @@ export class UserView implements OnInit {
       return;
     }
     this.isSearch = true;
+  }
+
+  setActiveInactive(status: boolean) {
+    if (status) {
+      return 'Active';
+    }
+    return 'False';
   }
 }

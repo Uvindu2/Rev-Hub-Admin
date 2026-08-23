@@ -18,7 +18,6 @@
       <table class="custom-table">
         <thead>
         <tr>
-          <th>Labor Activity ID</th>
           <th>Labor Activity Name</th>
           <th>Status</th>
           <th class="text-center">Actions</th>
@@ -40,7 +39,6 @@
           </td>
         </tr>
         <tr *ngFor="let laborActivity of laborActivities" [class.loading-hidden]="isLoading">
-          <td class="font-semibold">{{ laborActivity.laborActivityId }}</td>
           <td class="font-semibold">{{ laborActivity.activityName }}</td>
           <td class="font-semibold">{{ laborActivity.active }}</td>
           <td class="actions-cell">

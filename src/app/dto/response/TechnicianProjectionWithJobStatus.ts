@@ -1,7 +1,7 @@
 export interface TechnicianProjectionWithJobStatus {
   technicianId: number;
   technicianName: string;
-  specialty: string;
+  speciality: string;
   activeJobCount: number;
   jobStatus: string;
 }

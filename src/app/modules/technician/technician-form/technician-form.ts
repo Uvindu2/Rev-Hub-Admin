@@ -39,7 +39,7 @@ export class TechnicianForm implements OnInit {
     this.technicianForm = this.fb.group({
       technicianName: ['', Validators.required],
       technicianContact: ['', Validators.required],
-      specialty: ['']
+      speciality: ['']
     });
   }
 
@@ -55,7 +55,7 @@ export class TechnicianForm implements OnInit {
     const backendPayload = {
       technicianName: formValue.technicianName,
       technicianContact: formValue.technicianContact,
-      specialty: formValue.specialty,
+      speciality: formValue.speciality,
     };
 
     this.adminService.saveTechnician(backendPayload).subscribe({

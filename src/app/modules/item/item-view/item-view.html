@@ -18,7 +18,6 @@
       <table class="custom-table">
         <thead>
         <tr>
-          <th>Item ID</th>
           <th>Item Name</th>
           <th>Balance Qty</th>
           <th>Date Modify</th>
@@ -44,7 +43,6 @@
           </td>
         </tr>
         <tr *ngFor="let item of items" [class.loading-hidden]="isLoading">
-          <td class="font-semibold">{{ item.itemId }}</td>
           <td class="font-semibold">{{ item.itemName }}</td>
           <td class="font-semibold">{{ item.balanceQty }}</td>
           <td class="font-semibold">{{ item.dateModify }}</td>

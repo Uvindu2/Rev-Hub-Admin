@@ -44,6 +44,7 @@ export class UserForm implements OnInit {
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
       fullName: ['', Validators.required],
+      speciality: [''],
       userRoleSelected: [[], Validators.required],
       active: [true, Validators.required]
     });
@@ -76,6 +77,7 @@ export class UserForm implements OnInit {
       username: formValue.username,
       password: formValue.password,
       fullName: formValue.fullName,
+      speciality: formValue.speciality,
       roleIds: formValue.userRoleSelected || [],
       active: formValue.active,
     };

@@ -7,9 +7,9 @@
       <span class="search-icon">🔍</span>
       <input type="text" placeholder="Search Technicians..." (input)="onSearch($event)">
     </div>
-    <button class="btn-add" type="button" (click)="onAddTechnician()">
-      <span class="icon-plus" aria-hidden="true">+</span> ADD Technician
-    </button>
+<!--    <button class="btn-add" type="button" (click)="onAddTechnician()">-->
+<!--      <span class="icon-plus" aria-hidden="true">+</span> ADD Technician-->
+<!--    </button>-->
   </div>
 
   <!-- Responsive Table Wrap -->
@@ -17,12 +17,11 @@
     <table class="custom-table">
       <thead>
       <tr>
-        <th>Tech ID</th>
         <th>Technician Name</th>
-        <th>Specialty</th>
+        <th>Speciality</th>
         <th class="text-center">Active Jobs</th>
         <th>Status</th>
-        <th class="text-center">Actions</th>
+<!--        <th class="text-center">Actions</th>-->
       </tr>
       </thead>
       <tbody>
@@ -41,9 +40,8 @@
         </td>
       </tr>
       <tr *ngFor="let tech of technicians" [class.loading-hidden]="isLoading">
-        <td class="font-semibold">{{ tech.technicianId }}</td>
         <td>{{ tech.technicianName }}</td>
-        <td>{{ tech.specialty }}</td>
+        <td>{{ tech.speciality }}</td>
         <td class="text-center font-numeric">
           <span class="job-count-badge">{{ tech.activeJobCount }}</span>
         </td>
@@ -57,14 +55,14 @@
               {{ tech.jobStatus }}
             </span>
         </td>
-        <td class="actions-cell">
-          <button class="btn-action view-btn" title="View Schedule" (click)="viewTechnician(tech.technicianId)">
-            👁️
-          </button>
-          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTechnician(tech.technicianId)">
-            ✏️
-          </button>
-        </td>
+<!--        <td class="actions-cell">-->
+<!--          <button class="btn-action view-btn" title="View Schedule" (click)="viewTechnician(tech.technicianId)">-->
+<!--            👁️-->
+<!--          </button>-->
+<!--          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTechnician(tech.technicianId)">-->
+<!--            ✏️-->
+<!--          </button>-->
+<!--        </td>-->
       </tr>
       </tbody>
     </table>

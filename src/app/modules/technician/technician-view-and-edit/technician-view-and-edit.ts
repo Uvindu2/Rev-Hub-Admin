@@ -48,7 +48,7 @@ export class TechnicianViewAndEdit implements OnInit, AfterViewInit{
     this.technicianForm.patchValue({
       technicianName: data.technicianName,
       technicianContact: data.technicianContact,
-      specialty: data.specialty
+      speciality: data.speciality
     }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops
 
     this.cdr.markForCheck();
@@ -58,7 +58,7 @@ export class TechnicianViewAndEdit implements OnInit, AfterViewInit{
     this.technicianForm = this.fb.group({
       technicianName: ['', Validators.required],
       technicianContact: ['', Validators.required],
-      specialty: ['']
+      speciality: ['']
     });
   }
 

@@ -19,9 +19,9 @@
       <table class="custom-table">
         <thead>
         <tr>
-          <th>User ID</th>
           <th>User Name</th>
           <th>Role</th>
+          <th>Speciality</th>
           <th>Status</th>
           <th class="text-center">Actions</th>
         </tr>
@@ -42,10 +42,10 @@
           </td>
         </tr>
         <tr *ngFor="let user of users" [class.loading-hidden]="isLoading">
-          <td class="font-semibold">{{ user.userId }}</td>
           <td class="font-semibold">{{ user.username }}</td>
           <td class="font-semibold">{{ this.roleName(user.role) }}</td>
-          <td>{{ user.active }}</td>
+          <td>{{ user.speciality }}</td>
+          <td>{{ setActiveInactive(user.active) }}</td>
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewUser(user.userId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editUser(user.userId)">✏️</button>
