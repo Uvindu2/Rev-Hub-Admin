@@ -1,24 +1,32 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../../services/admin.service';
 import { JobCardViewAndEdit } from '../job-card-view-and-edit/job-card-view-and-edit';
 import { NotificationService } from '../../../services/notificationService';
-import {JobCardSummaryResponseDTO} from '../../../dto/response/JobCardSummaryResponseDTO';
-import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
-import {JobCardForm} from '../job-card-form/job-card-form';
-import {finalize} from 'rxjs';
+import { JobCardSummaryResponseDTO } from '../../../dto/response/JobCardSummaryResponseDTO';
+import { TechnicianNameProjection } from '../../../dto/response/TechnicianNameProjection';
+import { JobCardForm } from '../job-card-form/job-card-form';
+import { finalize } from 'rxjs';
+import { PrintPreview } from '../../invoice/print-preview/print-preview';
+import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-job-card-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, JobCardViewAndEdit, FormsModule, JobCardForm],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    JobCardViewAndEdit,
+    FormsModule,
+    JobCardForm,
+    PrintPreview,
+  ],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobCardView implements OnInit {
-
   jobCards: JobCardSummaryResponseDTO[] = [];
   jobCard: JobCardProjection | undefined;
 
@@ -40,11 +48,15 @@ export class JobCardView implements OnInit {
   isLoading: boolean = false;
   technicianNameProjection: TechnicianNameProjection[] = [];
 
+  showPrintModal: boolean = false;
+  generatedPdfUrl: SafeResourceUrl | null = null;
+  jobCardPdfUrl: SafeResourceUrl | null = null;
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {
     this.initFilterForm();
   }
@@ -63,7 +75,7 @@ export class JobCardView implements OnInit {
       technicianId: [''],
       status: [''],
       dateFrom: [''],
-      dateTo: ['']
+      dateTo: [''],
     });
   }
 
@@ -78,23 +90,16 @@ export class JobCardView implements OnInit {
     this.cdr.markForCheck();
 
     this.adminService
-      .searchJobCards(
-        formValues,
-        backendPage,
-        this.pageSize,
-        'jobId',
-        'desc'
-      )
+      .searchJobCards(formValues, backendPage, this.pageSize, 'jobId', 'desc')
       .pipe(
         finalize(() => {
           // Stop loader for both success and error
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (response: any) => {
-
           console.log(response);
 
           // Extract page data safely
@@ -105,44 +110,26 @@ export class JobCardView implements OnInit {
           let updatedTotalPagesCount = 0;
 
           if (pageData?.content !== undefined) {
-
             updatedJobCards = pageData.content || [];
 
             // Handle custom page wrapper
             if (pageData.page) {
-
               updatedTotalElements =
-                pageData.page.totalElements ??
-                pageData.page.total_elements ??
-                0;
+                pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
 
-              updatedTotalPagesCount =
-                pageData.page.totalPages ??
-                pageData.page.total_pages ??
-                0;
-
+              updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
             } else {
-
               // Standard Spring Page
-              updatedTotalElements =
-                pageData.totalElements ??
-                pageData.total_elements ??
-                0;
+              updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
 
-              updatedTotalPagesCount =
-                pageData.totalPages ??
-                pageData.total_pages ??
-                0;
+              updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
             }
-
           } else if (Array.isArray(pageData)) {
-
             updatedJobCards = pageData;
 
             updatedTotalElements = pageData.length;
 
-            updatedTotalPagesCount =
-              Math.ceil(pageData.length / this.pageSize) || 1;
+            updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
           }
 
           // Apply data
@@ -154,18 +141,14 @@ export class JobCardView implements OnInit {
         },
 
         error: (err: any) => {
-
-          console.error(
-            'Failed to load job cards from server:',
-            err
-          );
+          console.error('Failed to load job cards from server:', err);
 
           this.jobCards = [];
           this.totalElements = 0;
           this.totalPagesCount = 0;
 
           this.cdr.markForCheck();
-        }
+        },
       });
   }
 
@@ -181,7 +164,7 @@ export class JobCardView implements OnInit {
       technician: '',
       status: '',
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
     });
     this.currentPage = 1;
     this.fetchJobCards();
@@ -238,7 +221,7 @@ export class JobCardView implements OnInit {
       error: () => {
         this.notificationService.show('Failed to load job card details', 'error');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -252,7 +235,7 @@ export class JobCardView implements OnInit {
       error: () => {
         this.notificationService.show('Failed to load job card details', 'error');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -278,7 +261,7 @@ export class JobCardView implements OnInit {
         console.error('Failed to load vehicle registration numbers:', err);
         this.availableVehicles = [];
         this.cdr.markForCheck();
-      }
+      },
     });
   }
 
@@ -287,7 +270,20 @@ export class JobCardView implements OnInit {
       next: (res: TechnicianNameProjection[]) => {
         this.technicianNameProjection = res;
       },
-      error: (err: any) => console.error(err)
+      error: (err: any) => console.error(err),
     });
+  }
+
+  handleJobCardGenerated(pdfUrl: SafeResourceUrl) {
+    this.isEditModalOpen = false; // Close the job card form modal
+    this.jobCardPdfUrl = pdfUrl; // Assign to jobCardPdfUrl for the print preview modal
+    this.showPrintModal = true; // Open the print preview modal
+    this.cdr.markForCheck();
+  }
+
+  // Triggered when the user clicks 'Close' inside the print preview modal
+  closePrintPreview() {
+    this.showPrintModal = false;
+    this.jobCardPdfUrl = null;
   }
 }

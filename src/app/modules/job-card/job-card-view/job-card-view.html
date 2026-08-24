@@ -177,5 +177,14 @@
   </div>
 </div>
 
-<app-job-card-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-job-card-form>
-<app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-job-card-view-and-edit>
+<app-job-card-form *ngIf="isAddModalOpen" (cancel)="closeModal()"
+ (jobCardGenerated)="handleJobCardGenerated($event)">
+</app-job-card-form>
+
+<app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()"
+ [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen">
+</app-job-card-view-and-edit>
+
+<app-print-preview *ngIf="showPrintModal" 
+[pdfUrl]="jobCardPdfUrl" (close)="closePrintPreview()">
+</app-print-preview>
