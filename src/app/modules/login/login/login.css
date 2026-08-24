@@ -1,90 +1,213 @@
+/* Full viewport background container */
 .login-page {
-  background-size: cover;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  background-size: cover;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Translucent dark backdrop overlay */
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 12, 0.7);
+  backdrop-filter: blur(3px);
+  z-index: 1;
 }
 
 .login-container {
+  position: relative;
+  z-index: 2;
   width: 100%;
+  max-width: 440px;
   padding: 20px;
-  display: flex;
-  justify-content: center;
 }
 
+/* Glassmorphism Card with Neon Glowing Red Border */
 .login-card {
-  background: rgba(20, 20, 20, 0.85);
-  padding: 40px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 450px;
+  background: rgba(20, 20, 24, 0.85);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 35px 30px;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8),
+              0 0 20px rgba(239, 68, 68, 0.25); /* Glowing red edge effect */
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
+}
+
+/* Header & Brand styling */
+.login-header {
   text-align: center;
-  backdrop-filter: blur(5px);
-  border: 1px solid #444;
+  margin-bottom: 10px;
+}
 
-  h2 {
-    color: #ffffff;
-    margin-bottom: 25px;
-  }
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
 
-  .logo { 
-    width: 180px; 
-    margin-bottom: 20px; 
-  }
+.brand-logo img {
+  height: 100px;
+  width: auto;
+}
 
-  h3 { 
-    color: #ffffff; 
-    margin-bottom: 25px; 
-  }
+/* Form Input Groups */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
 
-  .input-group {
-    margin-bottom: 15px;
-    
-    label {
-      display: block;
-      text-align: left;
-      color: #ffffff;
-      margin-bottom: 8px; /* Fixed typo from 8s px */
-      font-size: 0.9rem;
-    }
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: #8b8b93;
+}
 
-    input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 6px;
-      border: 1px solid #333;
-      background: #1a1a1a;
-      color: white;
-    }
-  }
+.form-control {
+  width: 100%;
+  padding: 13px 15px 13px 42px; /* Leaves room for the icon */
+  background: rgba(30, 30, 36, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
 
-  .form-footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    color: #aaa;
-    margin-bottom: 20px;
-  }
+.form-control::placeholder {
+  color: #8b8b93;
+}
 
-  .login-btn {
-    width: 100%;
-    padding: 14px;
-    background-color: #a80000;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    
-    &:hover { 
-      background-color: #8c0000; 
-    }
-  }
+.form-control:focus {
+  outline: none;
+  border-color: #ef4444;
+  background: rgba(40, 40, 48, 0.95);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
 
-  .message.error {
-    margin-top: 15px;
-    color: #ff6b6b;
-    font-size: 0.85rem;
-  }
+/* Toggle Password Visibility Button */
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #8b8b93;
+}
+
+.toggle-password:hover {
+  color: #ffffff;
+}
+
+/* Remember Me & Forgot Password Row */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  font-size: 13px;
+  color: #b0b0ba;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  accent-color: #ef4444;
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: #b0b0ba;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #ef4444;
+  text-decoration: underline;
+}
+
+/* Neon Red Sign In Button */
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+  transform: translateY(-1px);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer Navigation Links */
+.login-footer-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+}
+
+.footer-link {
+  color: #8b8b93;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Error Alert Box */
+.message.error {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 6px;
 }

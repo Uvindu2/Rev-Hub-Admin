@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -16,11 +16,14 @@ export class Login {
   loginForm: FormGroup;
   statusError = '';
 
+  showPassword: boolean = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private notificationService: NotificationService,
     private router: Router,
+    private cdRef: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
@@ -44,8 +47,13 @@ export class Login {
       error: (err) => {
         console.log(err);
         this.statusError = err.error?.message || err.error?.data || 'Connection refused by server engine.';
-        this.notificationService.show(this.statusError, 'error');
+        this.cdRef.detectChanges();
+       // this.notificationService.show(this.statusError, 'error');
       },
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

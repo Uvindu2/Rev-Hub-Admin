@@ -1,23 +1,60 @@
-<div class="login-page" style="background: url('assets/images/cab1.png') no-repeat center center fixed; background-size: cover;">
+<div class="login-page" style="background: url('assets/images/cab1.jpg') no-repeat center center fixed; background-size: cover;">
   <div class="login-container">
     <div class="login-card">
-      <h2>Welcome to RevHub</h2>
+
+      <!-- Header with Logo and Title -->
+      <div class="login-header">
+        <div class="brand-logo">
+          <!-- Replace with your actual logo image path or inline SVG -->
+          <img src="assets/images/logo.png" alt="RevHub Logo" />
+
+        </div>
+      </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+
+        <!-- Username / Email Field -->
         <div class="input-group">
-          <label for="username">Username / Email</label>
-          <input type="text" id="username" formControlName="username" placeholder="Enter admin username">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            placeholder="Username or Email"
+            class="form-control">
         </div>
 
+        <!-- Password Field with Show/Hide Toggle (Optional placeholder element) -->
         <div class="input-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" formControlName="password" placeholder="Enter your password">
+          <span class="input-icon">🔑</span>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            placeholder="Password"
+            class="form-control">
+
+          <!-- Click event triggers the toggle and switches between open/closed eye -->
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+            {{ showPassword ? '👁️‍🗨️' : '👁️' }}
+          </button>
         </div>
 
-        <button type="submit" class="login-btn">REV ENGINE & LOGIN</button>
+        <!-- Remember Me & Forgot Password Options -->
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="rememberMe"> Remember Me
+          </label>
+          <a routerLink="/forgot-password" class="forgot-link">Forgot Password?</a>
+        </div>
 
+        <!-- LOGIN Button -->
+        <button type="submit" class="login-btn" [disabled]="loginForm.invalid">LOGIN</button>
+
+        <!-- Error Message -->
         <div *ngIf="statusError" class="message error">{{ statusError }}</div>
       </form>
+
     </div>
   </div>
 </div>
