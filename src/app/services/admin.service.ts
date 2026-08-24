@@ -190,6 +190,11 @@ export class AdminService {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_REG_NOS);
   }
 
+  getAllVehicleVinNos(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_VIN_NOS);
+  }
+
+
   getAllCustomersCount(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMERS_COUNT); // Update with your actual endpoint constant
   }

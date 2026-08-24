@@ -29,7 +29,7 @@
         <!-- Vehicle Dropdown Filter -->
          <div class="filter-group">
           <app-dropdown
-            formControlName="vehicle"
+            formControlName="vehicleRegNo"
             label="Vehicle Reg Number"
             [b]="availableVehicles"
             placeholder="All Vehicles"
@@ -39,9 +39,9 @@
 
         <div class="filter-group">
           <app-dropdown
-            formControlName="Vehicle"
+            formControlName="vehicleVinNo"
             label="Vehicle Vin Number"
-            [b]="availableVehicles"
+            [b]="availableVehicleVins"
             placeholder="All Vehicles"
             errorMessage="Please select a vin no.">
           </app-dropdown>
@@ -109,6 +109,7 @@
           <th>Job Number</th>
           <th>Customer Name</th>
           <th>Vehicle Reg Number</th>
+              <th>Vehicle Vin Number</th>
           <th>Date Added</th>
           <th>Status</th>
           <th>Technician</th>
@@ -135,6 +136,7 @@
           <td class="font-semibold">{{ job.jobCardNumber }}</td>
           <td>{{ job.customerName }}</td>
           <td class="text-uppercase">{{ job.vehicleRegNumber }}</td>
+                    <td class="text-uppercase">{{ job.vehicleVinNumber }}</td>
           <td>{{ job.createdDate | date:'dd MMM yyyy' }}</td>
           <td>
               <span class="badge" [ngClass]="{

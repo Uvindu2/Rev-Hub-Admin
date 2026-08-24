@@ -36,6 +36,7 @@ export class JobCardView implements OnInit {
   filterForm!: FormGroup;
 
   availableVehicles: string[] = [];
+  availableVehicleVins: string[] = [];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -67,6 +68,7 @@ export class JobCardView implements OnInit {
 
   ngOnInit(): void {
     this.fetchVehicleRegNos();
+    this.fetchVehicleVinNos();
     this.loadTechnicianNames();
     this.fetchJobCards();
   }
@@ -75,7 +77,8 @@ export class JobCardView implements OnInit {
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
       search: [''],
-      vehicle: [''],
+      vehicleRegNo: [''],
+      vehicleVinNo: [''],
       technicianId: [''],
       status: [''],
       dateFrom: [''],
@@ -164,7 +167,8 @@ export class JobCardView implements OnInit {
   onResetFilters(): void {
     this.filterForm.reset({
       search: '',
-      vehicle: '',
+      vehicleRegNo: '',
+      vehicleVinNo: '',
       technician: '',
       status: '',
       dateFrom: '',
@@ -263,6 +267,28 @@ export class JobCardView implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to load vehicle registration numbers:', err);
+        this.availableVehicles = [];
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+    private fetchVehicleVinNos(): void {
+    this.adminService.getAllVehicleVinNos().subscribe({
+      next: (response: any) => {
+        // Handle standard response wrapper (e.g., response.data or direct array)
+        const vinNos = response?.data || response;
+
+        if (Array.isArray(vinNos)) {
+          this.availableVehicleVins = vinNos;
+        } else {
+          this.availableVehicleVins = [];
+        }
+
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load vehicle VIN numbers:', err);
         this.availableVehicles = [];
         this.cdr.markForCheck();
       },

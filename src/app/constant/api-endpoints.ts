@@ -47,7 +47,7 @@ export const API_ENDPOINTS = {
   SEARCH_INVOICES: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/invoice/search?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
   GET_ALL_VEHICLE_REG_NOS: `${API_BASE_URL}/vehicle/get-all-vehicle-reg-nos`,
-
+  GET_ALL_VEHICLE_VIN_NOS: `${API_BASE_URL}/vehicle/get-all-vehicle-vin-nos`,
 
   GET_ALL_CUSTOMERS_COUNT: `${API_BASE_URL}/dashboard/get-all-customers-count/`,
   GET_ALL_JOB_CARD_STATUS: `${API_BASE_URL}/dashboard/get-all-job-card-status/`,

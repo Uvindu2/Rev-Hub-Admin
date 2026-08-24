@@ -3,7 +3,8 @@ export interface JobCardSummaryResponseDTO {
   jobCardNumber: string;
   customerName: string;
   vehicleRegNumber: string;
-  createdDate: string; // or Date if you parse it on the frontend
+  vehicleVinNumber: string;
+  createdDate: string;
   status: string;
   technicianName: string;
 }
