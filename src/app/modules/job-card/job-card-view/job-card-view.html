@@ -27,14 +27,24 @@
         </div>
 
         <!-- Vehicle Dropdown Filter -->
+         <div class="filter-group">
+          <app-dropdown
+            formControlName="vehicle"
+            label="Vehicle Reg Number"
+            [b]="availableVehicles"
+            placeholder="All Vehicles"
+            errorMessage="Please select a reg no.">
+          </app-dropdown>
+        </div>
+
         <div class="filter-group">
-          <label>Vehicle</label>
-          <div class="select-wrapper">
-            <select formControlName="vehicle">
-              <option value="">All Vehicles</option>
-              <option *ngFor="let vehicle of availableVehicles" [value]="vehicle">{{ vehicle }}</option>
-            </select>
-          </div>
+          <app-dropdown
+            formControlName="Vehicle"
+            label="Vehicle Vin Number"
+            [b]="availableVehicles"
+            placeholder="All Vehicles"
+            errorMessage="Please select a vin no.">
+          </app-dropdown>
         </div>
 
         <!-- Technician Dropdown Filter -->
@@ -185,6 +195,6 @@
  [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen">
 </app-job-card-view-and-edit>
 
-<app-print-preview *ngIf="showPrintModal" 
+<app-print-preview *ngIf="showPrintModal"
 [pdfUrl]="jobCardPdfUrl" (close)="closePrintPreview()">
 </app-print-preview>

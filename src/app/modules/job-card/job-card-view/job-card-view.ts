@@ -10,6 +10,7 @@ import { JobCardForm } from '../job-card-form/job-card-form';
 import { finalize } from 'rxjs';
 import { PrintPreview } from '../../invoice/print-preview/print-preview';
 import { SafeResourceUrl } from '@angular/platform-browser';
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 
 @Component({
   selector: 'app-job-card-view',
@@ -21,6 +22,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
     FormsModule,
     JobCardForm,
     PrintPreview,
+    Dropdown
   ],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
@@ -51,6 +53,8 @@ export class JobCardView implements OnInit {
   showPrintModal: boolean = false;
   generatedPdfUrl: SafeResourceUrl | null = null;
   jobCardPdfUrl: SafeResourceUrl | null = null;
+
+  selectedVehicleName = '';
 
   constructor(
     private readonly fb: FormBuilder,
@@ -286,4 +290,28 @@ export class JobCardView implements OnInit {
     this.showPrintModal = false;
     this.jobCardPdfUrl = null;
   }
+
+  filteredVehicles: string[] = [...this.availableVehicles];
+
+// Toggle dropdown open/close
+isDropdownOpen = false;
+toggleDropdown(): void {
+  this.isDropdownOpen = !this.isDropdownOpen;
+}
+
+// Filter vehicles based on search input
+filterVehicles(event: any): void {
+  const searchTerm = event.target.value.toLowerCase();
+  this.filteredVehicles = this.availableVehicles.filter(vehicle =>
+    vehicle.toLowerCase().includes(searchTerm)
+  );
+}
+
+// Select a vehicle and update the Reactive Form control
+selectVehicle(vehicle: string): void {
+  this.selectedVehicleName = vehicle;
+  this.isDropdownOpen = false; // Close dropdown after selection
+  this.filteredVehicles = [...this.availableVehicles]; // Reset filter
+}
+
 }
