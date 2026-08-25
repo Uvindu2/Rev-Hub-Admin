@@ -255,4 +255,8 @@ export class AdminService {
     // Return standard JSON response object containing code, response, and data
     return this.http.put<any>(API_ENDPOINTS.MODIFY_USER, backendPayload);
   }
+
+  getAllItemsNames(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_ITEMS_NAMES);
+  }
 }

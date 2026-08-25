@@ -1,12 +1,13 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {ItemProjection} from '../../../dto/response/ItemProjection';
 import {ItemForm} from '../item-form/item-form';
 import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
 import {finalize} from 'rxjs';
+import { Dropdown } from "../../../shared/components/dropdown/dropdown";
 
 @Component({
   selector: 'app-item-view',
@@ -15,12 +16,15 @@ import {finalize} from 'rxjs';
     NgForOf,
     NgIf,
     ReactiveFormsModule,
-    ItemViewAndEdit
-  ],
+    ItemViewAndEdit,
+    Dropdown
+],
   templateUrl: './item-view.html',
   styleUrl: './item-view.css',
 })
 export class ItemView implements OnInit {
+
+  filterForm!: FormGroup;
 
   items: ItemProjection[] = [];
   item: ItemProjection | undefined;
@@ -40,16 +44,48 @@ export class ItemView implements OnInit {
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
+  availableItemNames: any[] = ["All Vehicles"];
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
     private readonly notificationService: NotificationService
   ) {
+    this.initFilterForm();
   }
 
   ngOnInit(): void {
+    this.fetchItemsNames();
     this.fetchItems();
+  }
+
+    private fetchItemsNames(): void {
+    this.adminService.getAllItemsNames().subscribe({
+      next: (response: any) => {
+        // Handle standard response wrapper (e.g., response.data or direct array)
+        const itemsNames = response?.data || response;
+
+        if (Array.isArray(itemsNames)) {
+          this.availableItemNames = itemsNames;
+        } else {
+          this.availableItemNames = [];
+        }
+
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load item names:', err);
+        this.availableItemNames = [];
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      vehicleRegNo: [''],
+    });
   }
 
   fetchItems(): void {

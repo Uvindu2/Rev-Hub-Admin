@@ -32,7 +32,6 @@ export class JobCardView implements OnInit {
   jobCards: JobCardSummaryResponseDTO[] = [];
   jobCard: JobCardProjection | undefined;
 
-  // BEST PRACTICE: Unified Reactive Form Group for filters
   filterForm!: FormGroup;
 
   availableVehicles: string[] = [];

@@ -1,23 +1,27 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {VehicleEditFormComponent} from '../vehicle-edit-form/vehicle-edit-form';
-import {FormsModule} from '@angular/forms';
-import {VehicleSummaryProjection} from '../../../dto/response/VehicleSummaryProjection';
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {VehicleProjection} from '../../../dto/response/VehicleProjection';
-import {finalize} from 'rxjs';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { VehicleEditFormComponent } from '../vehicle-edit-form/vehicle-edit-form';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { VehicleSummaryProjection } from '../../../dto/response/VehicleSummaryProjection';
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { VehicleProjection } from '../../../dto/response/VehicleProjection';
+import { finalize } from 'rxjs';
+import { Dropdown } from "../../../shared/components/dropdown/dropdown";
 
 @Component({
   selector: 'app-vehicle-view',
   standalone: true,
-  imports: [CommonModule, VehicleEditFormComponent, FormsModule],
+  imports: [CommonModule, VehicleEditFormComponent, FormsModule, Dropdown, ReactiveFormsModule],
   templateUrl: './vehicle-view.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './vehicle-view.css',
 })
 export class VehicleView implements OnInit {
   allVehicles: VehicleSummaryProjection[] = [];
+
+  filterForm!: FormGroup;
+  
   // Pagination Parameters
   currentPage: number = 1;
   pageSize: number = 5;
@@ -27,7 +31,8 @@ export class VehicleView implements OnInit {
 
   // Filter Bindings
   searchTerm: string = '';
-  availableVehicles: string[] = ['CAH-1331', 'CAH-1231'];
+  availableVehicles: string[] = [];
+  availableVehicleVins: string[] = [];
 
   // Sorting Rules configuration
   sortByField: string = 'dateAdded';
@@ -35,42 +40,81 @@ export class VehicleView implements OnInit {
 
   // Modal State Control Properties
   isEditModalOpen: boolean = false;
-  isViewModalOpen: boolean = false; // 🌟 Added: Track display overlay visibility for your view form
+  isViewModalOpen: boolean = false;
   isLoading: boolean = false;
   isSearch: boolean = false;
   selectedVehicle: VehicleProjection | undefined;
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
     private readonly notificationService: NotificationService) {
+    this.initFilterForm();
   }
 
   ngOnInit(): void {
+    this.fetchVehicleRegNos();
+    this.fetchVehicleVinNos();
     this.fetchVehicles();
   }
 
-  onSearch(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    console.log('Searching Fleet Records for Registration/Make:', inputElement.value);
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      vehicleRegNo: [''],
+      vehicleVinNo: [''],
+    });
   }
 
-// 🌟 Updated: Finds target data model and pops open the read-only view form layout modal
+  private fetchVehicleRegNos(): void {
+    this.adminService.getAllVehicleRegNos().subscribe({
+      next: (response: any) => {
+        const regNos = response?.data || response;
+        if (Array.isArray(regNos)) {
+          this.availableVehicles = regNos;
+        } else {
+          this.availableVehicles = [];
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load vehicle registration numbers:', err);
+        this.availableVehicles = [];
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private fetchVehicleVinNos(): void {
+    this.adminService.getAllVehicleVinNos().subscribe({
+      next: (response: any) => {
+        const vinNos = response?.data || response;
+        if (Array.isArray(vinNos)) {
+          this.availableVehicleVins = vinNos;
+        } else {
+          this.availableVehicleVins = [];
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load vehicle VIN numbers:', err);
+        this.availableVehicleVins = []; // Fixed: targets availableVehicleVins now
+        this.cdr.markForCheck();
+      },
+    });
+  }
 
   viewVehicle(id: number): void {
-    console.log('Viewing ID:', id);
-
     this.adminService.getVehicleById(id).subscribe({
       next: (response: any) => {
         this.selectedVehicle = response.data;
-        console.log(response);
         this.isViewModalOpen = true;
         this.cdr.detectChanges();
       },
       error: (err: any) => {
         setTimeout(() => {
           this.notificationService.show('Failed to load vehicle from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+          this.cdr.detectChanges();
         }, 0);
       }
     });
@@ -80,20 +124,18 @@ export class VehicleView implements OnInit {
     this.adminService.getVehicleById(id).subscribe({
       next: (response: any) => {
         this.selectedVehicle = response.data;
-        console.log(response);
         this.isEditModalOpen = true;
         this.cdr.detectChanges();
       },
       error: (err: any) => {
         setTimeout(() => {
           this.notificationService.show('Failed to load vehicle from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+          this.cdr.detectChanges();
         }, 0);
       }
     });
   }
 
-// 🌟 Updated: Re-set state tracking parameters to dismiss both edit and read-only overlay variants cleanly
   closeModal(): void {
     this.isEditModalOpen = false;
     this.isViewModalOpen = false;
@@ -104,7 +146,7 @@ export class VehicleView implements OnInit {
     const select = event.target as HTMLSelectElement;
     this.pageSize = Number(select.value);
     this.currentPage = 1;
-    this.fetchVehicles(); // fetchJobCards will run cdr.markForCheck() when done
+    this.fetchVehicles();
   }
 
   goToPage(page: number): void {
@@ -129,22 +171,18 @@ export class VehicleView implements OnInit {
   }
 
   fetchVehicles() {
-    // Start loader
     this.isLoading = true;
     this.cdr.markForCheck();
 
     const backendPage = this.currentPage - 1;
 
     this.adminService.getVehiclesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
-        finalize(() => {
-          // Stop loader for both success and error
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        })
-      ).subscribe({
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (response: any) => {
-        console.log(response);
-        // Stage updates in local variables first to prevent layout thrashing
         let updatedVehicles: VehicleSummaryProjection[] = [];
         let updatedTotalElements = 0;
         let updatedTotalPagesCount = 0;
@@ -159,12 +197,10 @@ export class VehicleView implements OnInit {
           updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
         }
 
-        // Apply properties all at once
         this.allVehicles = updatedVehicles;
         this.totalElements = updatedTotalElements;
         this.totalPagesCount = updatedTotalPagesCount;
 
-        // Notify Angular to redraw on the next frame paint seamlessly
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -177,21 +213,18 @@ export class VehicleView implements OnInit {
     });
   }
 
-  onSearchInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm = target.value;
-  }
-
   onApplyFilters(): void {
-    console.log('Applying filters:', {
-      search: this.searchTerm,
-      vehicle: this.selectedVehicle,
-    });
+    const formValues = this.filterForm.value;
+    console.log('Applying filters:', formValues);
     this.currentPage = 1;
     this.fetchVehicles();
   }
 
   onResetFilters(): void {
+    this.filterForm.reset({
+      vehicleRegNo: '',
+      vehicleVinNo: '',
+    });
     this.searchTerm = '';
     this.currentPage = 1;
     this.fetchVehicles();

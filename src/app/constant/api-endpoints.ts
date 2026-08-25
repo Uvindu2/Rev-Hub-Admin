@@ -63,5 +63,6 @@ export const API_ENDPOINTS = {
   GET_USER_BY_ID: (userId: number) => `${API_BASE_URL}/user/get-user-by-userId/${userId}`,
   SAVE_USER: `${API_BASE_URL}/user/save`,
   GET_ROLE_NAMES: `${API_BASE_URL}/role/get-all-role-names`,
-  MODIFY_USER: `${API_BASE_URL}/user/modify`
+  MODIFY_USER: `${API_BASE_URL}/user/modify`,
+  GET_ALL_ITEMS_NAMES: `${API_BASE_URL}/item/get-all-item-names`,
 };
