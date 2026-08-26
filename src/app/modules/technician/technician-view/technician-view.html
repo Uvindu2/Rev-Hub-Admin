@@ -1,105 +1,165 @@
 <div class="page-header">
-<div class="card-container">
-  <!-- Table Header Controls -->
-  <div class="table-header">
-    <h2>All Technicians</h2>
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search Technicians..." (input)="onSearch($event)">
-    </div>
-<!--    <button class="btn-add" type="button" (click)="onAddTechnician()">-->
-<!--      <span class="icon-plus" aria-hidden="true">+</span> ADD Technician-->
-<!--    </button>-->
-  </div>
-
-  <!-- Responsive Table Wrap -->
-  <div class="table-responsive">
-    <table class="custom-table">
-      <thead>
-      <tr>
-        <th>Technician Name</th>
-        <th>Speciality</th>
-        <th class="text-center">Active Jobs</th>
-        <th>Status</th>
-<!--        <th class="text-center">Actions</th>-->
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngIf="isLoading">
-        <td colspan="7" class="table-loader-cell">
-          <div class="table-loader">
-            <span class="spinner"></span>
-            <span>Loading Technicians...</span>
-          </div>
-        </td>
-      </tr>
-
-      <tr *ngIf="!isLoading && (!technicians || technicians.length === 0)">
-        <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
-          No Technician found matching current filter parameters.
-        </td>
-      </tr>
-      <tr *ngFor="let tech of technicians" [class.loading-hidden]="isLoading">
-        <td>{{ tech.technicianName }}</td>
-        <td>{{ tech.speciality }}</td>
-        <td class="text-center font-numeric">
-          <span class="job-count-badge">{{ tech.activeJobCount }}</span>
-        </td>
-        <td>
-          <!-- Dynamic Availability Badges -->
-          <span class="badge" [ngClass]="{
-              'badge-available': tech.jobStatus === 'Available',
-              'badge-busy': tech.jobStatus === 'Busy',
-              'badge-leave': tech.jobStatus === 'On Leave'
-            }">
-              {{ tech.jobStatus }}
-            </span>
-        </td>
-<!--        <td class="actions-cell">-->
-<!--          <button class="btn-action view-btn" title="View Schedule" (click)="viewTechnician(tech.technicianId)">-->
-<!--            👁️-->
-<!--          </button>-->
-<!--          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTechnician(tech.technicianId)">-->
-<!--            ✏️-->
-<!--          </button>-->
-<!--        </td>-->
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="table-footer-summary custom-footer-layout">
-
-    <div class="record-counter left-counter-anchor">
-      Showing {{ technicians?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
-    </div>
-
-    <div class="pagination-group-wrapper right-controls-group">
-
-      <div class="select-box footer-select">
-        <label>Show:</label>
-        <select (change)="onPageSizeChange($event)" [value]="pageSize">
-          <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
-        </select>
+  <div class="card-container" [formGroup]="filterForm">
+    <!-- Table Header Controls -->
+    <!-- Search & Filter Card Section -->
+    <div class="filter-card-section">
+      <div class="filter-card-header">
+        <div class="filter-title-wrapper">
+          <span class="filter-title-icon">🔍</span>
+          <h3>Search & Filter</h3>
+        </div>
       </div>
 
-      <div class="pagination">
-        <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-        <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+      <!-- Filter Inputs Grid Row 1 (Inline Dropdowns & Action Buttons) -->
+      <div class="filter-grid-row">
+        <!-- 1. Vehicle Dropdown Filter -->
+        <div class="filter-group">
+          <app-dropdown
+            formControlName="technicianName"
+            label="Technician Name"
+            bindLabel="technicianName"
+            bindValue="technicianId"
+            [data]="technicians"
+            placeholder="All Technicians"
+            errorMessage="Please select an technician."
+          >
+          </app-dropdown>
+        </div>
 
-        <span class="page-indicator">
-            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+        <!-- Status Dropdown Filter -->
+        <div class="filter-group">
+          <label>Status</label>
+          <div class="select-wrapper">
+            <label>
+              <select formControlName="status">
+                <option value="">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Reset & Search Trigger Buttons (Third Column) -->
+        <div class="button">
+          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
+            🔄 RESET
+          </button>
+          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
+            🔍 SEARCH
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive Table Wrap -->
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Technician Name</th>
+            <th>Speciality</th>
+            <th class="text-center">Active Jobs</th>
+            <th>Status</th>
+            <!--        <th class="text-center">Actions</th>-->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="7" class="table-loader-cell">
+              <div class="table-loader">
+                <span class="spinner"></span>
+                <span>Loading Technicians...</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && (!technicians || technicians.length === 0)">
+            <td
+              colspan="7"
+              style="text-align: center; padding: 30px; color: #757575; font-style: italic"
+            >
+              No Technician found matching current filter parameters.
+            </td>
+          </tr>
+          <tr *ngFor="let tech of technicians" [class.loading-hidden]="isLoading">
+            <td>{{ tech.technicianName }}</td>
+            <td>{{ tech.speciality }}</td>
+            <td class="text-center font-numeric">
+              <span class="job-count-badge">{{ tech.activeJobCount }}</span>
+            </td>
+            <td>
+              <!-- Dynamic Availability Badges -->
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-available': tech.jobStatus === 'Available',
+                  'badge-busy': tech.jobStatus === 'Busy',
+                  'badge-leave': tech.jobStatus === 'On Leave',
+                }"
+              >
+                {{ tech.jobStatus }}
+              </span>
+            </td>
+            <!--        <td class="actions-cell">-->
+            <!--          <button class="btn-action view-btn" title="View Schedule" (click)="viewTechnician(tech.technicianId)">-->
+            <!--            👁️-->
+            <!--          </button>-->
+            <!--          <button class="btn-action edit-btn" title="Edit Profile" (click)="editTechnician(tech.technicianId)">-->
+            <!--            ✏️-->
+            <!--          </button>-->
+            <!--        </td>-->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-summary custom-footer-layout">
+      <div class="record-counter left-counter-anchor">
+        Showing {{ technicians?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total
+        entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of
+            {{ totalPagesCount }}
           </span>
 
-        <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
-        <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">
+            >
+          </button>
+          <button
+            class="page-nav"
+            [disabled]="currentPage >= totalPagesCount"
+            (click)="goToPage(totalPagesCount)"
+          >
+            >|
+          </button>
+        </div>
       </div>
-
     </div>
   </div>
-</div>
 </div>
 
 <app-technician-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-technician-form>
 
-<app-technician-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [technician]="technician" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-technician-view-and-edit>
+<app-technician-view-and-edit
+  *ngIf="isEditModalOpen || isViewModalOpen"
+  (cancel)="closeModal()"
+  [technician]="technician"
+  [isViewModalOpen]="isViewModalOpen"
+  [isEditModalOpen]="isEditModalOpen"
+></app-technician-view-and-edit>

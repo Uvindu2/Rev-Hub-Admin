@@ -1,16 +1,68 @@
 <div class="page-header">
   <div class="card-container" [formGroup]="filterForm">
-    <div class="table-header">
-      <button class="btn-add" type="button" (click)="onAddUser()">
-        <span class="icon-plus" aria-hidden="true">+</span> ADD USER
-      </button>
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search Users...">
-        <button type="button" class="btn-filter-search-action" (click)="search()" [disabled]="isSearch">
-          <span *ngIf="isSearch"></span>
-          {{ isSearch ? 'Searching...' : 'Search' }}
-        </button>
+    <!-- Search & Filter Card Section -->
+    <div class="filter-card-section">
+      <div class="filter-card-header">
+        <div class="filter-title-wrapper">
+          <span class="filter-title-icon">🔍</span>
+          <h3>Search & Filter</h3>
+        </div>
+      </div>
+
+      <!-- Filter Inputs Grid Row 1 (Inline Dropdowns & Action Buttons) -->
+      <div class="filter-grid-row">
+        <!-- 1. User Name Dropdown Filter -->
+        <div class="filter-group">
+          <app-dropdown
+            formControlName="username"
+            label="User Name"
+            bindLabel="userName"
+            bindValue="userId"
+            [data]="userNameAndIds"
+            placeholder="All User names"
+            errorMessage="Please select an user."
+          >
+          </app-dropdown>
+        </div>
+
+                <!-- 1. User Name Dropdown Filter -->
+        <div class="filter-group">
+          <app-dropdown
+            formControlName="roleName"
+            label="Role Name"
+            bindLabel="roleName"
+            bindValue="roleId"
+            [data]="userRoleNameAndIds"
+            placeholder="All Roles"
+            errorMessage="Please select a role."
+          >
+          </app-dropdown>
+        </div>
+
+        <!-- Status Dropdown Filter -->
+        <div class="filter-group">
+          <label>Status</label>
+          <div class="select-wrapper">
+            <label>
+              <select formControlName="status">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Reset & Search Trigger Buttons (Third Column) -->
+        <div class="button">
+          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
+            🔄 RESET
+          </button>
+          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
+            🔍 SEARCH
+          </button>
+        </div>
+
       </div>
     </div>
 

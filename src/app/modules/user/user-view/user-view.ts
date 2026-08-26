@@ -7,16 +7,20 @@ import { UserForm } from '../user-form/user-form';
 import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
 import { UserResponseDTO } from '../../../dto/response/UserResponseDTO';
 import { finalize } from 'rxjs';
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import { UserNameAndIdDTO } from '../../../dto/response/UserNameAndIdDTO';
 
 @Component({
   selector: 'app-user-view',
-  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule],
+  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule, Dropdown],
   templateUrl: './user-view.html',
   styleUrl: './user-view.css',
 })
 export class UserView implements OnInit {
   users: UserResponseDTO[] = [];
   user: UserResponseDTO | undefined;
+  userNameAndIds: UserNameAndIdDTO[] = [];
+  userRoleNameAndIds: string[] = [];
 
   // BEST PRACTICE: Unified Reactive Form Group for filters
   filterForm!: FormGroup;
@@ -44,13 +48,55 @@ export class UserView implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fetchUserNames();
+    this.fetchUserRoles();
     this.fetchUsers();
+  }
+
+  private fetchUserNames(): void {
+    this.adminService.getAllUserNames().subscribe({
+      next: (response: any) => {
+        const UserNameAndIds = response?.data || response;
+        if (Array.isArray(UserNameAndIds)) {
+          this.userNameAndIds = UserNameAndIds;
+        } else {
+          this.userNameAndIds = [];
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load user names:', err);
+        this.userNameAndIds = [];
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private fetchUserRoles(): void {
+    this.adminService.getAllUserRoles().subscribe({
+      next: (response: any) => {
+        const UserRoles = response?.data || response;
+        if (Array.isArray(UserRoles)) {
+          this.userRoleNameAndIds = UserRoles;
+        } else {
+          this.userRoleNameAndIds = [];
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load user roles:', err);
+        this.userRoleNameAndIds = [];
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   // Initialize form controls matching your backend search request DTO
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      search: [''],
+      userName: [''],
+      status: [''],
+      roleName: [''],
     });
   }
 

@@ -18,7 +18,7 @@
     <app-dropdown
       formControlName="vehicleRegNo"
       label="Vehicle Reg Number"
-      [b]="availableVehicles"
+      [data]="availableVehicles"
       placeholder="All Vehicles"
       errorMessage="Please select a reg no.">
     </app-dropdown>
@@ -29,14 +29,14 @@
     <app-dropdown
       formControlName="vehicleVinNo"
       label="Vehicle Vin Number"
-      [b]="availableVehicleVins"
+      [data]="availableVehicleVins"
       placeholder="All Vehicles"
       errorMessage="Please select a vin no.">
     </app-dropdown>
   </div>
 
   <!-- 3. Reset & Search Trigger Buttons (Third Column) -->
-  <div class="a">
+  <div class="button">
     <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
       🔄 RESET
     </button>

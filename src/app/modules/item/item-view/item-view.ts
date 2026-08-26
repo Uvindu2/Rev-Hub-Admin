@@ -8,6 +8,7 @@ import {ItemForm} from '../item-form/item-form';
 import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
 import {finalize} from 'rxjs';
 import { Dropdown } from "../../../shared/components/dropdown/dropdown";
+import { ItemNameDTO } from '../../../dto/response/ItemNameDTO';
 
 @Component({
   selector: 'app-item-view',
@@ -44,7 +45,7 @@ export class ItemView implements OnInit {
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
-  availableItemNames: any[] = ["All Vehicles"];
+  availableItemNames: ItemNameDTO[] = [];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -84,7 +85,7 @@ export class ItemView implements OnInit {
 
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      vehicleRegNo: [''],
+      itemName: [''],
     });
   }
 

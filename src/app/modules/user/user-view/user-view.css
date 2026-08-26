@@ -1,1 +1,7 @@
-
+.button {
+  margin-left: 80pt; /* Space between the two buttons */
+  display: flex;
+  flex-direction: row; /* Ensures they sit side by side horizontally */
+  align-items: center;
+  gap: 10px; /* Space between RESET and SEARCH buttons */
+}

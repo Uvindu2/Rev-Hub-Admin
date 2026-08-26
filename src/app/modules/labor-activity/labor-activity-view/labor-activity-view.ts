@@ -1,12 +1,13 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
 import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
 import {finalize} from 'rxjs';
+import { Dropdown } from "../../../shared/components/dropdown/dropdown";
 
 @Component({
   selector: 'app-labor-activity-view',
@@ -15,12 +16,15 @@ import {finalize} from 'rxjs';
     NgIf,
     ReactiveFormsModule,
     LaborActivityForm,
-    LaborActivityViewAndEdit
+    LaborActivityViewAndEdit,
+    Dropdown
 ],
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',
 })
 export class LaborActivityView implements OnInit {
+
+  filterForm!: FormGroup;
 
   laborActivities: LaborActivityProjection[] = [];
   laborActivity: LaborActivityProjection | undefined;
@@ -42,15 +46,24 @@ export class LaborActivityView implements OnInit {
   isLoading: boolean = false;
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
     private readonly notificationService: NotificationService
   ) {
+    this.initFilterForm();
   }
 
   ngOnInit(): void {
     this.fetchLaborActivities();
   }
+
+    private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      laborActivity: [''],
+    });
+  }
+
 
   fetchLaborActivities(): void {
 

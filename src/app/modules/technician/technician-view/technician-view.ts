@@ -1,24 +1,35 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core'; // Fixed: Added OnInit import
-import {CommonModule} from '@angular/common';
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {FormsModule} from '@angular/forms';
-import {TechnicianProjectionWithJobStatus} from '../../../dto/response/TechnicianProjectionWithJobStatus';
-import {TechnicianForm} from '../technician-form/technician-form';
-import {TechnicianViewAndEdit} from '../technician-view-and-edit/technician-view-and-edit';
-import {TechnicianProjection} from '../../../dto/response/TechnicianProjection';
-import {finalize} from 'rxjs'; // Fixed: Added CommonModule import
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core'; // Fixed: Added OnInit import
+import { CommonModule } from '@angular/common';
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TechnicianProjectionWithJobStatus } from '../../../dto/response/TechnicianProjectionWithJobStatus';
+import { TechnicianForm } from '../technician-form/technician-form';
+import { TechnicianViewAndEdit } from '../technician-view-and-edit/technician-view-and-edit';
+import { TechnicianProjection } from '../../../dto/response/TechnicianProjection';
+import { finalize } from 'rxjs';
+import { Dropdown } from '../../../shared/components/dropdown/dropdown'; // Fixed: Added CommonModule import
 
 @Component({
   selector: 'app-technician-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TechnicianForm, TechnicianViewAndEdit], // Fixed: Added CommonModule for table structural bindings (*ngFor, ngClass)
+  imports: [
+    CommonModule,
+    FormsModule,
+    TechnicianForm,
+    TechnicianViewAndEdit,
+    ReactiveFormsModule,
+    Dropdown,
+  ], // Fixed: Added CommonModule for table structural bindings (*ngFor, ngClass)
   templateUrl: './technician-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './technician-view.css',
 })
-export class TechnicianView implements OnInit { // Fixed: Added implements OnInit
+export class TechnicianView implements OnInit {
+  // Fixed: Added implements OnInit
   // Balanced 8-record technician dataset matching your system framework
+  filterForm!: FormGroup;
+
   technicians: TechnicianProjectionWithJobStatus[] = [];
   technician: TechnicianProjection | undefined;
 
@@ -38,16 +49,24 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
 
-
   constructor(
+    private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {
+    this.initFilterForm();
   }
 
   ngOnInit(): void {
     this.fetchTechnicians();
+  }
+
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      technicianName: [''],
+      status: [''],
+    });
   }
 
   fetchTechnicians(): void {
@@ -57,46 +76,55 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
 
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getTechniciansPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+    this.adminService
+      .getTechniciansPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection)
+      .pipe(
         finalize(() => {
           // Stop loader for both success and error
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
-      ).subscribe({
-      next: (response: any) => {
-        console.log(response);
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedTechnicians: TechnicianProjectionWithJobStatus[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+        }),
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log(response);
+          // Stage updates in local variables first to prevent layout thrashing
+          let updatedTechnicians: TechnicianProjectionWithJobStatus[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
 
-        if (response?.content !== undefined) {
-          updatedTechnicians = response.content || [];
-          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
-          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
-        } else if (Array.isArray(response)) {
-          updatedTechnicians = response;
-          updatedTotalElements = response.length;
-          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
-        }
+          if (response?.content !== undefined) {
+            updatedTechnicians = response.content || [];
+            updatedTotalElements =
+              response.page.totalElements === undefined
+                ? response.total_elements || 0
+                : response.page.totalElements;
+            updatedTotalPagesCount =
+              response.page.totalPages === undefined
+                ? response.total_pages || 0
+                : response.page.totalPages;
+          } else if (Array.isArray(response)) {
+            updatedTechnicians = response;
+            updatedTotalElements = response.length;
+            updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+          }
 
-        // Apply properties all at once
-        this.technicians = updatedTechnicians;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
+          // Apply properties all at once
+          this.technicians = updatedTechnicians;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
 
-        // Notify Angular to redraw on the next frame paint seamlessly
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load technician from server:', err);
-        this.technicians = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+          // Notify Angular to redraw on the next frame paint seamlessly
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load technician from server:', err);
+          this.technicians = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onPageSizeChange(event: Event): void {
@@ -160,7 +188,7 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
           this.notificationService.show('Failed to load technician from server:', 'error');
           this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
         }, 0);
-      }
+      },
     });
   }
 
@@ -177,7 +205,7 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
           this.notificationService.show('Failed to load technician from server:', 'error');
           this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
         }, 0);
-      }
+      },
     });
   }
 
@@ -188,5 +216,20 @@ export class TechnicianView implements OnInit { // Fixed: Added implements OnIni
   protected onAddTechnician() {
     this.isAddModalOpen = true;
     this.cdr.markForCheck();
+  }
+
+  onResetFilters(): void {
+    this.filterForm.reset({
+      technicianName: '',
+    });
+    this.currentPage = 1;
+    this.fetchTechnicians();
+  }
+
+  onApplyFilters(): void {
+    const formValues = this.filterForm.value;
+    console.log('Applying filters:', formValues);
+    this.currentPage = 1;
+    this.fetchTechnicians();
   }
 }

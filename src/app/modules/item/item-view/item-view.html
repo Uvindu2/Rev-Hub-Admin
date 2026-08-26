@@ -1,17 +1,19 @@
 <div class="page-header">
-  <div class="card-container">
-    <div class="table-header" [formGroup]="filterForm">
+  <div class="card-container" [formGroup]="filterForm">
+    <div class="table-header">
       <div class="actions-right">
         <button class="btn-add" type="button" (click)="onAddItem()">
           <span class="icon-plus" aria-hidden="true">+</span> ADD Item
         </button>
       </div>
-      <!-- 1. Vehicle Dropdown Filter -->
+      <!-- 1. Item Dropdown Filter -->
       <div class="filter-group">
         <app-dropdown
-          formControlName="vehicleRegNo"
-          label="Vehicle Reg Number"
-          [b]="availableItemNames"
+          formControlName="itemName"
+          label="Item Name"
+          bindLabel="itemName"
+          bindValue="id"
+          [data]="availableItemNames"
           placeholder="All Items"
           errorMessage="Please select an item."
         >

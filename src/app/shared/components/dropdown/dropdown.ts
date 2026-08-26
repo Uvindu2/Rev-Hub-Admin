@@ -11,8 +11,8 @@ import { ControlValueAccessor, FormsModule, NgControl } from '@angular/forms';
   styleUrl: './dropdown.css',
 })
 export class Dropdown implements ControlValueAccessor, OnInit {
-  @Input() label = '';
-  @Input() b: any[] = [];
+    @Input() label = '';
+  @Input() data: any[] = [];
   @Input() bindLabel: string = '';
   @Input() bindValue: string = '';
 
@@ -70,8 +70,8 @@ export class Dropdown implements ControlValueAccessor, OnInit {
   getItemLabel(item: any): string {
     if (item === null || item === undefined) return '';
     if (typeof item !== 'object') {
-      if (this.bindValue && this.b) {
-        const matchingObject = this.b.find((x) => x[this.bindValue] == item);
+      if (this.bindValue && this.data) {
+        const matchingObject = this.data.find((x) => x[this.bindValue] == item);
         return matchingObject && this.bindLabel ? matchingObject[this.bindLabel] : item.toString();
       }
       return item.toString();
@@ -84,8 +84,8 @@ export class Dropdown implements ControlValueAccessor, OnInit {
       this.selectedDisplayLabel = '';
       return;
     }
-    if (this.bindValue && this.b) {
-      const found = this.b.find((x) => x[this.bindValue] === this.value);
+    if (this.bindValue && this.data) {
+      const found = this.data.find((x) => x[this.bindValue] === this.value);
       this.selectedDisplayLabel = found ? found[this.bindLabel] : this.value;
     } else {
       this.selectedDisplayLabel = this.getItemLabel(this.value);
@@ -107,9 +107,16 @@ export class Dropdown implements ControlValueAccessor, OnInit {
   }
 
   get filteredItems(): any[] {
-    if (!this.searchText) return this.b;
-    return this.b.filter((i) =>
-      this.getItemLabel(i).toLowerCase().includes(this.searchText.toLowerCase()),
-    );
+    if (!this.searchText) return this.data;
+
+    // Remove all whitespace from the search query
+    const cleanedSearchText = this.searchText.replace(/\s+/g, '').toLowerCase();
+
+    return this.data.filter((i) => {
+      // Remove all whitespace from the item's label
+      const cleanedLabel = this.getItemLabel(i).replace(/\s+/g, '').toLowerCase();
+
+      return cleanedLabel.includes(cleanedSearchText);
+    });
   }
 }

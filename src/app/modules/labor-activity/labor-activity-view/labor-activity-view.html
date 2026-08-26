@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="card-container">
 
-    <div class="table-header">
+    <div class="table-header" [formGroup]="filterForm">
       <div class="actions-right">
         <div class="search-box">
           <span class="search-icon">🔍</span>
@@ -11,6 +11,19 @@
         <button class="btn-add" type="button" (click)="onAddLaborActivity()">
           <span class="icon-plus" aria-hidden="true">+</span> ADD Labor Activity
         </button>
+      </div>
+            <!-- 1. Item Dropdown Filter -->
+      <div class="filter-group">
+        <app-dropdown
+          formControlName="laborActivity"
+          label="Labor Activity Name"
+          bindLabel="activityName"
+          bindValue="laborActivityId"
+          [data]="laborActivities"
+          placeholder="All Labor Activities"
+          errorMessage="Please select an Activity."
+        >
+        </app-dropdown>
       </div>
     </div>
 

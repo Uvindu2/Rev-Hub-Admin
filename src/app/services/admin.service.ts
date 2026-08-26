@@ -1,32 +1,30 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {API_ENDPOINTS} from '../constant/api-endpoints';
-import {VehicleAndCustomerDTO} from '../dto/response/VehicleAndCustomerDTO';
-import {TechnicianNameProjection} from '../dto/response/TechnicianNameProjection';
-import {LaborActivityNameProjection} from '../dto/response/LaborActivityNameProjection';
-import {ItemProjection} from '../dto/response/ItemProjection';
-import {CustomerProjection} from '../dto/response/CustomerProjection';
-import {RoleNameDTO} from '../dto/response/RoleNameDTO';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../constant/api-endpoints';
+import { VehicleAndCustomerDTO } from '../dto/response/VehicleAndCustomerDTO';
+import { TechnicianNameProjection } from '../dto/response/TechnicianNameProjection';
+import { LaborActivityNameProjection } from '../dto/response/LaborActivityNameProjection';
+import { ItemProjection } from '../dto/response/ItemProjection';
+import { CustomerProjection } from '../dto/response/CustomerProjection';
+import { RoleNameDTO } from '../dto/response/RoleNameDTO';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminService {
-
-  constructor(private readonly http: HttpClient) {
-  }
+  constructor(private readonly http: HttpClient) {}
 
   // GET BY DRIVING LICENSE (PATH PARAM)
   getCustomerByContactNumber(contactNumber: string): Observable<CustomerProjection[]> {
-    return this.http.get<CustomerProjection[]>(
-      API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber)
-    );
+    return this.http.get<CustomerProjection[]>(API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber));
   }
 
-  getVehicleAndCustomerByVehicleRegNumber(vehicleRegNumber: string): Observable<VehicleAndCustomerDTO[]> {
+  getVehicleAndCustomerByVehicleRegNumber(
+    vehicleRegNumber: string,
+  ): Observable<VehicleAndCustomerDTO[]> {
     return this.http.get<VehicleAndCustomerDTO[]>(
-      API_ENDPOINTS.GET_BY_VEHICLE_REG_NUMBER(vehicleRegNumber)
+      API_ENDPOINTS.GET_BY_VEHICLE_REG_NUMBER(vehicleRegNumber),
     );
   }
 
@@ -57,13 +55,23 @@ export class AdminService {
     return this.http.put<any>(API_ENDPOINTS.MODIFY_JOB_CARD, jobCardData);
   }
 
-// Add this method to your AdminService class
-  getJobCardsPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  // Add this method to your AdminService class
+  getJobCardsPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_JOB_CARDS(page, size, sortBy, sortDir));
   }
 
   // Add this method to your AdminService class
-  getInvoiceSummaryPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  getInvoiceSummaryPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_INVOICE_SUMMARIES(page, size, sortBy, sortDir));
   }
 
@@ -76,11 +84,21 @@ export class AdminService {
     return this.http.post<any>(API_ENDPOINTS.SAVE_INVOICE, payload);
   }
 
-  getCustomersPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  getCustomersPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMERS(page, size, sortBy, sortDir));
   }
 
-  getVehiclesPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  getVehiclesPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_SUMMARIES(page, size, sortBy, sortDir));
   }
 
@@ -96,7 +114,12 @@ export class AdminService {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_ITEMS(page, size, sortBy, sortDir));
   }
 
-  getLaborActivitiesPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  getLaborActivitiesPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sortBy, sortDir));
   }
 
@@ -124,7 +147,12 @@ export class AdminService {
     return this.http.put<any>(API_ENDPOINTS.MODIFY_LABOR_ACTIVITY, backendPayload);
   }
 
-  getTechniciansPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  getTechniciansPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_TECHNICIANS(page, size, sortBy, sortDir));
   }
 
@@ -163,26 +191,40 @@ export class AdminService {
   viewInvoice(invoiceId: number): Observable<Blob> {
     // Use 'blob' to handle binary PDF data
     return this.http.get(API_ENDPOINTS.VIEW_INVOICE_BY_ID(invoiceId), {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
-  getVehicleAndCustomerByVehicleVinNumber(vehicleVinNumber: string): Observable<VehicleAndCustomerDTO[]> {
+  getVehicleAndCustomerByVehicleVinNumber(
+    vehicleVinNumber: string,
+  ): Observable<VehicleAndCustomerDTO[]> {
     return this.http.get<VehicleAndCustomerDTO[]>(
-      API_ENDPOINTS.GET_BY_VEHICLE_VIN_NUMBER(vehicleVinNumber)
+      API_ENDPOINTS.GET_BY_VEHICLE_VIN_NUMBER(vehicleVinNumber),
     );
   }
 
-  searchJobCards(formValues: any, page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
+  searchJobCards(
+    formValues: any,
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
     return this.http.post<any>(
       API_ENDPOINTS.SEARCH_JOB_CARDS(page, size, sortBy, sortDir),
-      formValues
+      formValues,
     );
   }
 
-  searchInvoices(formValues: any, backendPage: number, pageSize: number, sortByField: string, sortDirection: string): Observable<any> {
+  searchInvoices(
+    formValues: any,
+    backendPage: number,
+    pageSize: number,
+    sortByField: string,
+    sortDirection: string,
+  ): Observable<any> {
     return this.http.post<any>(
       API_ENDPOINTS.SEARCH_INVOICES(backendPage, pageSize, sortByField, sortDirection),
-      formValues
+      formValues,
     );
   }
 
@@ -193,7 +235,6 @@ export class AdminService {
   getAllVehicleVinNos(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_VIN_NOS);
   }
-
 
   getAllCustomersCount(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMERS_COUNT); // Update with your actual endpoint constant
@@ -232,11 +273,14 @@ export class AdminService {
     return this.http.get<any>(API_ENDPOINTS.GET_REVENUE_CHART(filter));
   }
 
-  searchUsers(formValues: any, page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
-    return this.http.post<any>(
-      API_ENDPOINTS.SEARCH_USERS(page, size, sortBy, sortDir),
-      formValues
-    );
+  searchUsers(
+    formValues: any,
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+  ): Observable<any> {
+    return this.http.post<any>(API_ENDPOINTS.SEARCH_USERS(page, size, sortBy, sortDir), formValues);
   }
   getUserById(userId: number): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_USER_BY_ID(userId));
@@ -258,5 +302,13 @@ export class AdminService {
 
   getAllItemsNames(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_ITEMS_NAMES);
+  }
+
+  getAllUserNames(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_USER_NAMES);
+  }
+
+  getAllUserRoles(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_USER_ROLES);
   }
 }
