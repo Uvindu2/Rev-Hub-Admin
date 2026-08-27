@@ -1,23 +1,30 @@
-import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {AdminService} from '../../../services/admin.service';
-import {FormsModule} from '@angular/forms';
-import {CustomerSummaryProjection} from '../../../dto/response/CustomerSummaryProjection';
-import {CustomerViewAndEdit} from '../customer-view-and-edit/customer-view-and-edit';
-import {NotificationService} from '../../../services/notificationService';
-import {CustomerProjection} from '../../../dto/response/CustomerProjection';
-import {finalize} from 'rxjs';
+import { AdminService } from '../../../services/admin.service';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CustomerSummaryProjection } from '../../../dto/response/CustomerSummaryProjection';
+import { CustomerViewAndEdit } from '../customer-view-and-edit/customer-view-and-edit';
+import { NotificationService } from '../../../services/notificationService';
+import { CustomerProjection } from '../../../dto/response/CustomerProjection';
+import { finalize } from 'rxjs';
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import { UserNameAndIdDto } from '../../../dto/response/UserNameAndIdDTO';
+import { CustomerContactNumberEmailAndIdDTO } from '../../../dto/response/CustomerContactNumberEmailAndIdDTO';
 
 @Component({
   selector: 'app-customer-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomerViewAndEdit],
+  imports: [CommonModule, FormsModule, CustomerViewAndEdit, ReactiveFormsModule, Dropdown],
   templateUrl: './customer-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customer-view.css',
 })
-export class CustomerView implements OnInit { // Fixed: Added implements OnInit
-  // Master customer dataset compiled from your dashboard entries
+export class CustomerView implements OnInit {
+  // Fixed: Added implements OnInit
+
+  filterForm!: FormGroup;
+
+  cutromerNameEmailIds: CustomerContactNumberEmailAndIdDTO[] = [];
   allCustomers: CustomerSummaryProjection[] = [];
   customer: CustomerProjection | undefined;
 
@@ -38,13 +45,44 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
   isSearch: boolean = false;
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly notificationService: NotificationService) {
+    private readonly notificationService: NotificationService,
+  ) {
+    this.initFilterForm();
   }
 
   ngOnInit(): void {
+    this.fetchCutromerNameEmailIds();
     this.fetchCustomers();
+  }
+
+  // Initialize form controls matching your backend search request DTO
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      mobileNumber: [''],
+      customerEmail: [''],
+    });
+  }
+
+  private fetchCutromerNameEmailIds(): void {
+    this.adminService.getAllCutromerNameEmailIds().subscribe({
+      next: (response: any) => {
+        const CutromerNameEmailIds = response?.data || response;
+        if (Array.isArray(CutromerNameEmailIds)) {
+          this.cutromerNameEmailIds = CutromerNameEmailIds;
+        } else {
+          this.cutromerNameEmailIds = [];
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load user names:', err);
+        this.cutromerNameEmailIds = [];
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   onSearch(event: Event): void {
@@ -66,7 +104,7 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
           this.notificationService.show('Failed to load job card from server:', 'error');
           this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
         }, 0);
-      }
+      },
     });
   }
   editCustomer(customerId: number): void {
@@ -82,7 +120,7 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
           this.notificationService.show('Failed to load job card from server:', 'error');
           this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
         }, 0);
-      }
+      },
     });
   }
 
@@ -113,46 +151,55 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
     this.isLoading = true;
     const backendPage = this.currentPage - 1;
 
-    this.adminService.getCustomersPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+    this.adminService
+      .getCustomersPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection)
+      .pipe(
         finalize(() => {
           // Stop loader for both success and error
           this.isLoading = false;
           this.cdr.markForCheck();
-        })
-      ).subscribe({
-      next: (response: any) => {
-        console.log(response);
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedCustomers: CustomerSummaryProjection[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+        }),
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log(response);
+          // Stage updates in local variables first to prevent layout thrashing
+          let updatedCustomers: CustomerSummaryProjection[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
 
-        if (response?.content !== undefined) {
-          updatedCustomers = response.content || [];
-          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
-          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
-        } else if (Array.isArray(response)) {
-          updatedCustomers = response;
-          updatedTotalElements = response.length;
-          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
-        }
+          if (response?.content !== undefined) {
+            updatedCustomers = response.content || [];
+            updatedTotalElements =
+              response.page.totalElements === undefined
+                ? response.total_elements || 0
+                : response.page.totalElements;
+            updatedTotalPagesCount =
+              response.page.totalPages === undefined
+                ? response.total_pages || 0
+                : response.page.totalPages;
+          } else if (Array.isArray(response)) {
+            updatedCustomers = response;
+            updatedTotalElements = response.length;
+            updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+          }
 
-        // Apply properties all at once
-        this.allCustomers = updatedCustomers;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
+          // Apply properties all at once
+          this.allCustomers = updatedCustomers;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
 
-        // Notify Angular to redraw on the next frame paint seamlessly
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load job cards from server:', err);
-        this.allCustomers = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+          // Notify Angular to redraw on the next frame paint seamlessly
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load job cards from server:', err);
+          this.allCustomers = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onPageSizeChange(event: Event): void {
@@ -174,5 +221,19 @@ export class CustomerView implements OnInit { // Fixed: Added implements OnInit
       return;
     }
     this.isSearch = true;
+  }
+
+  onApplyFilters(): void {
+    this.currentPage = 1; // Reset to page 1 on new filter execution
+    this.fetchCustomers();
+  }
+
+  onResetFilters(): void {
+    this.filterForm.reset({
+      mobileNumber: '',
+      customerEmail: '',
+    });
+    this.currentPage = 1;
+    this.fetchCustomers();
   }
 }

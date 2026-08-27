@@ -8,7 +8,7 @@ import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
 import { UserResponseDTO } from '../../../dto/response/UserResponseDTO';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { UserNameAndIdDTO } from '../../../dto/response/UserNameAndIdDTO';
+import { UserNameAndIdDto } from '../../../dto/response/UserNameAndIdDTO';
 
 @Component({
   selector: 'app-user-view',
@@ -19,10 +19,9 @@ import { UserNameAndIdDTO } from '../../../dto/response/UserNameAndIdDTO';
 export class UserView implements OnInit {
   users: UserResponseDTO[] = [];
   user: UserResponseDTO | undefined;
-  userNameAndIds: UserNameAndIdDTO[] = [];
+  userNameAndIds: UserNameAndIdDto[] = [];
   userRoleNameAndIds: string[] = [];
 
-  // BEST PRACTICE: Unified Reactive Form Group for filters
   filterForm!: FormGroup;
 
   // Pagination Parameters
@@ -94,9 +93,9 @@ export class UserView implements OnInit {
   // Initialize form controls matching your backend search request DTO
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      userName: [''],
-      status: [''],
-      roleName: [''],
+      userId: [''],
+      activeStatus: [''],
+      roleId: [''],
     });
   }
 

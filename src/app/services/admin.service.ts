@@ -94,12 +94,16 @@ export class AdminService {
   }
 
   getVehiclesPaginated(
+    formValues: any,
     page: number,
     size: number,
     sortBy: string,
     sortDir: string,
   ): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_ALL_VEHICLE_SUMMARIES(page, size, sortBy, sortDir));
+    return this.http.post<any>(
+      API_ENDPOINTS.GET_ALL_VEHICLE_SUMMARIES(page, size, sortBy, sortDir),
+      formValues,
+    );
   }
 
   getJobCardById(id: number): Observable<any> {
@@ -310,5 +314,8 @@ export class AdminService {
 
   getAllUserRoles(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_USER_ROLES);
+  }
+  getAllCutromerNameEmailIds(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMER_NAME_EMAIL_IDS);
   }
 }

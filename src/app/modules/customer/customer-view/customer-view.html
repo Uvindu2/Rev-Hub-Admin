@@ -1,92 +1,170 @@
 <div class="page-header">
-<div class="card-container">
-  <div class="table-header">
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search Customers...">
-      <button type="button" class="btn-filter-search-action" (click)="search()" [disabled]="isSearch">
-        <span *ngIf="isSearch"></span>
-        {{ isSearch ? 'Searching...' : 'Search' }}
-      </button>
-    </div>
-  </div>
-
-  <div class="table-responsive">
-    <table class="custom-table">
-      <thead>
-      <tr>
-        <th>Customer Name</th>
-        <th>Contact Number</th>
-        <th>Email Address</th>
-        <th class="text-center">Total Jobs</th>
-        <th class="text-center">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngIf="isLoading">
-        <td colspan="7" class="table-loader-cell">
-          <div class="table-loader">
-            <span class="spinner"></span>
-            <span>Loading Customers...</span>
-          </div>
-        </td>
-      </tr>
-
-      <tr *ngIf="!isLoading && (!allCustomers || allCustomers.length === 0)">
-        <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
-          No Customer found matching current filter parameters.
-        </td>
-      </tr>
-      <tr *ngFor="let customer of allCustomers" [class.loading-hidden]="isLoading">
-        <td>{{ customer.customerName }}</td>
-        <td>{{ customer.contactNumber }}</td>
-        <td>{{ customer.email }}</td>
-        <td class="text-center font-numeric">
-          <span class="job-count-badge">{{ customer.totalJobs }}</span>
-        </td>
-        <td class="actions-cell">
-          <button class="btn-action view-btn" title="View Profile" (click)="viewCustomer(customer.customerId)">
-            👁️
-          </button>
-          <button class="btn-action edit-btn" title="Edit Info" (click)="editCustomer(customer.customerId)">
-            ✏️
-          </button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="table-footer-summary custom-footer-layout">
-
-    <div class="record-counter left-counter-anchor">
-      Showing {{ allCustomers?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
-    </div>
-
-    <div class="pagination-group-wrapper right-controls-group">
-
-      <div class="select-box footer-select">
-        <label>Show:</label>
-        <select (change)="onPageSizeChange($event)" [value]="pageSize">
-          <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
-        </select>
+  <div class="card-container" [formGroup]="filterForm">
+    <!-- Search & Filter Card Section -->
+    <div class="filter-card-section">
+      <div class="filter-card-header">
+        <div class="filter-title-wrapper">
+          <span class="filter-title-icon">🔍</span>
+          <h3>Search & Filter</h3>
+        </div>
       </div>
 
-      <div class="pagination">
-        <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-        <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+      <!-- Filter Inputs Grid Row 1 (Inline Dropdowns & Action Buttons) -->
+      <div class="filter-grid-row">
+        <!-- 1. Customer Mobile Number Dropdown Filter -->
+        <div class="filter-group">
+          <app-dropdown
+            formControlName="mobileNumber"
+            label="Contact Number"
+            bindLabel="contactNumber"
+            bindValue="customerId"
+            [data]="cutromerNameEmailIds"
+            placeholder="All Contact Numbers"
+            errorMessage="Please select a contact number."
+          >
+          </app-dropdown>
+        </div>
 
-        <span class="page-indicator">
-            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+        <!-- 1. Customer Email Dropdown Filter -->
+        <div class="filter-group">
+          <app-dropdown
+            formControlName="customerEmail"
+            label="Customer Email"
+            bindLabel="email"
+            bindValue="customerId"
+            [data]="cutromerNameEmailIds"
+            placeholder="All Customer Emails"
+            errorMessage="Please select a email."
+          >
+          </app-dropdown>
+        </div>
+
+        <!-- Status Dropdown Filter -->
+        <div class="filter-group">
+          <label>Status</label>
+          <div class="select-wrapper">
+            <label>
+              <select formControlName="activeStatus">
+                <option value="">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Reset & Search Trigger Buttons (Third Column) -->
+        <div class="button">
+          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
+            🔄 RESET
+          </button>
+          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
+            🔍 SEARCH
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Contact Number</th>
+            <th>Email Address</th>
+            <th class="text-center">Total Jobs</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="7" class="table-loader-cell">
+              <div class="table-loader">
+                <span class="spinner"></span>
+                <span>Loading Customers...</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && (!allCustomers || allCustomers.length === 0)">
+            <td
+              colspan="7"
+              style="text-align: center; padding: 30px; color: #757575; font-style: italic"
+            >
+              No Customer found matching current filter parameters.
+            </td>
+          </tr>
+          <tr *ngFor="let customer of allCustomers" [class.loading-hidden]="isLoading">
+            <td>{{ customer.customerName }}</td>
+            <td>{{ customer.contactNumber }}</td>
+            <td>{{ customer.email }}</td>
+            <td class="text-center font-numeric">
+              <span class="job-count-badge">{{ customer.totalJobs }}</span>
+            </td>
+            <td class="actions-cell">
+              <button
+                class="btn-action view-btn"
+                title="View Profile"
+                (click)="viewCustomer(customer.customerId)"
+              >
+                👁️
+              </button>
+              <button
+                class="btn-action edit-btn"
+                title="Edit Info"
+                (click)="editCustomer(customer.customerId)"
+              >
+                ✏️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-summary custom-footer-layout">
+      <div class="record-counter left-counter-anchor">
+        Showing {{ allCustomers?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total
+        entries
+      </div>
+
+      <div class="pagination-group-wrapper right-controls-group">
+        <div class="select-box footer-select">
+          <label>Show:</label>
+          <select (change)="onPageSizeChange($event)" [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+          </select>
+        </div>
+
+        <div class="pagination">
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <span class="page-indicator">
+            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of
+            {{ totalPagesCount }}
           </span>
 
-        <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
-        <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">
+            >
+          </button>
+          <button
+            class="page-nav"
+            [disabled]="currentPage >= totalPagesCount"
+            (click)="goToPage(totalPagesCount)"
+          >
+            >|
+          </button>
+        </div>
       </div>
-
     </div>
   </div>
 </div>
-</div>
 
-<app-customer-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [customer]="customer" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-customer-view-and-edit>
+<app-customer-view-and-edit
+  *ngIf="isEditModalOpen || isViewModalOpen"
+  (cancel)="closeModal()"
+  [customer]="customer"
+  [isViewModalOpen]="isViewModalOpen"
+  [isEditModalOpen]="isEditModalOpen"
+></app-customer-view-and-edit>

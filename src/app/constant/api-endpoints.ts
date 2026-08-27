@@ -23,8 +23,8 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/invoice/get-all-invoice-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_CUSTOMERS: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/customer/get-all-customers-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
-  GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
-    `${API_BASE_URL}/vehicle/get-all-vehicles-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
+  `${API_BASE_URL}/vehicle/get-all-vehicles-summary?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
   GET_JOB_CARD_BY_ID: (jobId: number) => `${API_BASE_URL}/job-card/get-job-card-by-jobId/${jobId}`,
   GET_ITEM_BY_ID: (itemId: number) => `${API_BASE_URL}/item/get-item-by-itemId/${itemId}`,
   GET_ALL_ITEMS: (page: number, size: number, sortBy: string, sortDir: string) =>
@@ -78,4 +78,5 @@ export const API_ENDPOINTS = {
   GET_ALL_ITEMS_NAMES: `${API_BASE_URL}/item/get-all-item-names`,
   GET_ALL_USER_NAMES: `${API_BASE_URL}/user/get-all-user-names`,
   GET_ALL_USER_ROLES: `${API_BASE_URL}/role/get-all-role-names`,
+  GET_ALL_CUSTOMER_NAME_EMAIL_IDS: `${API_BASE_URL}/customer/get-all-customer-name-email-ids`,
 };

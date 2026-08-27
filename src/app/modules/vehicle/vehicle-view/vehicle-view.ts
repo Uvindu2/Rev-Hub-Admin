@@ -7,7 +7,7 @@ import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import { VehicleProjection } from '../../../dto/response/VehicleProjection';
 import { finalize } from 'rxjs';
-import { Dropdown } from "../../../shared/components/dropdown/dropdown";
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 
 @Component({
   selector: 'app-vehicle-view',
@@ -21,7 +21,7 @@ export class VehicleView implements OnInit {
   allVehicles: VehicleSummaryProjection[] = [];
 
   filterForm!: FormGroup;
-  
+
   // Pagination Parameters
   currentPage: number = 1;
   pageSize: number = 5;
@@ -35,7 +35,7 @@ export class VehicleView implements OnInit {
   availableVehicleVins: string[] = [];
 
   // Sorting Rules configuration
-  sortByField: string = 'dateAdded';
+  sortByField: string = 'createdDate';
   sortDirection: string = 'desc';
 
   // Modal State Control Properties
@@ -49,7 +49,8 @@ export class VehicleView implements OnInit {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly notificationService: NotificationService) {
+    private readonly notificationService: NotificationService,
+  ) {
     this.initFilterForm();
   }
 
@@ -116,7 +117,7 @@ export class VehicleView implements OnInit {
           this.notificationService.show('Failed to load vehicle from server:', 'error');
           this.cdr.detectChanges();
         }, 0);
-      }
+      },
     });
   }
 
@@ -132,7 +133,7 @@ export class VehicleView implements OnInit {
           this.notificationService.show('Failed to load vehicle from server:', 'error');
           this.cdr.detectChanges();
         }, 0);
-      }
+      },
     });
   }
 
@@ -175,42 +176,54 @@ export class VehicleView implements OnInit {
     this.cdr.markForCheck();
 
     const backendPage = this.currentPage - 1;
+    const formValues = this.filterForm.value;
 
-    this.adminService.getVehiclesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
-      finalize(() => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (response: any) => {
-        let updatedVehicles: VehicleSummaryProjection[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+    this.adminService
+      .getVehiclesPaginated(
+        formValues,
+        backendPage,
+        this.pageSize,
+        this.sortByField,
+        this.sortDirection,
+      )
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response: any) => {
+          let updatedVehicles: VehicleSummaryProjection[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
 
-        if (response?.content !== undefined) {
-          updatedVehicles = response.content || [];
-          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
-          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
-        } else if (Array.isArray(response)) {
-          updatedVehicles = response;
-          updatedTotalElements = response.length;
-          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
-        }
+          const pageData = response?.data || response;
 
-        this.allVehicles = updatedVehicles;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
+          if (pageData?.content !== undefined) {
+            updatedVehicles = pageData.content || [];
+            updatedTotalElements = pageData.page?.totalElements ?? pageData.totalElements ?? 0;
+            updatedTotalPagesCount = pageData.page?.totalPages ?? pageData.totalPages ?? 0;
+          } else if (Array.isArray(pageData)) {
+            updatedVehicles = pageData;
+            updatedTotalElements = pageData.length;
+            updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
+          }
 
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load vehicles from server:', err);
-        this.allVehicles = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+          this.allVehicles = updatedVehicles;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
+
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load vehicles from server:', err);
+          this.allVehicles = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onApplyFilters(): void {

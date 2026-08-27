@@ -14,7 +14,7 @@
         <!-- 1. User Name Dropdown Filter -->
         <div class="filter-group">
           <app-dropdown
-            formControlName="username"
+            formControlName="userId"
             label="User Name"
             bindLabel="userName"
             bindValue="userId"
@@ -28,7 +28,7 @@
                 <!-- 1. User Name Dropdown Filter -->
         <div class="filter-group">
           <app-dropdown
-            formControlName="roleName"
+            formControlName="roleId"
             label="Role Name"
             bindLabel="roleName"
             bindValue="roleId"
@@ -44,10 +44,10 @@
           <label>Status</label>
           <div class="select-wrapper">
             <label>
-              <select formControlName="status">
+              <select formControlName="activeStatus">
                 <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
               </select>
             </label>
           </div>
