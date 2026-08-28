@@ -1,30 +1,22 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
-import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {ItemProjection} from '../../../dto/response/ItemProjection';
-import {ItemForm} from '../item-form/item-form';
-import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
-import {finalize} from 'rxjs';
-import { Dropdown } from "../../../shared/components/dropdown/dropdown";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { ItemProjection } from '../../../dto/response/ItemProjection';
+import { ItemForm } from '../item-form/item-form';
+import { ItemViewAndEdit } from '../item-view-and-edit/item-view-and-edit';
+import { debounceTime, distinctUntilChanged, finalize, Subject, takeUntil } from 'rxjs';
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 import { ItemNameDTO } from '../../../dto/response/ItemNameDTO';
 
 @Component({
   selector: 'app-item-view',
-  imports: [
-    ItemForm,
-    NgForOf,
-    NgIf,
-    ReactiveFormsModule,
-    ItemViewAndEdit,
-    Dropdown
-],
+  imports: [ItemForm, NgForOf, NgIf, ReactiveFormsModule, ItemViewAndEdit, Dropdown],
   templateUrl: './item-view.html',
   styleUrl: './item-view.css',
 })
-export class ItemView implements OnInit {
-
+export class ItemView implements OnInit, OnDestroy {
   filterForm!: FormGroup;
 
   items: ItemProjection[] = [];
@@ -38,7 +30,7 @@ export class ItemView implements OnInit {
   pageSizes: number[] = [5, 10, 20, 50];
 
   // Sorting Rules configuration
-  sortByField: string = 'dateAdded';
+  sortByField: string = 'createdDate';
   sortDirection: string = 'desc';
 
   isAddModalOpen: boolean = false;
@@ -47,24 +39,47 @@ export class ItemView implements OnInit {
   isLoading: boolean = false;
   availableItemNames: ItemNameDTO[] = [];
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
-    private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
-    private readonly notificationService: NotificationService
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notificationService: NotificationService,
   ) {
     this.initFilterForm();
   }
 
   ngOnInit(): void {
     this.fetchItemsNames();
+    this.setupFilterListener();
     this.fetchItems();
   }
 
-    private fetchItemsNames(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      itemName: [null],
+    });
+  }
+
+  private setupFilterListener(): void {
+    this.filterForm
+      .get('itemName')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentPage = 1; // Reset to page 1 on filter change
+        this.fetchItems();
+      });
+  }
+
+  private fetchItemsNames(): void {
     this.adminService.getAllItemsNames().subscribe({
       next: (response: any) => {
-        // Handle standard response wrapper (e.g., response.data or direct array)
         const itemsNames = response?.data || response;
 
         if (Array.isArray(itemsNames)) {
@@ -83,66 +98,69 @@ export class ItemView implements OnInit {
     });
   }
 
-  private initFilterForm(): void {
-    this.filterForm = this.fb.group({
-      itemName: [''],
-    });
-  }
-
   fetchItems(): void {
-    // Start loader
     this.isLoading = true;
     this.cdr.markForCheck();
 
     const backendPage = this.currentPage - 1;
+    const selectedItemId = this.filterForm.get('itemName')?.value;
 
-    this.adminService.getItemsPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
-      finalize(() => {
-        // Stop loader for both success and error
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (response: any) => {
-        console.log(response);
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedItems: ItemProjection[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+    this.adminService
+      .getItemsPaginated(
+        backendPage,
+        this.pageSize,
+        this.sortByField,
+        this.sortDirection,
+        selectedItemId ? Number(selectedItemId) : null
+      )
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: (response: any) => {
+          let updatedItems: ItemProjection[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
 
-        if (response?.content !== undefined) {
-          updatedItems = response.content || [];
-          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
-          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
-        } else if (Array.isArray(response)) {
-          updatedItems = response;
-          updatedTotalElements = response.length;
-          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
-        }
+          if (response?.data?.content !== undefined) {
+            updatedItems = response.data.content || [];
+            updatedTotalElements =
+              response.data.page?.totalElements === undefined
+                ? response.data.total_elements || 0
+                : response.data.page.totalElements;
+            updatedTotalPagesCount =
+              response.data.page?.totalPages === undefined
+                ? response.data.total_pages || 0
+                : response.data.page.totalPages;
+          } else if (Array.isArray(response)) {
+            updatedItems = response;
+            updatedTotalElements = response.length;
+            updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+          }
 
-        // Apply properties all at once
-        this.items = updatedItems;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
-
-        // Notify Angular to redraw on the next frame paint seamlessly
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load item from server:', err);
-        this.items = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+          this.items = updatedItems;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load item from server:', err);
+          this.items = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.pageSize = Number(select.value);
     this.currentPage = 1;
-    this.fetchItems(); // fetchItems will run cdr.markForCheck() when done
+    this.fetchItems();
   }
 
   goToPage(page: number): void {
@@ -166,7 +184,6 @@ export class ItemView implements OnInit {
     }
   }
 
-  // Local action triggers require instant local checks
   onAddItem(): void {
     this.isAddModalOpen = true;
     this.cdr.markForCheck();
@@ -180,26 +197,19 @@ export class ItemView implements OnInit {
     this.cdr.markForCheck();
   }
 
-  onSearch(event: Event): void {
-    console.log('Searching...');
-  }
-
   viewItem(id: number): void {
-    console.log('Viewing ID:', id);
-
     this.adminService.getItemById(id).subscribe({
       next: (response: any) => {
         this.item = response.data;
-        console.log(response);
         this.isViewModalOpen = true;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: () => {
         setTimeout(() => {
           this.notificationService.show('Failed to load item from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+          this.cdr.detectChanges();
         }, 0);
-      }
+      },
     });
   }
 
@@ -207,16 +217,15 @@ export class ItemView implements OnInit {
     this.adminService.getItemById(id).subscribe({
       next: (response: any) => {
         this.item = response.data;
-        console.log(response);
         this.isEditModalOpen = true;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: () => {
         setTimeout(() => {
           this.notificationService.show('Failed to load item from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
+          this.cdr.detectChanges();
         }, 0);
-      }
+      },
     });
   }
 

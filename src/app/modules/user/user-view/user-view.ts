@@ -8,7 +8,7 @@ import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
 import { UserResponseDTO } from '../../../dto/response/UserResponseDTO';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { UserNameAndIdDto } from '../../../dto/response/UserNameAndIdDTO';
+import { UserIdNameDto } from '../../../dto/response/UserIdNameDto';
 
 @Component({
   selector: 'app-user-view',
@@ -19,7 +19,7 @@ import { UserNameAndIdDto } from '../../../dto/response/UserNameAndIdDTO';
 export class UserView implements OnInit {
   users: UserResponseDTO[] = [];
   user: UserResponseDTO | undefined;
-  userNameAndIds: UserNameAndIdDto[] = [];
+  userIdNameDtos: UserIdNameDto[] = [];
   userRoleNameAndIds: string[] = [];
 
   filterForm!: FormGroup;
@@ -55,17 +55,17 @@ export class UserView implements OnInit {
   private fetchUserNames(): void {
     this.adminService.getAllUserNames().subscribe({
       next: (response: any) => {
-        const UserNameAndIds = response?.data || response;
-        if (Array.isArray(UserNameAndIds)) {
-          this.userNameAndIds = UserNameAndIds;
+        const UserIdNameDtos = response?.data || response;
+        if (Array.isArray(UserIdNameDtos)) {
+          this.userIdNameDtos = UserIdNameDtos;
         } else {
-          this.userNameAndIds = [];
+          this.userIdNameDtos = [];
         }
         this.cdr.markForCheck();
       },
       error: (err: any) => {
         console.error('Failed to load user names:', err);
-        this.userNameAndIds = [];
+        this.userIdNameDtos = [];
         this.cdr.markForCheck();
       },
     });

@@ -8,7 +8,6 @@ import { NotificationService } from '../../../services/notificationService';
 import { CustomerProjection } from '../../../dto/response/CustomerProjection';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { UserNameAndIdDto } from '../../../dto/response/UserNameAndIdDTO';
 import { CustomerContactNumberEmailAndIdDTO } from '../../../dto/response/CustomerContactNumberEmailAndIdDTO';
 
 @Component({
@@ -36,7 +35,7 @@ export class CustomerView implements OnInit {
   pageSizes: number[] = [5, 10, 20, 50];
 
   // Sorting Rules configuration
-  sortByField: string = 'dateAdded';
+  sortByField: string = 'createdDate';
   sortDirection: string = 'desc';
 
   isEditModalOpen: boolean = false;
@@ -61,11 +60,12 @@ export class CustomerView implements OnInit {
   // Initialize form controls matching your backend search request DTO
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      mobileNumber: [''],
-      customerEmail: [''],
+      contactNumber: [''],
+      email: [''],
+      activeStatus: [''],
     });
   }
-
+  
   private fetchCutromerNameEmailIds(): void {
     this.adminService.getAllCutromerNameEmailIds().subscribe({
       next: (response: any) => {
@@ -150,9 +150,11 @@ export class CustomerView implements OnInit {
     // Start loader
     this.isLoading = true;
     const backendPage = this.currentPage - 1;
+        // Extract values directly from the form group
+    const formValues = this.filterForm.value;
 
     this.adminService
-      .getCustomersPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection)
+      .getCustomersPaginated(formValues, backendPage, this.pageSize, this.sortByField, this.sortDirection)
       .pipe(
         finalize(() => {
           // Stop loader for both success and error
@@ -162,22 +164,21 @@ export class CustomerView implements OnInit {
       )
       .subscribe({
         next: (response: any) => {
-          console.log(response);
           // Stage updates in local variables first to prevent layout thrashing
           let updatedCustomers: CustomerSummaryProjection[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 
-          if (response?.content !== undefined) {
-            updatedCustomers = response.content || [];
+          if (response?.data?.content !== undefined) {
+            updatedCustomers = response.data.content || [];
             updatedTotalElements =
-              response.page.totalElements === undefined
-                ? response.total_elements || 0
-                : response.page.totalElements;
+              response.data.page.totalElements === undefined
+                ? response.data.total_elements || 0
+                : response.data.page.totalElements;
             updatedTotalPagesCount =
-              response.page.totalPages === undefined
-                ? response.total_pages || 0
-                : response.page.totalPages;
+              response.data.page.totalPages === undefined
+                ? response.data.total_pages || 0
+                : response.data.page.totalPages;
           } else if (Array.isArray(response)) {
             updatedCustomers = response;
             updatedTotalElements = response.length;
@@ -230,8 +231,8 @@ export class CustomerView implements OnInit {
 
   onResetFilters(): void {
     this.filterForm.reset({
-      mobileNumber: '',
-      customerEmail: '',
+      contactNumber: '',
+      email: '',
     });
     this.currentPage = 1;
     this.fetchCustomers();

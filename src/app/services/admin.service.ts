@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../constant/api-endpoints';
 import { VehicleAndCustomerDTO } from '../dto/response/VehicleAndCustomerDTO';
@@ -85,12 +85,16 @@ export class AdminService {
   }
 
   getCustomersPaginated(
+    formValues: any,
     page: number,
     size: number,
     sortBy: string,
     sortDir: string,
   ): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMERS(page, size, sortBy, sortDir));
+    return this.http.post<any>(
+      API_ENDPOINTS.GET_ALL_CUSTOMERS(page, size, sortBy, sortDir),
+      formValues,
+    );
   }
 
   getVehiclesPaginated(
@@ -114,17 +118,46 @@ export class AdminService {
     return this.http.get<any>(API_ENDPOINTS.GET_ITEM_BY_ID(id));
   }
 
-  getItemsPaginated(page: number, size: number, sortBy: string, sortDir: string): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_ALL_ITEMS(page, size, sortBy, sortDir));
-  }
-
-  getLaborActivitiesPaginated(
+getItemsPaginated(
     page: number,
     size: number,
     sortBy: string,
     sortDir: string,
+    itemId?: number | null
   ): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sortBy, sortDir));
+    const sort = `${sortBy},${sortDir.toLowerCase()}`;
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort);
+
+    if (itemId != null) {
+      params = params.set('itemId', itemId.toString());
+    }
+
+    return this.http.post<any>(API_ENDPOINTS.GET_ALL_ITEMS, null, { params });
+  }
+
+getLaborActivitiesPaginated(
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDir: string,
+    laborActivityId?: number | null,
+  ): Observable<any> {
+    const sort = `${sortBy},${sortDir.toLowerCase()}`;
+    
+    let params = new HttpParams();
+    if (laborActivityId != null) {
+      params = params.set('laborActivityId', laborActivityId.toString());
+    }
+
+    return this.http.post<any>(
+      API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sort), 
+      null, 
+      { params }
+    );
   }
 
   getLaborActivityById(id: number): Observable<any> {

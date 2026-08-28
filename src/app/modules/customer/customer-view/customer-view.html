@@ -14,10 +14,10 @@
         <!-- 1. Customer Mobile Number Dropdown Filter -->
         <div class="filter-group">
           <app-dropdown
-            formControlName="mobileNumber"
+            formControlName="contactNumber"
             label="Contact Number"
             bindLabel="contactNumber"
-            bindValue="customerId"
+            bindValue="contactNumber"
             [data]="cutromerNameEmailIds"
             placeholder="All Contact Numbers"
             errorMessage="Please select a contact number."
@@ -28,10 +28,10 @@
         <!-- 1. Customer Email Dropdown Filter -->
         <div class="filter-group">
           <app-dropdown
-            formControlName="customerEmail"
+            formControlName="email"
             label="Customer Email"
             bindLabel="email"
-            bindValue="customerId"
+            bindValue="email"
             [data]="cutromerNameEmailIds"
             placeholder="All Customer Emails"
             errorMessage="Please select a email."

@@ -1,13 +1,15 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {DatePipe, NgForOf, NgIf} from '@angular/common';
+import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {NgForOf, NgIf} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
 import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
-import {finalize} from 'rxjs';
+import {finalize, takeUntil, debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 import { Dropdown } from "../../../shared/components/dropdown/dropdown";
+import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
 
 @Component({
   selector: 'app-labor-activity-view',
@@ -22,12 +24,13 @@ import { Dropdown } from "../../../shared/components/dropdown/dropdown";
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',
 })
-export class LaborActivityView implements OnInit {
+export class LaborActivityView implements OnInit, OnDestroy {
 
   filterForm!: FormGroup;
 
   laborActivities: LaborActivityProjection[] = [];
   laborActivity: LaborActivityProjection | undefined;
+  laborActivityNameProjection: LaborActivityNameProjection[] = [];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -37,13 +40,15 @@ export class LaborActivityView implements OnInit {
   pageSizes: number[] = [5, 10, 20, 50];
 
   // Sorting Rules configuration
-  sortByField: string = 'dateAdded';
+  sortByField: string = 'createdDate';
   sortDirection: string = 'desc';
 
   isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private readonly fb: FormBuilder,
@@ -55,15 +60,41 @@ export class LaborActivityView implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fetchLaborActivityNames();
+    this.setupFilterListener();
     this.fetchLaborActivities();
   }
 
-    private initFilterForm(): void {
-    this.filterForm = this.fb.group({
-      laborActivity: [''],
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  
+  fetchLaborActivityNames(): void {
+    this.adminService.getLaborActivityNames().subscribe({
+      next: (res: LaborActivityNameProjection[]) => {
+        this.laborActivityNameProjection = res;
+      },
+      error: (err: any) => console.error('Failed to load names', err),
     });
   }
 
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      laborActivity: [null],
+    });
+  }
+
+  private setupFilterListener(): void {
+    this.filterForm.get('laborActivity')?.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe((selectedId) => {
+      this.currentPage = 1; // Reset to page 1 on filter change
+      this.fetchLaborActivities();
+    });
+  }
 
   fetchLaborActivities(): void {
 
@@ -72,8 +103,16 @@ export class LaborActivityView implements OnInit {
     this.cdr.markForCheck();
 
     const backendPage = this.currentPage - 1;
+    const rawActivityId = this.filterForm?.get('laborActivity')?.value;
+    const selectedActivityId = (rawActivityId === '' || rawActivityId === undefined) ? null : rawActivityId;
 
-    this.adminService.getLaborActivitiesPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection).pipe(
+    this.adminService.getLaborActivitiesPaginated(
+      backendPage, 
+      this.pageSize, 
+      this.sortByField, 
+      this.sortDirection, 
+      selectedActivityId
+    ).pipe(
       finalize(() => {
         // Stop loader for both success and error
         this.isLoading = false;
@@ -81,16 +120,15 @@ export class LaborActivityView implements OnInit {
       })
     ).subscribe({
       next: (response: any) => {
-        console.log(response);
         // Stage updates in local variables first to prevent layout thrashing
         let updatedLaborActivities: LaborActivityProjection[] = [];
         let updatedTotalElements = 0;
         let updatedTotalPagesCount = 0;
 
-        if (response?.content !== undefined) {
-          updatedLaborActivities = response.content || [];
-          updatedTotalElements = response.page.totalElements === undefined ? (response.total_elements || 0) : response.page.totalElements;
-          updatedTotalPagesCount = response.page.totalPages === undefined ? (response.total_pages || 0) : response.page.totalPages;
+        if (response?.data.content !== undefined) {
+          updatedLaborActivities = response.data.content || [];
+          updatedTotalElements = response.data.page?.totalElements === undefined ? (response.data.total_elements || 0) : response.data.page.totalElements;
+          updatedTotalPagesCount = response.data.page?.totalPages === undefined ? (response.data.total_pages || 0) : response.data.page.totalPages;
         } else if (Array.isArray(response)) {
           updatedLaborActivities = response;
           updatedTotalElements = response.length;
