@@ -53,7 +53,14 @@
         </tr>
         <tr *ngFor="let laborActivity of laborActivities" [class.loading-hidden]="isLoading">
           <td class="font-semibold">{{ laborActivity.activityName }}</td>
-          <td class="font-semibold">{{ laborActivity.active }}</td>
+          <td class="font-semibold">
+              <span class="badge" [ngClass]="{
+                'badge-completed': laborActivity.active,
+                'badge-cancelled': !laborActivity.active,
+              }">
+               {{ setActiveInactive(!!laborActivity.active) }}
+              </span>
+          </td>
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewLaborActivity(laborActivity.laborActivityId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editLaborActivity(laborActivity.laborActivityId)">✏️</button>

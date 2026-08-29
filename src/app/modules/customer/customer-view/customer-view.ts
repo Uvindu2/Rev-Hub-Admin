@@ -67,7 +67,7 @@ export class CustomerView implements OnInit {
   }
   
   private fetchCutromerNameEmailIds(): void {
-    this.adminService.getAllCutromerNameEmailIds().subscribe({
+    this.adminService.getAllCustomerNameEmailIds().subscribe({
       next: (response: any) => {
         const CutromerNameEmailIds = response?.data || response;
         if (Array.isArray(CutromerNameEmailIds)) {

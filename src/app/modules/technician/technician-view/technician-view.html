@@ -15,11 +15,11 @@
         <!-- 1. Vehicle Dropdown Filter -->
         <div class="filter-group">
           <app-dropdown
-            formControlName="technicianName"
+            formControlName="technicianId"
             label="Technician Name"
             bindLabel="technicianName"
             bindValue="technicianId"
-            [data]="technicians"
+            [data]="technicianIdNameDtos"
             placeholder="All Technicians"
             errorMessage="Please select an technician."
           >
@@ -31,7 +31,7 @@
           <label>Status</label>
           <div class="select-wrapper">
             <label>
-              <select formControlName="status">
+              <select formControlName="jobStatus">
                 <option value="">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Rejected">In Progress</option>

@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
@@ -19,8 +19,9 @@ import { LaborActivityNameProjection } from '../../../dto/response/LaborActivity
     ReactiveFormsModule,
     LaborActivityForm,
     LaborActivityViewAndEdit,
-    Dropdown
-],
+    Dropdown,
+    NgClass
+  ],
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',
 })
@@ -69,7 +70,7 @@ export class LaborActivityView implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-  
+
   fetchLaborActivityNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
       next: (res: LaborActivityNameProjection[]) => {
@@ -107,10 +108,10 @@ export class LaborActivityView implements OnInit, OnDestroy {
     const selectedActivityId = (rawActivityId === '' || rawActivityId === undefined) ? null : rawActivityId;
 
     this.adminService.getLaborActivitiesPaginated(
-      backendPage, 
-      this.pageSize, 
-      this.sortByField, 
-      this.sortDirection, 
+      backendPage,
+      this.pageSize,
+      this.sortByField,
+      this.sortDirection,
       selectedActivityId
     ).pipe(
       finalize(() => {
@@ -237,5 +238,12 @@ export class LaborActivityView implements OnInit, OnDestroy {
 
   deleteLaborActivity(id: number): void {
     console.log('Deleting ID:', id);
+  }
+
+  setActiveInactive(status: boolean): string {
+    if (status) {
+      return 'Active';
+    }
+    return 'Inactive';
   }
 }

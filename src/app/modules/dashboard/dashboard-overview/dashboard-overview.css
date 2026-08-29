@@ -262,10 +262,6 @@ th, td {
   font-size: 13px;
 }
 
-.progress { color: orange; }
-.pending { color: #ffcc00; }
-.done { color: #4caf50; }
-
 /* =========================
    CHART
 ========================= */
@@ -555,7 +551,7 @@ th, td {
   .topbar {
     padding: 0 10px;
   }
-  
+
   .topbar h1 {
     font-size: 1.1rem;
   }
@@ -564,7 +560,7 @@ th, td {
     opacity: 0.25;
     width: 70%;
   }
-  
+
   .service-list {
     width: 100%;
   }
@@ -574,7 +570,7 @@ th, td {
   .topbar .right {
     gap: 10px;
   }
-  
+
   .user-profile .username {
     display: none;
   }

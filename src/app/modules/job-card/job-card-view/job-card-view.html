@@ -142,7 +142,8 @@
               <span class="badge" [ngClass]="{
                 'badge-progress': job.status === 'In Progress',
                 'badge-pending': job.status === 'Pending',
-                'badge-completed': job.status === 'Completed'
+                'badge-completed': job.status === 'Completed',
+                'badge-cancelled': job.status === 'Cancelled'
               }">
                 {{ job.status }}
               </span>

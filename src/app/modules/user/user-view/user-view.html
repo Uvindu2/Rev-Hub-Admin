@@ -7,6 +7,10 @@
           <span class="filter-title-icon">🔍</span>
           <h3>Search & Filter</h3>
         </div>
+
+        <button class="btn-add" type="button" (click)="onAddUser()">
+          <span class="icon-plus" aria-hidden="true">+</span> ADD USER
+        </button>
       </div>
 
       <!-- Filter Inputs Grid Row 1 (Inline Dropdowns & Action Buttons) -->
@@ -97,7 +101,14 @@
           <td class="font-semibold">{{ user.username }}</td>
           <td class="font-semibold">{{ this.roleName(user.role) }}</td>
           <td>{{ user.speciality }}</td>
-          <td>{{ setActiveInactive(user.active) }}</td>
+          <td>
+              <span class="badge" [ngClass]="{
+                'badge-completed': user.active,
+                'badge-cancelled': !user.active,
+              }">
+                {{ setActiveInactive(user.active) }}
+              </span>
+          </td>
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewUser(user.userId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editUser(user.userId)">✏️</button>

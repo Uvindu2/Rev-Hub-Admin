@@ -147,15 +147,15 @@ getLaborActivitiesPaginated(
     laborActivityId?: number | null,
   ): Observable<any> {
     const sort = `${sortBy},${sortDir.toLowerCase()}`;
-    
+
     let params = new HttpParams();
     if (laborActivityId != null) {
       params = params.set('laborActivityId', laborActivityId.toString());
     }
 
     return this.http.post<any>(
-      API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sort), 
-      null, 
+      API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sort),
+      null,
       { params }
     );
   }

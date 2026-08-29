@@ -101,8 +101,9 @@
           <td>{{ invoice.invoiceDate | date:'dd MMM yyyy' }}</td>
           <td>
             <span class="badge" [ngClass]="{
-              'badge-paid': invoice.status === 'Paid',
-              'badge-pending': invoice.status === 'Pending'
+                'badge-pending': invoice.status === 'Pending',
+                'badge-completed': invoice.status === 'Paid' || invoice.status === 'PAID',
+                'badge-cancelled': invoice.status === 'Cancelled'
             }">
               {{ invoice.status }}
             </span>
@@ -152,8 +153,8 @@
 
 <app-invoice-form *ngIf="isEditModalOpen" (cancel)="closeModal()" (invoiceGenerated)="handleInvoiceGenerated($event)"></app-invoice-form>
 
-<app-print-preview 
-  *ngIf="showPrintModal" 
-  [pdfUrl]="invoicePdfUrl" 
+<app-print-preview
+  *ngIf="showPrintModal"
+  [pdfUrl]="invoicePdfUrl"
   (close)="closePrintPreview()">
 </app-print-preview>

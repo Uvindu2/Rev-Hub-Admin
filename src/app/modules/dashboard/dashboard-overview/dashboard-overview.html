@@ -16,7 +16,7 @@
 
         <div class="card-top">
           <h4>Today's Job Cards</h4>
-          <h2>{{this.jobCardsCount ?? 0}}</h2>
+          <h2>{{ this.jobCardsCount ?? 0 }}</h2>
         </div>
 
         <hr class="card-divider">
@@ -32,7 +32,7 @@
 
         <div class="card-top">
           <h4>Today's Invoices</h4>
-          <h2>{{this.invoicesCount ?? 0}}</h2>
+          <h2>{{ this.invoicesCount ?? 0 }}</h2>
         </div>
 
         <hr class="card-divider">
@@ -64,7 +64,7 @@
 
         <div class="card-top">
           <h4>Total Customers</h4>
-          <h2>{{this.customersCount ?? 0}}</h2>
+          <h2>{{ this.customersCount ?? 0 }}</h2>
         </div>
 
         <hr class="card-divider">
@@ -117,14 +117,17 @@
             <th>Status</th>
           </tr>
           <tr *ngFor="let jc of recentJobCards">
-            <td>{{ jc.jobId}}</td>
+            <td>{{ jc.jobId }}</td>
             <td>{{ jc.customerName }}</td>
-            <td [ngClass]="{
-          'progress': (jc.status | lowercase) === 'rejected' || (jc.status | lowercase) === 'rejected',
-          'pending': (jc.status | lowercase) === 'pending',
-          'done': (jc.status | lowercase) === 'completed'
-        }">
-              {{ jc.status }}
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-progress': jc.status === 'In Progress',
+                'badge-pending': jc.status === 'Pending',
+                'badge-completed': jc.status === 'Completed',
+                'badge-cancelled': jc.status === 'Cancelled'
+              }">
+                {{ jc.status }}
+              </span>
             </td>
           </tr>
 
@@ -198,10 +201,16 @@
           <tbody>
           <tr *ngFor="let inv of recentInvoices">
             <td>{{ inv.invoiceNumber }}</td>
-            <td>{{ inv.customerName}}</td>
+            <td>{{ inv.customerName }}</td>
             <td>${{ inv.grandTotal }}</td>
-            <td [ngClass]="(inv.status | lowercase) === 'paid' ? 'done' : 'pending'">
+            <td>
+            <span class="badge" [ngClass]="{
+                'badge-pending': inv.status === 'Pending',
+                'badge-completed': inv.status === 'Paid' || inv.status === 'PAID',
+                'badge-cancelled': inv.status === 'Cancelled'
+            }">
               {{ inv.status }}
+            </span>
             </td>
           </tr>
 
@@ -224,9 +233,9 @@
           <!-- Loop through topLaborActivities array -->
           <div class="service-item" *ngFor="let activity of topLaborActivities">
     <span>
-      <i [class]="activity.icon || 'fa fa-cogs'"></i> {{ activity.activityName}}
+      <i [class]="activity.icon || 'fa fa-cogs'"></i> {{ activity.activityName }}
     </span>
-            <span>{{ activity.activityCount}}</span>
+            <span>{{ activity.activityCount }}</span>
           </div>
 
           <!-- Fallback if array is empty -->

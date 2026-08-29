@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { NgForOf, NgIf } from '@angular/common';
+import {NgClass, NgForOf, NgIf} from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
@@ -12,7 +12,7 @@ import { UserIdNameDto } from '../../../dto/response/UserIdNameDto';
 
 @Component({
   selector: 'app-user-view',
-  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule, Dropdown],
+  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule, Dropdown, NgClass],
   templateUrl: './user-view.html',
   styleUrl: './user-view.css',
 })
@@ -276,6 +276,6 @@ export class UserView implements OnInit {
     if (status) {
       return 'Active';
     }
-    return 'False';
+    return 'Inactive';
   }
 }

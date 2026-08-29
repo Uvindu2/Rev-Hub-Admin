@@ -59,8 +59,7 @@ type View = 'dashboard' | 'jobCards' | 'invoices' | 'customers' | 'technicians' 
     NgIf,
     RouterLink,
     NgForOf,
-    NgClass,
-    LowerCasePipe,
+    NgClass
   ],
   templateUrl: './dashboard-overview.html',
   styleUrl: './dashboard-overview.css',
@@ -144,6 +143,7 @@ export class DashboardOverview implements OnInit {
               ...this.chartOptions,
               series: [
                 this.jobCardStatus.pendingCount || 0,
+                this.jobCardStatus.inprogressCount || 0,
                 this.jobCardStatus.rejectedCount || 0,
                 this.jobCardStatus.completedCount || 0,
               ],
@@ -177,7 +177,7 @@ export class DashboardOverview implements OnInit {
 
   public chartOptions: Partial<ChartOptions> = {
     series: [],
-    colors: ['#b30000', '#333333', '#8e8e8e'],
+    colors: ['#c2410c', '#b30000', '#7c2d12', '#064e3b'],
     chart: {
       type: 'donut',
       width: '325px',
@@ -229,7 +229,7 @@ export class DashboardOverview implements OnInit {
         },
       },
     },
-    labels: ['Pending', 'Rejected', 'Completed'],
+    labels: ['Pending', 'Cancelled','In Progress', 'Completed'],
     responsive: [
       {
         breakpoint: 480,
