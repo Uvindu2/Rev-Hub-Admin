@@ -40,11 +40,6 @@ export class AdminService {
     return this.http.get<ItemProjection[]>(API_ENDPOINTS.GET_ITEM_PASRTS);
   }
 
-  /**
-   * Submits the Job Card transactional details and intercepts
-   * the server response as a raw raw binary file Stream.
-   */
-
   saveJobCardBlobVariant(jobCardData: any): Observable<any> {
     // Return standard JSON response object containing code, response, and data
     return this.http.post<any>(API_ENDPOINTS.SAVE_JOB_CARD, jobCardData);
@@ -184,13 +179,17 @@ getLaborActivitiesPaginated(
     return this.http.put<any>(API_ENDPOINTS.MODIFY_LABOR_ACTIVITY, backendPayload);
   }
 
-  getTechniciansPaginated(
+  searchTechniciansPaginated(
+    formValues: any,
     page: number,
     size: number,
     sortBy: string,
     sortDir: string,
   ): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_ALL_TECHNICIANS(page, size, sortBy, sortDir));
+    return this.http.post<any>(
+      API_ENDPOINTS.SEARCH_ALL_TECHNICIANS(page, size, sortBy, sortDir),
+      formValues,
+    );
   }
 
   getTechnicianById(id: number): Observable<any> {
@@ -348,7 +347,13 @@ getLaborActivitiesPaginated(
   getAllUserRoles(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_USER_ROLES);
   }
-  getAllCutromerNameEmailIds(): Observable<any> {
+
+  getAllCustomerNameEmailIds(): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_CUSTOMER_NAME_EMAIL_IDS);
   }
+
+  getAllTechnicianIdNames(): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_ALL_TECHNICIAN_NAMES);
+  }
+
 }

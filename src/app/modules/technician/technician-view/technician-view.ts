@@ -8,7 +8,8 @@ import { TechnicianForm } from '../technician-form/technician-form';
 import { TechnicianViewAndEdit } from '../technician-view-and-edit/technician-view-and-edit';
 import { TechnicianProjection } from '../../../dto/response/TechnicianProjection';
 import { finalize } from 'rxjs';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown'; // Fixed: Added CommonModule import
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection'; // Fixed: Added CommonModule import
 
 @Component({
   selector: 'app-technician-view',
@@ -32,6 +33,7 @@ export class TechnicianView implements OnInit {
 
   technicians: TechnicianProjectionWithJobStatus[] = [];
   technician: TechnicianProjection | undefined;
+  technicianIdNameDtos:TechnicianNameProjection[]=[];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -59,13 +61,33 @@ export class TechnicianView implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fetchTechnicianIdNames();
     this.fetchTechnicians();
+  }
+
+  fetchTechnicianIdNames(){
+    this.adminService.getAllTechnicianIdNames().subscribe({
+      next: (response: any) => {
+        const TechnicianNameProjection = response?.data || response;
+        if (Array.isArray(TechnicianNameProjection)) {
+          this.technicianIdNameDtos = TechnicianNameProjection;
+        } else {
+          this.technicianIdNameDtos = [];
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Failed to load user names:', err);
+        this.technicianIdNameDtos = [];
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      technicianName: [''],
-      status: [''],
+      technicianId: [''],
+      jobStatus: [''],
     });
   }
 
@@ -75,9 +97,10 @@ export class TechnicianView implements OnInit {
     this.cdr.markForCheck();
 
     const backendPage = this.currentPage - 1;
+    const formValues = this.filterForm.value;
 
     this.adminService
-      .getTechniciansPaginated(backendPage, this.pageSize, this.sortByField, this.sortDirection)
+      .searchTechniciansPaginated(formValues,backendPage, this.pageSize, this.sortByField, this.sortDirection)
       .pipe(
         finalize(() => {
           // Stop loader for both success and error
@@ -93,16 +116,17 @@ export class TechnicianView implements OnInit {
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 
-          if (response?.content !== undefined) {
-            updatedTechnicians = response.content || [];
+          if (response?.data?.content !== undefined) {
+            updatedTechnicians = response.data.content || [];
+            console.warn('Technician data:', updatedTechnicians);
             updatedTotalElements =
-              response.page.totalElements === undefined
-                ? response.total_elements || 0
-                : response.page.totalElements;
+              response.data.page.totalElements === undefined
+                ? response.data.total_elements || 0
+                : response.data.page.totalElements;
             updatedTotalPagesCount =
-              response.page.totalPages === undefined
-                ? response.total_pages || 0
-                : response.page.totalPages;
+              response.data.page.totalPages === undefined
+                ? response.data.total_pages || 0
+                : response.data.page.totalPages;
           } else if (Array.isArray(response)) {
             updatedTechnicians = response;
             updatedTotalElements = response.length;

@@ -36,8 +36,8 @@ export const API_ENDPOINTS = {
   MODIFY_LABOR_ACTIVITY: `${API_BASE_URL}/labor-activity/modify`,
   SAVE_ITEM: `${API_BASE_URL}/item/save`,
   MODIFY_ITEM: `${API_BASE_URL}/item/modify`,
-  GET_ALL_TECHNICIANS: (page: number, size: number, sortBy: string, sortDir: string) =>
-    `${API_BASE_URL}/technician/get-all-technicians?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+  SEARCH_ALL_TECHNICIANS: (page: number, size: number, sortBy: string, sortDir: string) =>
+    `${API_BASE_URL}/technician/search-all-technicians?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_TECHNICIAN_BY_ID: (id: number) =>
     `${API_BASE_URL}/technician/get-technician-by-technicianId/${id}`,
   SAVE_TECHNICIAN: `${API_BASE_URL}/technician/save`,
@@ -78,4 +78,5 @@ export const API_ENDPOINTS = {
   GET_ALL_USER_NAMES: `${API_BASE_URL}/user/get-all-user-names`,
   GET_ALL_USER_ROLES: `${API_BASE_URL}/role/get-all-role-names`,
   GET_ALL_CUSTOMER_NAME_EMAIL_IDS: `${API_BASE_URL}/customer/get-all-customer-name-email-ids`,
+  GET_ALL_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-ids-and-names`,
 };

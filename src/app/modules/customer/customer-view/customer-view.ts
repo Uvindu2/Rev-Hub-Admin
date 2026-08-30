@@ -53,7 +53,7 @@ export class CustomerView implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fetchCutromerNameEmailIds();
+    this.fetchCustomerNameEmailIds();
     this.fetchCustomers();
   }
 
@@ -65,13 +65,13 @@ export class CustomerView implements OnInit {
       activeStatus: [''],
     });
   }
-  
-  private fetchCutromerNameEmailIds(): void {
+
+  private fetchCustomerNameEmailIds(): void {
     this.adminService.getAllCustomerNameEmailIds().subscribe({
       next: (response: any) => {
-        const CutromerNameEmailIds = response?.data || response;
-        if (Array.isArray(CutromerNameEmailIds)) {
-          this.cutromerNameEmailIds = CutromerNameEmailIds;
+        const CustomerNameEmailIds = response?.data || response;
+        if (Array.isArray(CustomerNameEmailIds)) {
+          this.cutromerNameEmailIds = CustomerNameEmailIds;
         } else {
           this.cutromerNameEmailIds = [];
         }
