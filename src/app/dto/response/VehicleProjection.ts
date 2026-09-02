@@ -8,5 +8,5 @@ export interface VehicleProjection {
   vehicleYear: number;
   colour: string;
   otherSpecs: string;
-  customer: CustomerProjection[];
+  customer: CustomerProjection;
 }

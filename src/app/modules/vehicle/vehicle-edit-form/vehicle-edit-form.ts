@@ -45,7 +45,7 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     // 1. Initialize the "Slot"
-    this.currentCustomer = this.vehicle?.customer?.[0] || null;
+    this.currentCustomer = this.vehicle?.customer || null;
     this.initForm();
   }
 

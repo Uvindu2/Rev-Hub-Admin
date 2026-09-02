@@ -20,6 +20,7 @@ import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNa
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
+import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
 
 @Component({
   selector: 'app-job-card-view-and-edit',
@@ -34,7 +35,7 @@ import {finalize} from 'rxjs';
 })
 export class JobCardViewAndEdit implements OnInit, AfterViewInit {
 
-  @Input() jobCardData: JobCardProjection | undefined;
+  @Input() jobCardData: JobCardResponseDto | undefined;
   @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
@@ -70,7 +71,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
     }
   }
 
-  private patchFormWithData(data: JobCardProjection): void {
+  private patchFormWithData(data: JobCardResponseDto): void {
     // Use patchValue with a complete object map
     this.jobCardForm.patchValue({
       vehicleRegNo: data.vehicle?.vehicleRegNo,
@@ -86,7 +87,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       complaint: data.customerComplaintText,
       currentMileage: data.currentMileage,
       laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
-      assignedTechniciansSelected: data.technician?.map(t => t.technicianId) || []
+      assignedTechniciansSelected: data.technicians?.map(t => t.technicianId) || []
     }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops
 
     this.cdr.markForCheck();

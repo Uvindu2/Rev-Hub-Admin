@@ -11,6 +11,7 @@ import { finalize } from 'rxjs';
 import { PrintPreview } from '../../invoice/print-preview/print-preview';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
 
 @Component({
   selector: 'app-job-card-view',
@@ -30,7 +31,7 @@ import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 })
 export class JobCardView implements OnInit {
   jobCards: JobCardSummaryResponseDTO[] = [];
-  jobCard: JobCardProjection | undefined;
+  jobCard: JobCardResponseDto | undefined;
 
   filterForm!: FormGroup;
 
