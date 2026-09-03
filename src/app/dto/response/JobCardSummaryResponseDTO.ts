@@ -4,6 +4,7 @@ export interface JobCardSummaryResponseDTO {
   customerName: string;
   vehicleRegNumber: string;
   vehicleVinNumber: string;
+  createdUser: string;
   createdDate: string;
   status: string;
   technicianName: string;

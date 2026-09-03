@@ -5,7 +5,8 @@ export interface InvoiceSummaryProjection {
   jobCardNumber: string;
   invoiceNumber: string;
   invoiceId: number;
-  invoiceDate: string;
+  createdUser: string;
+  createdDate: string;
   grandTotal: number;
   status: string;
 }

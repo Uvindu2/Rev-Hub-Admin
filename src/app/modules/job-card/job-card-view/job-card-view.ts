@@ -1,16 +1,16 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { AdminService } from '../../../services/admin.service';
-import { JobCardViewAndEdit } from '../job-card-view-and-edit/job-card-view-and-edit';
-import { NotificationService } from '../../../services/notificationService';
-import { JobCardSummaryResponseDTO } from '../../../dto/response/JobCardSummaryResponseDTO';
-import { TechnicianNameProjection } from '../../../dto/response/TechnicianNameProjection';
-import { JobCardForm } from '../job-card-form/job-card-form';
-import { finalize } from 'rxjs';
-import { PrintPreview } from '../../invoice/print-preview/print-preview';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {AdminService} from '../../../services/admin.service';
+import {JobCardViewAndEdit} from '../job-card-view-and-edit/job-card-view-and-edit';
+import {NotificationService} from '../../../services/notificationService';
+import {JobCardSummaryResponseDTO} from '../../../dto/response/JobCardSummaryResponseDTO';
+import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
+import {JobCardForm} from '../job-card-form/job-card-form';
+import {finalize} from 'rxjs';
+import {PrintPreview} from '../../invoice/print-preview/print-preview';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import {Dropdown} from '../../../shared/components/dropdown/dropdown';
 import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
 
 @Component({
@@ -230,7 +230,7 @@ export class JobCardView implements OnInit {
               bytes[i] = binaryString.charCodeAt(i);
             }
 
-            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const blob = new Blob([bytes], {type: 'application/pdf'});
             const unsafeUrl = window.URL.createObjectURL(blob);
 
             // Bypass security to make it safe for iframe binding in the modal
@@ -296,7 +296,7 @@ export class JobCardView implements OnInit {
     });
   }
 
-    private fetchVehicleVinNos(): void {
+  private fetchVehicleVinNos(): void {
     this.adminService.getAllVehicleVinNos().subscribe({
       next: (response: any) => {
         // Handle standard response wrapper (e.g., response.data or direct array)
@@ -340,12 +340,11 @@ export class JobCardView implements OnInit {
     this.jobCardPdfUrl = null;
   }
 
-  filteredVehicles: string[] = [...this.availableVehicles];
-
 // Toggle dropdown open/close
-isDropdownOpen = false;
-toggleDropdown(): void {
-  this.isDropdownOpen = !this.isDropdownOpen;
-}
+  isDropdownOpen = false;
+
+  toggleDropdown(): void {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
 
 }

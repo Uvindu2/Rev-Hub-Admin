@@ -109,10 +109,11 @@
           <th>Job Number</th>
           <th>Customer Name</th>
           <th>Vehicle Reg Number</th>
-              <th>Vehicle Vin Number</th>
-          <th>Date Added</th>
+          <th>Vehicle VIN Number</th>
           <th>Status</th>
           <th>Technician</th>
+          <th>Created User</th>
+          <th>Created Date</th>
           <th class="text-center">Actions</th>
         </tr>
         </thead>
@@ -136,19 +137,20 @@
           <td class="font-semibold">{{ job.jobCardNumber }}</td>
           <td>{{ job.customerName }}</td>
           <td class="text-uppercase">{{ job.vehicleRegNumber }}</td>
-                    <td class="text-uppercase">{{ job.vehicleVinNumber }}</td>
-          <td>{{ job.createdDate | date:'dd MMM yyyy' }}</td>
+          <td class="text-uppercase">{{ job.vehicleVinNumber }}</td>
           <td>
-              <span class="badge" [ngClass]="{
-                'badge-progress': job.status === 'In Progress',
-                'badge-pending': job.status === 'Pending',
-                'badge-completed': job.status === 'Completed',
-                'badge-cancelled': job.status === 'Cancelled'
-              }">
-                {{ job.status }}
-              </span>
+    <span class="badge" [ngClass]="{
+      'badge-progress': job.status === 'In Progress',
+      'badge-pending': job.status === 'Pending',
+      'badge-completed': job.status === 'Completed',
+      'badge-cancelled': job.status === 'Cancelled'
+    }">
+      {{ job.status }}
+    </span>
           </td>
           <td>{{ job.technicianName }}</td>
+          <td>{{ job.createdUser || 'N/A' }}</td>
+          <td>{{ job.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewJob(job.jobId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editJob(job.jobId)">✏️</button>

@@ -74,8 +74,9 @@
           <th>Related Job Number</th>
           <th>Customer Name</th>
           <th>Amount (Rs.)</th>
-          <th>Date Issued</th>
           <th>Payment Status</th>
+          <th>Created User</th>
+          <th>Created Date</th>
           <th class="text-center">Actions</th>
         </tr>
         </thead>
@@ -98,7 +99,6 @@
           <td>{{ invoice.jobCardNumber }}</td>
           <td>{{ invoice.customerName }}</td>
           <td class="font-numeric">Rs. {{ invoice.grandTotal | number:'1.2-2' }}</td>
-          <td>{{ invoice.invoiceDate | date:'dd MMM yyyy' }}</td>
           <td>
             <span class="badge" [ngClass]="{
                 'badge-pending': invoice.status === 'Pending',
@@ -108,6 +108,8 @@
               {{ invoice.status }}
             </span>
           </td>
+          <td>{{ invoice.createdUser || 'N/A' }}</td>
+          <td>{{ invoice.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
           <td class="actions-cell">
             <button class="btn-action view-btn" title="View" (click)="viewInvoice(invoice.invoiceId)">
               👁️
