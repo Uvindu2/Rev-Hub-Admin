@@ -8,6 +8,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
   styleUrl: './print-preview.css',
 })
 export class PrintPreview {
+  @Input() pdfName: String = "Print Preview";
   @Input() pdfUrl: SafeResourceUrl | null = null;
   @Output() close = new EventEmitter<void>();
 

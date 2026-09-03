@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/vehicle/get-all-vehicles-summary?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
   GET_JOB_CARD_BY_ID: (jobId: number) => `${API_BASE_URL}/job-card/get-job-card-by-jobId/${jobId}`,
+  GET_JOB_CARD_PDF_BY_ID: (jobId: number) => `${API_BASE_URL}/job-card/get-job-card-pdf-by-jobId/${jobId}`,
   GET_ITEM_BY_ID: (itemId: number) => `${API_BASE_URL}/item/get-item-by-itemId/${itemId}`,
   GET_ALL_ITEMS: `${API_BASE_URL}/item/get-all-items`,
   GET_ALL_LABOR_ACTIVITIES: (page: number, size: number, sort: string) =>
@@ -49,7 +50,7 @@ export const API_ENDPOINTS = {
   GET_CUSTOMER_BY_ID: (customerId: number) =>
     `${API_BASE_URL}/customer/get-customer-by-customerId/${customerId}`,
   VIEW_INVOICE_BY_ID: (invoiceId: number) =>
-    `${API_BASE_URL}/invoice/get-invoice-by-invoiceId/${invoiceId}/pdf`,
+    `${API_BASE_URL}/invoice/get-invoice-pdf-by-invoiceId/${invoiceId}`,
   GET_BY_VEHICLE_VIN_NUMBER: (vehicleVinNumber: string) =>
     `${API_BASE_URL}/vehicle/get-vehicle-and-customer-by-vehicle-vin-number/${vehicleVinNumber}`,
   SEARCH_JOB_CARDS: (page: number, size: number, sortBy: string, sortDir: string) =>

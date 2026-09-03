@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Self, Optional, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, Self, Optional, ChangeDetectionStrategy, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NgControl } from '@angular/forms';
 
@@ -15,8 +15,6 @@ export class MultiSelectDropdown implements ControlValueAccessor, OnInit {
   @Input() b: any[] = [];
   @Input() bindLabel: string = '';
   @Input() bindValue: string = '';
-
-  // Custom error message input string
   @Input() errorMessage: string = 'This field is required.';
 
   isOpen = false;

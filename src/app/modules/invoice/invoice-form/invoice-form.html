@@ -9,14 +9,14 @@
       <div class="split-workspace">
 
         <div class="left-panel">
-            <div class="search-box" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-              <input type="text" formControlName="jobCardSearch" placeholder="Search job number..." style="flex: 1;">
-              <button type="button" class="btn-search-action" (click)="onJobCardSearchClick()" [disabled]="isSearching">
-                <span *ngIf="isSearching" class="buttonSpinner"></span>
+          <div class="search-box" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+            <input type="text" formControlName="jobCardSearch" placeholder="Search job number..." style="flex: 1;">
+            <button type="button" class="btn-search-action" (click)="onJobCardSearchClick()" [disabled]="isSearching">
+              <span *ngIf="isSearching" class="buttonSpinner"></span>
 
-                {{ isSearching ? 'Searching...' : 'Search' }}
-              </button>
-            </div>
+              {{ isSearching ? 'Searching...' : 'Search' }}
+            </button>
+          </div>
 
           <div class="sidebar-list" formArrayName="laborActivities">
             <div *ngFor="let labor of laborActivities.controls; let i = index"
@@ -26,7 +26,7 @@
                  (click)="selectLaborTask(i)">
               <div class="task-details">
                 <span class="title">
-                  🔧 [{{ i + 1 }}] {{ getLaborActivityName($safeNavigationMigration(labor.get('name')?.value)) || 'Select New Labor Activity...' }}
+                  🔧 [{{ i + 1 }}] {{ getLaborActivityName(labor.get('name')?.value) || 'Select New Labor Activity...' }}
                 </span>
                 <span class="type-tag">
                   {{ labor.get('isAutoFetched')?.value ? '(Auto-Fetched)' : '(Manual)' }}
@@ -55,7 +55,7 @@
               <label>🔧 Active Task:</label>
               <ng-container *ngIf="laborActivities.at(selectedLaborIndex).get('isAutoFetched')?.value; else dynamicDropdown">
                 <span class="static-label">
-                  {{ getLaborActivityName($safeNavigationMigration(laborActivities.at(selectedLaborIndex).get('name')?.value)) }}
+                  {{ getLaborActivityName(laborActivities.at(selectedLaborIndex)?.get('name')?.value) }}
                 </span>
               </ng-container>
               <ng-template #dynamicDropdown>
@@ -64,7 +64,7 @@
                        [class.invalid-border]="laborActivities.at(selectedLaborIndex).get('name')?.invalid && laborActivities.at(selectedLaborIndex).get('name')?.touched"
                        (click)="toggleDropdown($event)">
                     <span class="dropdown-selected-value-text">
-                      {{ getLaborActivityName($safeNavigationMigration(laborActivities.at(selectedLaborIndex).get('name')?.value)) || 'Select New Labor Activity...' }}
+                      {{ getLaborActivityName(laborActivities.at(selectedLaborIndex)?.get('name')?.value) || 'Select New Labor Activity...' }}
                     </span>
                     <span class="dropdown-toggle">
                       {{ isDropdownOpen ? '▲' : '▼' }}
@@ -156,7 +156,7 @@
                   <input type="number" formControlName="unitPrice" class="dark-input cell-input">
                 </td>
                 <td class="total-output">
-                  LKR {{ $safeNavigationMigration(part.get('total')?.value) | number : '1.2-2' }}
+                  LKR {{ part.get('total')?.value | number : '1.2-2' }}
                 </td>
                 <td>
                   <button type="button" class="row-delete-btn" (click)="removePart(selectedLaborIndex, j)">🗑️</button>

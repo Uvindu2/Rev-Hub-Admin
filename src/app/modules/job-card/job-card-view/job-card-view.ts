@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../../services/admin.service';
@@ -9,7 +9,7 @@ import { TechnicianNameProjection } from '../../../dto/response/TechnicianNamePr
 import { JobCardForm } from '../job-card-form/job-card-form';
 import { finalize } from 'rxjs';
 import { PrintPreview } from '../../invoice/print-preview/print-preview';
-import { SafeResourceUrl } from '@angular/platform-browser';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
 
@@ -52,16 +52,14 @@ export class JobCardView implements OnInit {
   technicianNameProjection: TechnicianNameProjection[] = [];
 
   showPrintModal: boolean = false;
-  generatedPdfUrl: SafeResourceUrl | null = null;
   jobCardPdfUrl: SafeResourceUrl | null = null;
-
-  selectedVehicleName = '';
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
     private readonly notificationService: NotificationService,
+    private readonly sanitizer: DomSanitizer,
   ) {
     this.initFilterForm();
   }
@@ -220,15 +218,44 @@ export class JobCardView implements OnInit {
   }
 
   viewJob(id: number): void {
-    this.adminService.getJobCardById(id).subscribe({
-      next: (response: any) => {
-        this.jobCard = response.data;
-        this.isViewModalOpen = true;
-        this.cdr.detectChanges();
+    this.adminService.getJobCardPdfById(id).subscribe({
+      next: (res: any) => {
+        try {
+          if (res?.data) {
+            const base64String = res.data.replace(/\s/g, '');
+            const binaryString = window.atob(base64String);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const unsafeUrl = window.URL.createObjectURL(blob);
+
+            // Bypass security to make it safe for iframe binding in the modal
+            const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
+
+            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
+            // this.resetFormState();
+            this.handleJobCardGenerated(safePdfUrl);
+          } else {
+            this.notificationService.show('Error: Unable to load the PDF.', 'error');
+            this.cdr.markForCheck();
+          }
+        } catch (decodeError) {
+          console.error('PDF parsing or decoding failed:', decodeError);
+          this.notificationService.show('Error: Failed to process the PDF document stream.', 'error');
+          this.cdr.markForCheck();
+        }
       },
-      error: () => {
-        this.notificationService.show('Failed to load job card details', 'error');
-        this.cdr.detectChanges();
+      error: (err) => {
+        console.error('Pdf Fetch crash details:', err);
+        const serverErrorMessage =
+          err.error?.data?.error || err.message || 'Database constraint violation encountered.';
+
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -245,10 +272,6 @@ export class JobCardView implements OnInit {
         this.cdr.detectChanges();
       },
     });
-  }
-
-  deleteJob(id: number): void {
-    console.log('Deleting ID:', id);
   }
 
   private fetchVehicleRegNos(): void {
@@ -323,21 +346,6 @@ export class JobCardView implements OnInit {
 isDropdownOpen = false;
 toggleDropdown(): void {
   this.isDropdownOpen = !this.isDropdownOpen;
-}
-
-// Filter vehicles based on search input
-filterVehicles(event: any): void {
-  const searchTerm = event.target.value.toLowerCase();
-  this.filteredVehicles = this.availableVehicles.filter(vehicle =>
-    vehicle.toLowerCase().includes(searchTerm)
-  );
-}
-
-// Select a vehicle and update the Reactive Form control
-selectVehicle(vehicle: string): void {
-  this.selectedVehicleName = vehicle;
-  this.isDropdownOpen = false; // Close dropdown after selection
-  this.filteredVehicles = [...this.availableVehicles]; // Reset filter
 }
 
 }

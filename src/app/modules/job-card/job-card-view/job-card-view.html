@@ -152,7 +152,6 @@
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewJob(job.jobId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editJob(job.jobId)">✏️</button>
-            <button class="btn-table-action delete-btn" (click)="deleteJob(job.jobId)">🗑️</button>
           </td>
         </tr>
         </tbody>
@@ -199,5 +198,5 @@
 </app-job-card-view-and-edit>
 
 <app-print-preview *ngIf="showPrintModal"
-[pdfUrl]="jobCardPdfUrl" (close)="closePrintPreview()">
+[pdfUrl]="jobCardPdfUrl" [pdfName]="`Job Card Print Preview`" (close)="closePrintPreview()">
 </app-print-preview>

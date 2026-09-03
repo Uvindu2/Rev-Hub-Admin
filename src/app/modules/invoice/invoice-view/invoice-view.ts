@@ -6,7 +6,7 @@ import { InvoiceSummaryProjection } from '../../../dto/InvoiceSummaryProjection'
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import {finalize} from 'rxjs';
-import { SafeResourceUrl } from '@angular/platform-browser';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import { PrintPreview } from "../print-preview/print-preview";
 
 @Component({
@@ -47,7 +47,8 @@ export class InvoiceView implements OnInit {
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly adminService: AdminService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly sanitizer: DomSanitizer,
   ) {
     this.initFilterForm();
   }
@@ -179,26 +180,50 @@ export class InvoiceView implements OnInit {
   }
 
   viewInvoice(invoiceId: number): void {
-    const viewerTab = window.open('about:blank', '_blank');
-    if (viewerTab) {
-      viewerTab.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:20px;">Loading PDF...</p>');
-    }
-
     this.adminService.viewInvoice(invoiceId).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        if (viewerTab) viewerTab.location.href = url;
-        setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+      next: (res: any) => {
+        try {
+          if (res?.data) {
+            const base64String = res.data.replace(/\s/g, '');
+            const binaryString = window.atob(base64String);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const unsafeUrl = window.URL.createObjectURL(blob);
+
+            // Bypass security to make it safe for iframe binding in the modal
+            const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
+
+            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
+            // this.resetFormState();
+            this.handleInvoiceGenerated(safePdfUrl);
+          } else {
+            this.notificationService.show('Error: Unable to load the PDF.', 'error');
+            this.cdr.markForCheck();
+          }
+        } catch (decodeError) {
+          console.error('PDF parsing or decoding failed:', decodeError);
+          this.notificationService.show('Error: Failed to process the PDF document stream.', 'error');
+          this.cdr.markForCheck();
+        }
       },
-      error: () => {
-        if (viewerTab) viewerTab.close();
-        this.notificationService.show('Error: Unable to load the PDF.', 'error');
-      }
+      error: (err) => {
+        console.error('Pdf Fetch crash details:', err);
+        const serverErrorMessage =
+          err.error?.data?.error || err.message || 'Database constraint violation encountered.';
+
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+        this.cdr.markForCheck();
+      },
     });
   }
 
   printInvoice(invoiceId: number): void {
-    this.adminService.viewInvoice(invoiceId).subscribe({
+    this.adminService.printInvoice(invoiceId).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
         const iframe = document.createElement('iframe');

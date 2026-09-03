@@ -378,7 +378,6 @@
 
 .parts-container {
   width: 100%;
-  overflow-x: auto; /* Allows table to scroll nicely on narrow viewports */
 }
 
 .matrix-table {

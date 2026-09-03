@@ -254,10 +254,6 @@ export class UserView implements OnInit {
     });
   }
 
-  deleteUser(id: number): void {
-    console.log('Deleting ID:', id);
-  }
-
   protected roleName(roles: any[]): string {
     if (!roles || !Array.isArray(roles)) {
       return '';

@@ -1,19 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_ENDPOINTS } from '../constant/api-endpoints';
-import { VehicleAndCustomerDTO } from '../dto/response/VehicleAndCustomerDTO';
-import { TechnicianNameProjection } from '../dto/response/TechnicianNameProjection';
-import { LaborActivityNameProjection } from '../dto/response/LaborActivityNameProjection';
-import { ItemProjection } from '../dto/response/ItemProjection';
-import { CustomerProjection } from '../dto/response/CustomerProjection';
-import { RoleNameDTO } from '../dto/response/RoleNameDTO';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {API_ENDPOINTS} from '../constant/api-endpoints';
+import {VehicleAndCustomerDTO} from '../dto/response/VehicleAndCustomerDTO';
+import {TechnicianNameProjection} from '../dto/response/TechnicianNameProjection';
+import {LaborActivityNameProjection} from '../dto/response/LaborActivityNameProjection';
+import {ItemProjection} from '../dto/response/ItemProjection';
+import {CustomerProjection} from '../dto/response/CustomerProjection';
+import {RoleNameDTO} from '../dto/response/RoleNameDTO';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {
+  }
 
   // GET BY DRIVING LICENSE (PATH PARAM)
   getCustomerByContactNumber(contactNumber: string): Observable<CustomerProjection[]> {
@@ -109,11 +110,15 @@ export class AdminService {
     return this.http.get<any>(API_ENDPOINTS.GET_JOB_CARD_BY_ID(id));
   }
 
+  getJobCardPdfById(id: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_JOB_CARD_PDF_BY_ID(id));
+  }
+
   getItemById(id: number): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_ITEM_BY_ID(id));
   }
 
-getItemsPaginated(
+  getItemsPaginated(
     page: number,
     size: number,
     sortBy: string,
@@ -131,10 +136,10 @@ getItemsPaginated(
       params = params.set('itemId', itemId.toString());
     }
 
-    return this.http.post<any>(API_ENDPOINTS.GET_ALL_ITEMS, null, { params });
+    return this.http.post<any>(API_ENDPOINTS.GET_ALL_ITEMS, null, {params});
   }
 
-getLaborActivitiesPaginated(
+  getLaborActivitiesPaginated(
     page: number,
     size: number,
     sortBy: string,
@@ -151,7 +156,7 @@ getLaborActivitiesPaginated(
     return this.http.post<any>(
       API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sort),
       null,
-      { params }
+      {params}
     );
   }
 
@@ -224,12 +229,17 @@ getLaborActivitiesPaginated(
     return this.http.get<any>(API_ENDPOINTS.GET_CUSTOMER_BY_ID(customerId));
   }
 
-  viewInvoice(invoiceId: number): Observable<Blob> {
+  printInvoice(invoiceId: number): Observable<Blob> {
     // Use 'blob' to handle binary PDF data
     return this.http.get(API_ENDPOINTS.VIEW_INVOICE_BY_ID(invoiceId), {
       responseType: 'blob',
     });
   }
+
+  viewInvoice(invoiceId: number): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.VIEW_INVOICE_BY_ID(invoiceId));
+  }
+
   getVehicleAndCustomerByVehicleVinNumber(
     vehicleVinNumber: string,
   ): Observable<VehicleAndCustomerDTO[]> {
@@ -318,6 +328,7 @@ getLaborActivitiesPaginated(
   ): Observable<any> {
     return this.http.post<any>(API_ENDPOINTS.SEARCH_USERS(page, size, sortBy, sortDir), formValues);
   }
+
   getUserById(userId: number): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_USER_BY_ID(userId));
   }

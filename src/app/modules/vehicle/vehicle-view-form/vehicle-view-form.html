@@ -9,24 +9,24 @@
       <!-- === VEHICLE PROFILE DISPLAY === -->
       <div class="form-group">
         <label>Registration Number</label>
-        <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleRegNo)" disabled class="form-control read-only" />
+        <input type="text" disabled class="form-control read-only" />
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label>Make</label>
-          <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleMake)" disabled class="form-control read-only" />
+          <input type="text" disabled class="form-control read-only" />
         </div>
         <div class="form-group">
           <label>Model</label>
-          <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleModel)" disabled class="form-control read-only" />
+          <input type="text" disabled class="form-control read-only" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label>Year</label>
-          <input type="text" [value]="$safeNavigationMigration(vehicle?.vehicleYear)" disabled class="form-control read-only" />
+          <input type="text" disabled class="form-control read-only" />
         </div>
 <!--        <div class="form-group">-->
 <!--          <label>Current Mileage (mi)</label>-->
@@ -62,13 +62,13 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let customer of (vehicle?.customer || [])">
-              <td class="text-white font-medium">{{ customer.customerName }}</td>
-              <td class="text-secondary">{{ customer.email }}</td>
+            <tr>
+              <td class="text-white font-medium">{{ vehicle?.customer?.customerName }}</td>
+              <td class="text-secondary">{{ vehicle?.customer?.email }}</td>
             </tr>
 
             <!-- Fallback layout when no customer sub-records exist -->
-            <tr *ngIf="vehicle.customer.length === 0">
+            <tr *ngIf="vehicle.customer === null">
               <td colspan="2" class="table-empty-state">
                 No customer records are linked to this active fleet vehicle profile.
               </td>
