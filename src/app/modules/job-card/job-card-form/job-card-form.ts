@@ -17,17 +17,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AdminService } from '../../../services/admin.service';
-import { VehicleAndCustomerDTO } from '../../../dto/response/VehicleAndCustomerDTO';
 import { CommonModule } from '@angular/common';
 import { MatOptionModule } from '@angular/material/core';
-import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { finalize } from 'rxjs';
+
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { VehicleAndCustomerDTO } from '../../../dto/response/VehicleAndCustomerDTO';
+import { CustomerProjection } from '../../../dto/response/CustomerProjection';
 import { TechnicianNameProjection } from '../../../dto/response/TechnicianNameProjection';
 import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
-import { NotificationService } from '../../../services/notificationService';
-import { CustomerProjection } from '../../../dto/response/CustomerProjection';
-import { finalize } from 'rxjs';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 
 @Component({
   selector: 'app-job-card-form',
@@ -44,8 +45,8 @@ export class JobCardForm implements OnInit {
 
   jobCardForm!: FormGroup;
 
-  customer: CustomerProjection | undefined;
-  vehicleAndCustomerDTO: VehicleAndCustomerDTO | undefined;
+  customer?: CustomerProjection;
+  vehicleAndCustomerDTO?: VehicleAndCustomerDTO;
 
   isDropdownOpen = false;
   isExistingVehicle = true;
@@ -65,10 +66,10 @@ export class JobCardForm implements OnInit {
   laborActivityNameProjection: LaborActivityNameProjection[] = [];
 
   constructor(
-    private fb: FormBuilder,
-    private adminService: AdminService,
-    private notificationService: NotificationService,
-    private cdr: ChangeDetectorRef,
+    private readonly fb: FormBuilder,
+    private readonly adminService: AdminService,
+    private readonly notificationService: NotificationService,
+    private readonly cdr: ChangeDetectorRef,
     private readonly sanitizer: DomSanitizer,
   ) {}
 
@@ -78,6 +79,18 @@ export class JobCardForm implements OnInit {
     this.setupFormListeners();
     this.loadItemNames();
     this.loadTechnicianNames();
+  }
+
+  get isUnregistered(): boolean {
+    return this.jobCardForm.get('vehicleRegStatus')?.value === 'unregistered';
+  }
+
+  get repairLaborActivitiesSelectedControl(): FormControl {
+    return (this.jobCardForm?.get('laborActivitiesSelected') as FormControl) || new FormControl([]);
+  }
+
+  get assignedTechniciansSelectedControl(): FormControl {
+    return (this.jobCardForm?.get('assignedTechniciansSelected') as FormControl) || new FormControl([]);
   }
 
   loadTechnicianNames(): void {
@@ -103,12 +116,11 @@ export class JobCardForm implements OnInit {
       vehicleRegStatus: ['registered'],
       vehicleSearch: ['', Validators.required],
       unRegVehicleSearch: [''],
-      customerSearch: ['', Validators.required],
+      customerSearch: [''],
       entryMode: ['new'],
 
-      // Vehicle specification fields initialized without required validation until search resolves
-      vehicleRegNo: ['N/A'],
-      vehicleVinNo: ['N/A'],
+      vehicleRegNo: ['N/A', Validators.required],
+      vehicleVinNo: ['N/A', Validators.required],
       make: [''],
       model: [''],
       year: [''],
@@ -128,9 +140,9 @@ export class JobCardForm implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isSubmitting) {
-      return;
-    }
+    if (this.isSubmitting) return;
+
+    // 1. Verify Vehicle Search
     if (!this.hasSearchedVehicle) {
       this.notificationService.show(
         'Please search and verify the vehicle number before submitting the job card.',
@@ -138,7 +150,9 @@ export class JobCardForm implements OnInit {
       );
       return;
     }
-    const vehicleFields = ['vehicleRegNo', 'make', 'model', 'year'];
+
+    // 2. Validate Vehicle Section fields in UI order
+    const vehicleFields = ['vehicleRegNo', 'vehicleVinNo', 'make', 'model', 'year'];
     const isVehicleInvalid = vehicleFields.some((field) => this.jobCardForm.get(field)?.invalid);
     if (isVehicleInvalid) {
       vehicleFields.forEach((field) => this.jobCardForm.get(field)?.markAsTouched());
@@ -149,7 +163,8 @@ export class JobCardForm implements OnInit {
       return;
     }
 
-    if (!this.hasSearchedCustomer) {
+    // 3. Verify Customer Search (only required if vehicle is new/unlinked, or enforce based on flow)
+    if (!this.isExistingVehicle && !this.hasSearchedCustomer) {
       this.notificationService.show(
         'Please search and verify the customer contact number before submitting the job card.',
         'warning',
@@ -157,19 +172,33 @@ export class JobCardForm implements OnInit {
       return;
     }
 
-    // 1. Trigger validations across ALL controls
-    if (this.jobCardForm.invalid) {
-      this.jobCardForm.markAllAsTouched();
+    // 4. Validate Customer & Job Details fields in UI order
+    const customerAndJobCardFields = [
+      'customerName',
+      'email',
+      'contactNumber',
+      'complaint',
+      'laborActivitiesSelected',
+      'currentMileage',
+      'assignedTechniciansSelected',
+    ];
+
+    const isCustomerAndJobCardInvalid = customerAndJobCardFields.some(
+      (field) => this.jobCardForm.get(field)?.invalid,
+    );
+
+    if (isCustomerAndJobCardInvalid) {
+      customerAndJobCardFields.forEach((field) => this.jobCardForm.get(field)?.markAsTouched());
       this.notificationService.show(
-        'Please fill out all required fields before submitting.',
+        'Please fill out all required specification fields.',
         'warning',
       );
       return;
     }
+
     this.isSubmitting = true;
     const formValue = this.jobCardForm.value;
 
-    // 2. Construct backend payload
     const backendPayload = {
       dateAdded: new Date().toISOString(),
       estimatedCompletionTime: null,
@@ -196,12 +225,9 @@ export class JobCardForm implements OnInit {
       assignedTechniciansSelected: formValue.assignedTechniciansSelected || [],
     };
 
-    // 3. Dispatch payload request
     this.adminService
       .saveJobCardBlobVariant(backendPayload)
       .pipe(
-        // Always reset submit loader
-        // success OR error
         finalize(() => {
           this.isSubmitting = false;
         }),
@@ -222,12 +248,8 @@ export class JobCardForm implements OnInit {
 
             const blob = new Blob([bytes], { type: 'application/pdf' });
             const unsafeUrl = window.URL.createObjectURL(blob);
-
-            // Bypass security to make it safe for iframe binding in the modal
             const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
 
-            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
-            //  this.resetFormState();
             this.jobCardGenerated.emit(safePdfUrl);
           } else {
             this.notificationService.show(
@@ -241,7 +263,6 @@ export class JobCardForm implements OnInit {
           console.error('Submission crash details:', err);
           const serverErrorMessage =
             err.error?.data?.error || 'Database constraint violation encountered.';
-
           this.notificationService.show('Error: ' + serverErrorMessage, 'error');
           this.cdr.markForCheck();
         },
@@ -253,28 +274,28 @@ export class JobCardForm implements OnInit {
   }
 
   onCustomerSearchClick(): void {
-    if (this.isSearchingCustomer) {
-      return;
-    }
+    if (this.isSearchingCustomer) return;
+
     this.customerNotFound = false;
     this.customerFound = false;
-    const customerFields = ['customerName', 'email', 'contactNumber', 'drivingLicenseNumber'];
+    const customerFields = ['customerName', 'email', 'drivingLicenseNumber'];
     customerFields.forEach((field) => this.jobCardForm.get(field)?.reset());
-    const value = this.jobCardForm.get('customerSearch')?.value;
 
+    const value = this.jobCardForm.get('customerSearch')?.value?.trim();
     if (!value) {
       this.notificationService.show('Please type a customer contact number first.', 'warning');
       return;
     }
+
     this.hasSearchedCustomer = true;
     this.isSearchingCustomer = true;
+
     this.adminService
       .getCustomerByContactNumber(value)
       .pipe(
-        // Always reset submit loader
-        // success OR error
         finalize(() => {
           this.isSearchingCustomer = false;
+          this.cdr.detectChanges();
         }),
       )
       .subscribe({
@@ -288,46 +309,106 @@ export class JobCardForm implements OnInit {
             email: this.customer?.email,
             drivingLicenseNumber: this.customer?.drivingLicenseNumber,
           });
-          this.cdr.detectChanges();
         },
         error: (err) => {
-          setTimeout(() => {
-            this.customerNotFound = true;
-            console.log(err);
-            this.jobCardForm.patchValue({
-              contactNumber: this.customer?.contactNumber || value,
-            });
-            this.isExistingCustomer = false;
-            console.warn('No Customer found with that contact number.');
-            this.cdr.detectChanges();
-          }, 0);
+          this.customerNotFound = true;
+          console.log(err);
+          this.jobCardForm.patchValue({
+            contactNumber: value,
+          });
+          this.isExistingCustomer = false;
+          console.warn('No Customer found with that contact number.');
         },
       });
   }
 
-  @HostListener('document:click')
-  closeDropdown() {
-    this.isDropdownOpen = false;
+  onVehicleSearchClick(): void {
+    if (this.isSearchingRegVehicle) return;
+
+    this.vehicleFound = false;
+    this.vehicleNotFound = false;
+    const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value?.trim();
+
+    if (!currentSearchValue) {
+      this.notificationService.show('Please enter a vehicle registration number first.', 'warning');
+      return;
+    }
+
+    this.hasSearchedVehicle = true;
+    this.isSearchingRegVehicle = true;
+
+    this.adminService
+      .getVehicleAndCustomerByVehicleRegNumber(currentSearchValue)
+      .pipe(
+        finalize(() => {
+          this.isSearchingRegVehicle = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.vehicleFound = true;
+          this.hasSearchedCustomer = true;
+          this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
+        },
+        error: (err) => {
+          this.vehicleNotFound = true;
+          console.error(err);
+          this.handleVehicleLookupError(currentSearchValue, 'registered');
+        },
+      });
   }
 
-  @HostListener('click', ['$event'])
-  onInsideClick(event: Event) {
-    event.stopPropagation();
-  }
+  onUnRegVehicleSearchClick(): void {
+    if (this.isSearchingUnRegVehicle) return;
 
-  get repairLaborActivitiesSelectedControl(): FormControl {
-    return (this.jobCardForm?.get('laborActivitiesSelected') as FormControl) || new FormControl([]);
-  }
+    this.vehicleFound = false;
+    this.vehicleNotFound = false;
+    const currentSearchValue = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
 
-  get assignedTechniciansSelectedControl(): FormControl {
-    return (
-      (this.jobCardForm?.get('assignedTechniciansSelected') as FormControl) || new FormControl([])
-    );
+    if (!currentSearchValue) {
+      this.notificationService.show('Please enter a vehicle VIN number first.', 'warning');
+      return;
+    }
+
+    this.hasSearchedVehicle = true;
+    this.isSearchingUnRegVehicle = true;
+
+    this.adminService
+      .getVehicleAndCustomerByVehicleVinNumber(currentSearchValue)
+      .pipe(
+        finalize(() => {
+          this.isSearchingUnRegVehicle = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.vehicleFound = true;
+          this.hasSearchedCustomer = true;
+          this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');
+        },
+        error: (err) => {
+          this.vehicleNotFound = true;
+          console.error(err);
+          this.handleVehicleLookupError(currentSearchValue, 'unregistered');
+        },
+      });
   }
 
   isInvalid(controlName: string): boolean {
     const control = this.jobCardForm.get(controlName);
     return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  @HostListener('document:click')
+  closeDropdown(): void {
+    this.isDropdownOpen = false;
+  }
+
+  @HostListener('click', ['$event'])
+  onInsideClick(event: Event): void {
+    event.stopPropagation();
   }
 
   private setupFormListeners(): void {
@@ -361,81 +442,11 @@ export class JobCardForm implements OnInit {
     });
   }
 
-  onVehicleSearchClick(): void {
-    if (this.isSearchingRegVehicle) {
-      return;
-    }
-    this.vehicleFound = false;
-    this.vehicleNotFound = false;
-    const currentSearchValue = this.jobCardForm.get('vehicleSearch')?.value?.trim();
-    if (!currentSearchValue || currentSearchValue == '') {
-      this.notificationService.show('Please enter a vehicle registration number first.', 'warning');
-      return;
-    }
-    this.hasSearchedVehicle = true;
-    this.isSearchingRegVehicle = true;
-    this.adminService
-      .getVehicleAndCustomerByVehicleRegNumber(currentSearchValue)
-      .pipe(
-        // Always reset submit loader
-        // success OR error
-        finalize(() => {
-          this.isSearchingRegVehicle = false;
-        }),
-      )
-      .subscribe({
-        next: (res: any) => {
-          this.vehicleFound = true;
-          this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
-        },
-        error: (err) => {
-          this.vehicleNotFound = true;
-          console.error(err);
-          this.handleVehicleLookupError(currentSearchValue, 'registered');
-        },
-      });
-  }
-
-  onUnRegVehicleSearchClick(): void {
-    if (this.isSearchingUnRegVehicle) {
-      return;
-    }
-    this.vehicleFound = false;
-    this.vehicleNotFound = false;
-    const currentSearchValue = this.jobCardForm.get('unRegVehicleSearch')?.value?.trim();
-    if (!currentSearchValue) {
-      this.notificationService.show('Please enter a vehicle VIN number first.', 'warning');
-      return;
-    }
-    this.hasSearchedVehicle = true;
-    this.isSearchingUnRegVehicle = true;
-    this.adminService
-      .getVehicleAndCustomerByVehicleVinNumber(currentSearchValue)
-      .pipe(
-        // Always reset submit loader
-        // success OR error
-        finalize(() => {
-          this.isSearchingUnRegVehicle = false;
-        }),
-      )
-      .subscribe({
-        next: (res: any) => {
-          this.vehicleFound = true;
-          this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');
-        },
-        error: (err) => {
-          this.vehicleNotFound = true;
-          console.error(err);
-          this.handleVehicleLookupError(currentSearchValue, 'unregistered');
-        },
-      });
-  }
-
   private handleVehicleLookupSuccess(res: any, searchValue: string, status: string): void {
     this.vehicleAndCustomerDTO = res;
     this.isExistingVehicle = true;
+    this.isExistingCustomer = true;
 
-    // Clear required validators for auto-filled existing data
     ['make', 'model', 'year', 'vehicleRegNo', 'vehicleVinNo'].forEach((field) => {
       const control = this.jobCardForm.get(field);
       control?.clearValidators();
@@ -463,8 +474,8 @@ export class JobCardForm implements OnInit {
 
   private handleVehicleLookupError(searchValue: string, status: string): void {
     this.isExistingVehicle = false;
+    this.isExistingCustomer = false;
 
-    // Dynamically apply required validators for manual entry since records were not found
     this.jobCardForm.get('vehicleRegNo')?.setValidators([Validators.required]);
     this.jobCardForm.get('vehicleVinNo')?.setValidators([Validators.required]);
     this.jobCardForm.get('make')?.setValidators([Validators.required]);
