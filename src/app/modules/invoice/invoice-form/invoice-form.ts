@@ -368,14 +368,15 @@ export class InvoiceForm implements OnInit {
         this.laborActivities.clear();
         this.partDropdownOpenRowIndex = null;
         const incomingActivities = res?.data || [];
+
+          if (incomingActivities.length === 0) {
+            this.laborActivityAvailable = false;
+            this.notificationService.show('No Job Card found with that Job Id.', 'error');
+            this.cdr.detectChanges();
+            return;
+          }
+
         this.laborActivityAvailable = true;
-
-        if (incomingActivities.length === 0) {
-          this.notificationService.show('No activities linked to this Job Card.', 'error');
-          this.cdr.detectChanges();
-          return;
-        }
-
         incomingActivities.forEach((activity: any) => {
           this.addLaborActivity(activity.laborActivityId, true, 0);
         });
@@ -384,7 +385,7 @@ export class InvoiceForm implements OnInit {
       },
       error: (err: any) => {
         console.error(err);
-        this.notificationService.show('No Job Card found with that Job Id.', 'error');
+        this.notificationService.show('Please try again later. if not please contact System Administrator', 'error');
         this.cdr.detectChanges();
       },
     });

@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NotificationService, NotificationState} from '../../../services/notificationService';
 import {Subscription} from 'rxjs';
@@ -16,7 +16,10 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
   private sub!: Subscription;
   private timeoutId: any;
 
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly notificationService: NotificationService,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.sub = this.notificationService.notification$.subscribe(state => {
@@ -30,13 +33,16 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
           this.dismissToast();
         }, state.duration || 3500);
       }
+
+      // Force the toast component to evaluate and render the new state immediately
+      this.cdr.detectChanges();
     });
   }
 
-  // Manual dismiss function linked to OK and Close buttons
   dismissToast(): void {
     if (this.timeoutId) clearTimeout(this.timeoutId);
     this.toast = null;
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
