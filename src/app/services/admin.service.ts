@@ -367,4 +367,11 @@ export class AdminService {
     return this.http.get<any>(API_ENDPOINTS.GET_ALL_TECHNICIAN_NAMES);
   }
 
+  getInvoiceById(invoiceId: number | string): Observable<any> {
+    return this.http.get<any>(API_ENDPOINTS.GET_INVOICE_BY_ID(invoiceId));
+  }
+
+  updateInvoice(payload: any): Observable<any> {
+    return this.http.put<any>(API_ENDPOINTS.MODIFY_INVOICE, payload);
+  }
 }

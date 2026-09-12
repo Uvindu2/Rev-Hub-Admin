@@ -80,4 +80,6 @@ export const API_ENDPOINTS = {
   GET_ALL_USER_ROLES: `${API_BASE_URL}/role/get-all-role-names`,
   GET_ALL_CUSTOMER_NAME_EMAIL_IDS: `${API_BASE_URL}/customer/get-all-customer-name-email-ids`,
   GET_ALL_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-ids-and-names`,
+  GET_INVOICE_BY_ID: (invoiceId: number | string) => `${API_BASE_URL}/invoice/get-by-id/${invoiceId}`,
+  MODIFY_INVOICE: `${API_BASE_URL}/invoice/modify`,
 };

@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnInit,
   Output,
   ChangeDetectionStrategy,
@@ -15,7 +16,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
 import { AdminService } from '../../../services/admin.service';
@@ -24,43 +24,41 @@ import { ItemProjection } from '../../../dto/response/ItemProjection';
 import { finalize } from 'rxjs';
 
 @Component({
-  selector: 'app-invoice-form',
+  selector: 'app-invoice-edit-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './invoice-form.html',
+  templateUrl: './invoice-view-and-edit.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './invoice-form.css',
+  styleUrl: './invoice-view-and-edit.css',
 })
-export class InvoiceForm implements OnInit {
+export class InvoiceViewAndEdit implements OnInit {
+  @Input() invoiceId!: number | string;
   @Output() cancel = new EventEmitter<void>();
-  @Output() invoiceGenerated = new EventEmitter<SafeResourceUrl>();
+  @Output() invoiceUpdated = new EventEmitter<SafeResourceUrl>();
 
   invoiceForm!: FormGroup;
   selectedLaborIndex: number = 0;
 
-  availableLaborActivities: LaborActivityNameProjection[] = [];
-  filteredLaborActivities: LaborActivityNameProjection[] = [];
-  availableItemParts: ItemProjection[] = [];
+  protected availableLaborActivities: LaborActivityNameProjection[] = [];
+  protected filteredLaborActivities: LaborActivityNameProjection[] = [];
+  protected availableItemParts: ItemProjection[] = [];
 
   // State management properties for the tabular parts searchable dropdown matrix
-  partDropdownOpenRowIndex: number | null = null;
-  filteredItemParts: ItemProjection[] = [];
-  isDropdownOpen: boolean = false;
-  laborActivityAvailable = false;
+  protected partDropdownOpenRowIndex: number | null = null;
+  protected filteredItemParts: ItemProjection[] = [];
+  protected isDropdownOpen: boolean = false;
+  protected laborActivityAvailable = true;
 
   // Submission & Print Preview Modal states
-  isSubmitting: boolean = false;
-  showPrintPreviewModal: boolean = false;
-  invoicePdfUrl: SafeResourceUrl | null = null;
-
-  isSearching: boolean = false;
+  protected isSubmitting: boolean = false;
+  protected isLoadingData: boolean = true;
+  protected isSearching: boolean = false;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly http: HttpClient,
     private readonly sanitizer: DomSanitizer,
   ) {}
 
@@ -72,11 +70,65 @@ export class InvoiceForm implements OnInit {
 
   initForm() {
     this.invoiceForm = this.fb.group({
+      invoiceId: [this.invoiceId],
       laborActivities: this.fb.array([]),
       paymentMethod: ['Cash', Validators.required],
       jobCardSearch: ['', Validators.required],
       additionalFees: [1500, [Validators.required, Validators.min(0)]],
       status: ['PAID'],
+    });
+
+    if (this.invoiceId) {
+      this.loadExistingInvoiceData();
+    }
+  }
+
+  loadExistingInvoiceData(): void {
+    this.isLoadingData = true;
+    this.adminService.getInvoiceById(this.invoiceId).subscribe({
+      next: (res: any) => {
+        const data = res?.data || res;
+        if (data) {
+          this.invoiceForm.patchValue({
+            invoiceId: data.invoiceId || this.invoiceId,
+            paymentMethod: data.paymentMethod || 'Cash',
+            jobCardSearch: data.jobCardNumber || data.jobCardSearch || '',
+            additionalFees: data.additionalFees ?? 1500,
+            status: data.status || 'PAID',
+          });
+
+          if (data.laborActivities && Array.isArray(data.laborActivities)) {
+            data.laborActivities.forEach((act: any) => {
+              this.addLaborActivity(
+                act.laborActivityId || act.id || act.name,
+                act.isAutoFetched || false,
+                act.laborFee || 0
+              );
+
+              const currentLaborIndex = this.laborActivities.length - 1;
+              if (act.parts && Array.isArray(act.parts)) {
+                act.parts.forEach((p: any) => {
+                  this.addPartToLabor(
+                    currentLaborIndex,
+                    p.name || p.itemName,
+                    p.qty || 1,
+                    p.unitPrice || p.price || 0,
+                    p.itemId || p.id
+                  );
+                });
+              }
+            });
+          }
+        }
+        this.isLoadingData = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Failed to load invoice details for editing:', err);
+        this.notificationService.show('Failed to load invoice details.', 'error');
+        this.isLoadingData = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -133,16 +185,11 @@ export class InvoiceForm implements OnInit {
       total: [{ value: qty * unitPrice, disabled: true }],
     });
 
-    const qty$ = partGroup.get('qty')?.valueChanges;
-    const price$ = partGroup.get('unitPrice')?.valueChanges;
-
-    if (qty$ && price$) {
-      partGroup.valueChanges.subscribe(() => {
-        const currentQty = partGroup.get('qty')?.value || 0;
-        const currentPrice = partGroup.get('unitPrice')?.value || 0;
-        partGroup.get('total')?.setValue(currentQty * currentPrice, { emitEvent: false });
-      });
-    }
+    partGroup.valueChanges.subscribe(() => {
+      const currentQty = partGroup.get('qty')?.value || 0;
+      const currentPrice = partGroup.get('unitPrice')?.value || 0;
+      partGroup.get('total')?.setValue(currentQty * currentPrice, { emitEvent: false });
+    });
 
     this.getParts(laborIndex).push(partGroup);
   }
@@ -227,7 +274,7 @@ export class InvoiceForm implements OnInit {
     const payload = this.invoiceForm.getRawValue();
 
     this.adminService
-      .saveInvoice(payload)
+      .updateInvoice(payload)
       .pipe(
         finalize(() => {
           this.isSubmitting = false;
@@ -238,14 +285,12 @@ export class InvoiceForm implements OnInit {
         next: (res: any) => {
           const dataContainer = res?.data || res;
 
-          // Check if pdfBytes base64 string exists in backend response
           if (dataContainer && dataContainer.pdfBytes) {
             this.notificationService.show(
-              dataContainer.response || 'Invoice generated and posted successfully!',
+              dataContainer.response || 'Invoice updated successfully!',
               'success',
             );
 
-            // Decode the Base64 string into a binary array for the PDF blob
             const base64String = dataContainer.pdfBytes;
             const binaryString = window.atob(base64String);
             const len = binaryString.length;
@@ -256,43 +301,25 @@ export class InvoiceForm implements OnInit {
 
             const blob = new Blob([bytes], { type: 'application/pdf' });
             const unsafeUrl = window.URL.createObjectURL(blob);
-
-            // Bypass security to make it safe for iframe binding in the modal
             const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
 
-            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
-            this.resetFormState();
-            this.invoiceGenerated.emit(safePdfUrl);
+            this.invoiceUpdated.emit(safePdfUrl);
           } else {
             this.notificationService.show(
-              'Failed to parse invoice transaction or missing PDF data.',
-              'error',
+              'Invoice updated successfully, but missing PDF return data.',
+              'success',
             );
-            this.cdr.markForCheck();
+            this.cancel.emit();
           }
         },
         error: (err) => {
-          console.error('Submission crash details:', err);
+          console.error('Update submission error:', err);
           const serverErrorMessage =
             err.error?.data?.error || 'Database constraint violation encountered.';
-
           this.notificationService.show('Error: ' + serverErrorMessage, 'error');
           this.cdr.markForCheck();
         },
       });
-  }
-
-  private resetFormState() {
-    this.invoiceForm.reset({
-      paymentMethod: 'Cash',
-      jobCardSearch: '',
-      additionalFees: 1500,
-      status: 'PENDING',
-    });
-    this.laborActivities.clear();
-    this.selectedLaborIndex = 0;
-    this.partDropdownOpenRowIndex = null;
-    this.cdr.detectChanges();
   }
 
   private markAllAsTouched(formGroup: FormGroup | FormArray) {
@@ -363,30 +390,31 @@ export class InvoiceForm implements OnInit {
     const value = this.invoiceForm.get('jobCardSearch')?.value;
     if (!value) return;
 
-    this.adminService.getLaborActivitiesByJobId(value).subscribe({
+    this.isSearching = true;
+    this.adminService.getLaborActivitiesByJobId(value).pipe(
+      finalize(() => {
+        this.isSearching = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
       next: (res: any) => {
+        const incomingActivities = res?.data || [];
+        if (incomingActivities.length === 0) {
+          this.notificationService.show('No Job Card found with that Job Id.', 'error');
+          return;
+        }
+
         this.laborActivities.clear();
         this.partDropdownOpenRowIndex = null;
-        const incomingActivities = res?.data || [];
-
-          if (incomingActivities.length === 0) {
-            this.laborActivityAvailable = false;
-            this.notificationService.show('No Job Card found with that Job Id.', 'error');
-            this.cdr.detectChanges();
-            return;
-          }
-
         this.laborActivityAvailable = true;
+
         incomingActivities.forEach((activity: any) => {
           this.addLaborActivity(activity.laborActivityId, true, 0);
         });
-
-        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error(err);
-        this.notificationService.show('Please try again later. if not please contact System Administrator', 'error');
-        this.cdr.detectChanges();
+        this.notificationService.show('Please try again later. If not, please contact System Administrator', 'error');
       },
     });
   }

@@ -114,6 +114,7 @@
             <button class="btn-action view-btn" title="View" (click)="viewInvoice(invoice.invoiceId)">
               👁️
             </button>
+            <button class="btn-table-action edit-btn" (click)="editInvoice(invoice.invoiceId)">✏️</button>
             <button class="btn-action print-btn" title="Print" (click)="printInvoice(invoice.invoiceId)">
               🖨️
             </button>
@@ -154,6 +155,13 @@
 </div>
 
 <app-invoice-form *ngIf="isEditModalOpen" (cancel)="closeModal()" (invoiceGenerated)="handleInvoiceGenerated($event)"></app-invoice-form>
+
+<app-invoice-edit-form
+  *ngIf="isEditModalOpen"
+  [invoiceId]="selectedInvoiceId"
+  (cancel)="closeModal()"
+  (invoiceUpdated)="onInvoiceUpdated($event)">
+</app-invoice-edit-form>
 
 <app-print-preview
   *ngIf="showPrintModal"

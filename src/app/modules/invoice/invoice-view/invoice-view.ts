@@ -8,11 +8,12 @@ import { NotificationService } from '../../../services/notificationService';
 import {finalize} from 'rxjs';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import { PrintPreview } from "../print-preview/print-preview";
+import {InvoiceViewAndEdit} from '../invoice-view-and-edit/invoice-view-and-edit';
 
 @Component({
   selector: 'app-invoice-view',
   standalone: true,
-  imports: [CommonModule, InvoiceForm, ReactiveFormsModule, FormsModule, PrintPreview],
+  imports: [CommonModule, InvoiceForm, ReactiveFormsModule, FormsModule, PrintPreview, InvoiceViewAndEdit],
   templateUrl: './invoice-view.html',
   styleUrl: './invoice-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,7 +43,7 @@ export class InvoiceView implements OnInit {
   showPrintModal: boolean = false;
   generatedPdfUrl: SafeResourceUrl | null = null;
   invoicePdfUrl: SafeResourceUrl | null = null;
-
+  selectedInvoiceId!: number | string;
   constructor(
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
@@ -257,4 +258,15 @@ handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
     this.showPrintModal = false;
     this.invoicePdfUrl = null;
   }
+
+  editInvoice(invoiceId: number) {
+    this.selectedInvoiceId = invoiceId;
+    this.isEditModalOpen = true;
+  }
+
+  onInvoiceUpdated(pdfUrl: SafeResourceUrl): void {
+    this.isEditModalOpen = false;
+    this.fetchInvoices();
+  }
+
 }
