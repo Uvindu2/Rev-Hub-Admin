@@ -1,4 +1,3 @@
-/* Inherits shared dark palette variables from your existing CSS system */
 :host {
   --bg-dark: #181818;
   --bg-card: #222222;

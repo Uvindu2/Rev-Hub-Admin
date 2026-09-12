@@ -73,7 +73,10 @@
           <div class="dropdown-menu" *ngIf="isDropdownOpen">
             <ul>
               <li>Profile</li>
-              <li>Settings</li>
+              <li routerLink="/dashboard/change-password">
+                Change Password
+              </li>
+<!--              <li>Settings</li>-->
               <li (click)="logout()">Logout</li>
             </ul>
           </div>

@@ -82,4 +82,5 @@ export const API_ENDPOINTS = {
   GET_ALL_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-ids-and-names`,
   GET_INVOICE_BY_ID: (invoiceId: number | string) => `${API_BASE_URL}/invoice/get-by-id/${invoiceId}`,
   MODIFY_INVOICE: `${API_BASE_URL}/invoice/modify`,
+  CHANGE_PASSWORD: `${API_BASE_URL}/user/change-password`,
 };

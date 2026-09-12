@@ -58,7 +58,10 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./modules/user/user-view/user-view').then(m => m.UserView)
       },
-
+      {
+        path: 'change-password',
+        loadComponent: () => import('./modules/change-password/change-password').then(m=>m.ChangePassword)
+      },
       // Default dashboard page
       {
         path: '',

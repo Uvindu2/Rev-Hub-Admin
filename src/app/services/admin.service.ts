@@ -374,4 +374,9 @@ export class AdminService {
   updateInvoice(payload: any): Observable<any> {
     return this.http.put<any>(API_ENDPOINTS.MODIFY_INVOICE, payload);
   }
+
+  changePassword(backendPayload: { username: string; currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.put(API_ENDPOINTS.CHANGE_PASSWORD, backendPayload);
+  }
+
 }

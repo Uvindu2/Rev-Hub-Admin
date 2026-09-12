@@ -30,8 +30,8 @@ export class UserForm implements OnInit {
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
-    private readonly notificationService: NotificationService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly notificationService: NotificationService
+
   ) {}
 
   ngOnInit(): void {

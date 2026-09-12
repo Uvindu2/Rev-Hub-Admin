@@ -42,7 +42,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   isSidebarCollapsed = false;
   isDropdownOpen = false;
-  private routerSub!: Subscription;
+  showPasswordModal = false;
 
   pageTitles: Record<string, string> = {
     'overview': 'Dashboard',
