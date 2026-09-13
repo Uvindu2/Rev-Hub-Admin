@@ -1,4 +1,4 @@
-export interface RoleNameDTO {
+export interface RoleNameResponseDTO {
   roleId: number;
   roleName: string;
 }

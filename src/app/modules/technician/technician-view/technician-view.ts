@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TechnicianProjectionWithJobStatus } from '../../../dto/response/TechnicianProjectionWithJobStatus';
+import { TechnicianTableViewResponseProjection } from '../../../dto/response/TechnicianTableViewResponseProjection';
 import { TechnicianForm } from '../technician-form/technician-form';
 import { TechnicianViewAndEdit } from '../technician-view-and-edit/technician-view-and-edit';
-import { TechnicianProjection } from '../../../dto/response/TechnicianProjection';
+import { TechnicianResponseProjection } from '../../../dto/response/TechnicianResponseProjection';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection'; // Fixed: Added CommonModule import
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection'; // Fixed: Added CommonModule import
 
 @Component({
   selector: 'app-technician-view',
@@ -31,9 +31,9 @@ export class TechnicianView implements OnInit {
   // Balanced 8-record technician dataset matching your system framework
   filterForm!: FormGroup;
 
-  technicians: TechnicianProjectionWithJobStatus[] = [];
-  technician: TechnicianProjection | undefined;
-  technicianIdNameDtos:TechnicianNameProjection[]=[];
+  technicians: TechnicianTableViewResponseProjection[] = [];
+  technician: TechnicianResponseProjection | undefined;
+  technicianIdNameDtos:TechnicianNameResponseProjection[]=[];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -112,7 +112,7 @@ export class TechnicianView implements OnInit {
         next: (response: any) => {
           console.log(response);
           // Stage updates in local variables first to prevent layout thrashing
-          let updatedTechnicians: TechnicianProjectionWithJobStatus[] = [];
+          let updatedTechnicians: TechnicianTableViewResponseProjection[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 

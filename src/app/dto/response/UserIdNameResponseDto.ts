@@ -1,4 +1,4 @@
- export interface UserIdNameDto {
+ export interface UserIdNameResponseDto {
     userId: number;
     username: string;
   }

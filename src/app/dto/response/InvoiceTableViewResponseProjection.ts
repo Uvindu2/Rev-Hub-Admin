@@ -1,5 +1,5 @@
 // The individual record
-export interface InvoiceSummaryProjection {
+export interface InvoiceTableViewResponseProjection {
   customerName: string;
   jobId: number;
   jobCardNumber: string;

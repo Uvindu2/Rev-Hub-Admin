@@ -4,7 +4,7 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
-import {RoleNameDTO} from '../../../dto/response/RoleNameDTO';
+import {RoleNameResponseDTO} from '../../../dto/response/RoleNameResponseDTO';
 import {finalize} from 'rxjs';
 
 @Component({
@@ -23,7 +23,7 @@ export class UserForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   userForm!: FormGroup;
-  rolesList: RoleNameDTO[] = [];
+  rolesList: RoleNameResponseDTO[] = [];
 
   isSubmitting = false;
 

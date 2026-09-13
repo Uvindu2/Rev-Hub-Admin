@@ -17,10 +17,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
+import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
-import { ItemProjection } from '../../../dto/response/ItemProjection';
+import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -39,13 +39,13 @@ export class InvoiceViewAndEdit implements OnInit {
   invoiceForm!: FormGroup;
   selectedLaborIndex: number = 0;
 
-  protected availableLaborActivities: LaborActivityNameProjection[] = [];
-  protected filteredLaborActivities: LaborActivityNameProjection[] = [];
-  protected availableItemParts: ItemProjection[] = [];
+  protected availableLaborActivities: LaborActivityNameResponseProjection[] = [];
+  protected filteredLaborActivities: LaborActivityNameResponseProjection[] = [];
+  protected availableItemParts: ItemTableViewResponseProjection[] = [];
 
   // State management properties for the tabular parts searchable dropdown matrix
   protected partDropdownOpenRowIndex: number | null = null;
-  protected filteredItemParts: ItemProjection[] = [];
+  protected filteredItemParts: ItemTableViewResponseProjection[] = [];
   protected isDropdownOpen: boolean = false;
   protected laborActivityAvailable = true;
 

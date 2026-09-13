@@ -1,4 +1,4 @@
-export interface JobCardSummaryResponseDTO {
+export interface JobCardTableViewResponseDTO {
   jobId: number;
   jobCardNumber: string;
   customerName: string;

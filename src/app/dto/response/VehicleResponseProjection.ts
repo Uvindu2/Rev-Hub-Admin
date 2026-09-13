@@ -1,6 +1,6 @@
-import {CustomerProjection} from './CustomerProjection';
+import {CustomerResponseProjection} from './CustomerResponseProjection';
 
-export interface VehicleProjection {
+export interface VehicleResponseProjection {
   vehicleId: number;
   vehicleRegNo: string;
   vehicleMake: string;
@@ -8,5 +8,5 @@ export interface VehicleProjection {
   vehicleYear: number;
   colour: string;
   otherSpecs: string;
-  customer: CustomerProjection;
+  customer: CustomerResponseProjection;
 }

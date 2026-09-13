@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {NgIf} from '@angular/common';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {CustomerProjection} from '../../../dto/response/CustomerProjection';
+import {CustomerResponseProjection} from '../../../dto/response/CustomerResponseProjection';
 import {finalize} from 'rxjs';
 
 @Component({
@@ -18,7 +18,7 @@ import {finalize} from 'rxjs';
   standalone: true
 })
 export class CustomerViewAndEdit implements OnInit, AfterViewInit {
-  @Input() customer: CustomerProjection | undefined;
+  @Input() customer: CustomerResponseProjection | undefined;
   @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
@@ -54,7 +54,7 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
     }
   }
 
-  private patchFormWithData(data: CustomerProjection): void {
+  private patchFormWithData(data: CustomerResponseProjection): void {
     // Use patchValue with a complete object map
     this.customerForm.patchValue({
       customerName: data.customerName,

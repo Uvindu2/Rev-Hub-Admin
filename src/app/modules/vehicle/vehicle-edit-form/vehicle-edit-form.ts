@@ -11,8 +11,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AddCustomerForm } from '../../customer/add-customer-form/add-customer-form';
-import { VehicleProjection } from '../../../dto/response/VehicleProjection';
-import { CustomerProjection } from '../../../dto/response/CustomerProjection';
+import { VehicleResponseProjection } from '../../../dto/response/VehicleResponseProjection';
+import { CustomerResponseProjection } from '../../../dto/response/CustomerResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
@@ -27,12 +27,12 @@ import {finalize} from 'rxjs';
 })
 export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
-  @Input() vehicle: VehicleProjection | undefined;
+  @Input() vehicle: VehicleResponseProjection | undefined;
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
   vehicleForm!: FormGroup;
-  currentCustomer: CustomerProjection | null = null;
+  currentCustomer: CustomerResponseProjection | null = null;
   showCustomerPopup = false;
   isSubmitting = false;
 
@@ -64,7 +64,7 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onCustomerSaved(customer: CustomerProjection): void {
+  onCustomerSaved(customer: CustomerResponseProjection): void {
     this.currentCustomer = customer;
     this.vehicleForm.patchValue({ customerId: customer.customerId });
     this.showCustomerPopup = false;

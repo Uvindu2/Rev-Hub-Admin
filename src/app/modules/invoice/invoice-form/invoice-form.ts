@@ -17,10 +17,10 @@ import {
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
+import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
-import { ItemProjection } from '../../../dto/response/ItemProjection';
+import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -38,13 +38,13 @@ export class InvoiceForm implements OnInit {
   invoiceForm!: FormGroup;
   selectedLaborIndex: number = 0;
 
-  availableLaborActivities: LaborActivityNameProjection[] = [];
-  filteredLaborActivities: LaborActivityNameProjection[] = [];
-  availableItemParts: ItemProjection[] = [];
+  availableLaborActivities: LaborActivityNameResponseProjection[] = [];
+  filteredLaborActivities: LaborActivityNameResponseProjection[] = [];
+  availableItemParts: ItemTableViewResponseProjection[] = [];
 
   // State management properties for the tabular parts searchable dropdown matrix
   partDropdownOpenRowIndex: number | null = null;
-  filteredItemParts: ItemProjection[] = [];
+  filteredItemParts: ItemTableViewResponseProjection[] = [];
   isDropdownOpen: boolean = false;
   laborActivityAvailable = false;
 

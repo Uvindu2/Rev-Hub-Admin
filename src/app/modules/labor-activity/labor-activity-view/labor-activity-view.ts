@@ -4,12 +4,12 @@ import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
-import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
+import {LaborActivityTableViewResponseProjection} from '../../../dto/response/LaborActivityTableViewResponseProjection';
 import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
 import {finalize, takeUntil, debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import { Dropdown } from "../../../shared/components/dropdown/dropdown";
-import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
+import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
 
 @Component({
   selector: 'app-labor-activity-view',
@@ -29,9 +29,9 @@ export class LaborActivityView implements OnInit, OnDestroy {
 
   filterForm!: FormGroup;
 
-  laborActivities: LaborActivityProjection[] = [];
-  laborActivity: LaborActivityProjection | undefined;
-  laborActivityNameProjection: LaborActivityNameProjection[] = [];
+  laborActivities: LaborActivityTableViewResponseProjection[] = [];
+  laborActivity: LaborActivityTableViewResponseProjection | undefined;
+  laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -73,7 +73,7 @@ export class LaborActivityView implements OnInit, OnDestroy {
 
   fetchLaborActivityNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameProjection[]) => {
+      next: (res: LaborActivityNameResponseProjection[]) => {
         this.laborActivityNameProjection = res;
       },
       error: (err: any) => console.error('Failed to load names', err),
@@ -122,7 +122,7 @@ export class LaborActivityView implements OnInit, OnDestroy {
     ).subscribe({
       next: (response: any) => {
         // Stage updates in local variables first to prevent layout thrashing
-        let updatedLaborActivities: LaborActivityProjection[] = [];
+        let updatedLaborActivities: LaborActivityTableViewResponseProjection[] = [];
         let updatedTotalElements = 0;
         let updatedTotalPagesCount = 0;
 

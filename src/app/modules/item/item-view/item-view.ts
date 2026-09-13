@@ -3,12 +3,12 @@ import { NgForOf, NgIf } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
-import { ItemProjection } from '../../../dto/response/ItemProjection';
+import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
 import { ItemForm } from '../item-form/item-form';
 import { ItemViewAndEdit } from '../item-view-and-edit/item-view-and-edit';
 import { debounceTime, distinctUntilChanged, finalize, Subject, takeUntil } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { ItemNameDTO } from '../../../dto/response/ItemNameDTO';
+import { ItemIdNameResponseDTO } from '../../../dto/response/ItemIdNameResponseDTO';
 
 @Component({
   selector: 'app-item-view',
@@ -19,8 +19,8 @@ import { ItemNameDTO } from '../../../dto/response/ItemNameDTO';
 export class ItemView implements OnInit, OnDestroy {
   filterForm!: FormGroup;
 
-  items: ItemProjection[] = [];
-  item: ItemProjection | undefined;
+  items: ItemTableViewResponseProjection[] = [];
+  item: ItemTableViewResponseProjection | undefined;
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -37,7 +37,7 @@ export class ItemView implements OnInit, OnDestroy {
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
-  availableItemNames: ItemNameDTO[] = [];
+  availableItemNames: ItemIdNameResponseDTO[] = [];
 
   private destroy$ = new Subject<void>();
 
@@ -121,7 +121,7 @@ export class ItemView implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: any) => {
-          let updatedItems: ItemProjection[] = [];
+          let updatedItems: ItemTableViewResponseProjection[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 

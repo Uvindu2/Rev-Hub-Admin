@@ -2,11 +2,11 @@ import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angul
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
 import {NgForOf, NgIf} from "@angular/common";
-import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {TechnicianProjection} from '../../../dto/response/TechnicianProjection';
+import {TechnicianResponseProjection} from '../../../dto/response/TechnicianResponseProjection';
 
 @Component({
   selector: 'app-technician-form',

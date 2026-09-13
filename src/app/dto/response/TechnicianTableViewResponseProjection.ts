@@ -1,4 +1,4 @@
-export interface TechnicianProjectionWithJobStatus {
+export interface TechnicianTableViewResponseProjection {
   technicianId: number;
   technicianName: string;
   speciality: string;

@@ -1,4 +1,4 @@
-export interface TechnicianProjection {
+export interface TechnicianResponseProjection {
   technicianId: number;
   technicianName: string;
   technicianContact: string;

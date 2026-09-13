@@ -24,10 +24,10 @@ import { finalize } from 'rxjs';
 
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
-import { VehicleAndCustomerDTO } from '../../../dto/response/VehicleAndCustomerDTO';
-import { CustomerProjection } from '../../../dto/response/CustomerProjection';
-import { TechnicianNameProjection } from '../../../dto/response/TechnicianNameProjection';
-import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
+import { VehicleAndCustomerResponseDTO } from '../../../dto/response/VehicleAndCustomerResponseDTO';
+import { CustomerResponseProjection } from '../../../dto/response/CustomerResponseProjection';
+import { TechnicianNameResponseProjection } from '../../../dto/response/TechnicianNameResponseProjection';
+import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
 import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 
 @Component({
@@ -45,8 +45,8 @@ export class JobCardForm implements OnInit {
 
   jobCardForm!: FormGroup;
 
-  customer?: CustomerProjection;
-  vehicleAndCustomerDTO?: VehicleAndCustomerDTO;
+  customer?: CustomerResponseProjection;
+  vehicleAndCustomerDTO?: VehicleAndCustomerResponseDTO;
 
   isDropdownOpen = false;
   isExistingVehicle = true;
@@ -62,8 +62,8 @@ export class JobCardForm implements OnInit {
   isSearchingUnRegVehicle = false;
   isSearchingCustomer = false;
 
-  technicianNameProjection: TechnicianNameProjection[] = [];
-  laborActivityNameProjection: LaborActivityNameProjection[] = [];
+  technicianNameProjection: TechnicianNameResponseProjection[] = [];
+  laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -95,7 +95,7 @@ export class JobCardForm implements OnInit {
 
   loadTechnicianNames(): void {
     this.adminService.getTechnicianNames().subscribe({
-      next: (res: TechnicianNameProjection[]) => {
+      next: (res: TechnicianNameResponseProjection[]) => {
         this.technicianNameProjection = res;
       },
       error: (err: any) => console.error(err),
@@ -104,7 +104,7 @@ export class JobCardForm implements OnInit {
 
   loadItemNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameProjection[]) => {
+      next: (res: LaborActivityNameResponseProjection[]) => {
         this.laborActivityNameProjection = res;
       },
       error: (err: any) => console.error('Failed to load names', err),

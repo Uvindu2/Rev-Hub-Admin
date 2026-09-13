@@ -1,5 +1,5 @@
 import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {TechnicianProjection} from '../../../dto/response/TechnicianProjection';
+import {TechnicianResponseProjection} from '../../../dto/response/TechnicianResponseProjection';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf} from '@angular/common';
 import {AdminService} from '../../../services/admin.service';
@@ -16,7 +16,7 @@ import {NotificationService} from '../../../services/notificationService';
   styleUrl: './technician-view-and-edit.css',
 })
 export class TechnicianViewAndEdit implements OnInit, AfterViewInit{
-  @Input() technician: TechnicianProjection | undefined;
+  @Input() technician: TechnicianResponseProjection | undefined;
   @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
@@ -43,7 +43,7 @@ export class TechnicianViewAndEdit implements OnInit, AfterViewInit{
   }
 
 
-  private patchFormWithData(data: TechnicianProjection): void {
+  private patchFormWithData(data: TechnicianResponseProjection): void {
     // Use patchValue with a complete object map
     this.technicianForm.patchValue({
       technicianName: data.technicianName,

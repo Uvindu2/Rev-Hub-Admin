@@ -4,8 +4,8 @@ import {CommonModule} from '@angular/common';
 import {AdminService} from '../../../services/admin.service';
 import {JobCardViewAndEdit} from '../job-card-view-and-edit/job-card-view-and-edit';
 import {NotificationService} from '../../../services/notificationService';
-import {JobCardSummaryResponseDTO} from '../../../dto/response/JobCardSummaryResponseDTO';
-import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
+import {JobCardTableViewResponseDTO} from '../../../dto/response/JobCardTableViewResponseDTO';
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
 import {JobCardForm} from '../job-card-form/job-card-form';
 import {finalize} from 'rxjs';
 import {PrintPreview} from '../../invoice/print-preview/print-preview';
@@ -30,7 +30,7 @@ import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobCardView implements OnInit {
-  jobCards: JobCardSummaryResponseDTO[] = [];
+  jobCards: JobCardTableViewResponseDTO[] = [];
   jobCard: JobCardResponseDto | undefined;
 
   filterForm!: FormGroup;
@@ -49,7 +49,7 @@ export class JobCardView implements OnInit {
   isEditModalOpen: boolean = false;
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
-  technicianNameProjection: TechnicianNameProjection[] = [];
+  technicianNameProjection: TechnicianNameResponseProjection[] = [];
 
   showPrintModal: boolean = false;
   jobCardPdfUrl: SafeResourceUrl | null = null;
@@ -110,7 +110,7 @@ export class JobCardView implements OnInit {
           // Extract page data safely
           const pageData = response?.data || response;
 
-          let updatedJobCards: JobCardSummaryResponseDTO[] = [];
+          let updatedJobCards: JobCardTableViewResponseDTO[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 
@@ -320,7 +320,7 @@ export class JobCardView implements OnInit {
 
   loadTechnicianNames(): void {
     this.adminService.getTechnicianNames().subscribe({
-      next: (res: TechnicianNameProjection[]) => {
+      next: (res: TechnicianNameResponseProjection[]) => {
         this.technicianNameProjection = res;
       },
       error: (err: any) => console.error(err),

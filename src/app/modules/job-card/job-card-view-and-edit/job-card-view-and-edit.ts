@@ -7,16 +7,15 @@ import {
   HostListener,
   Input,
   OnInit,
-  Output, SimpleChanges,
-  ViewChild, OnChanges
+  Output,
+  ViewChild
 } from '@angular/core';
 import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
 import {NgIf} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Customer} from '../../../dto/response/customer/Customer';
-import {VehicleAndCustomerDTO} from '../../../dto/response/VehicleAndCustomerDTO';
-import {TechnicianNameProjection} from '../../../dto/response/TechnicianNameProjection';
-import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
@@ -48,8 +47,8 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
   isDropdownOpen = false;
   isSubmitting = false;
 
-  technicianNameProjection: TechnicianNameProjection[] = [];
-  laborActivityNameProjection: LaborActivityNameProjection[] = [];
+  technicianNameProjection: TechnicianNameResponseProjection[] = [];
+  laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
 
   constructor(
     private readonly fb: FormBuilder,

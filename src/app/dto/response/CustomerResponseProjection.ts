@@ -1,5 +1,4 @@
-// The individual record structure matching your Java interface
-export interface CustomerProjection {
+export interface CustomerResponseProjection {
   customerId: number;
   customerName: string;
   contactNumber: string;

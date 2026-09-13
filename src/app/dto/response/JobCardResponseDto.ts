@@ -1,6 +1,6 @@
-import {VehicleProjection} from './VehicleProjection';
-import {TechnicianProjection} from './TechnicianProjection';
-import {LaborActivityProjection} from './LaborActivityProjection';
+import {VehicleResponseProjection} from './VehicleResponseProjection';
+import {TechnicianResponseProjection} from './TechnicianResponseProjection';
+import {LaborActivityTableViewResponseProjection} from './LaborActivityTableViewResponseProjection';
 
 export interface JobCardResponseDto {
   jobId: number;
@@ -9,7 +9,7 @@ export interface JobCardResponseDto {
   status: string;
   customerComplaintText: string;
   currentMileage: number;
-  vehicle: VehicleProjection;
-  technicians: TechnicianProjection[];
-  laborActivities: LaborActivityProjection[];
+  vehicle: VehicleResponseProjection;
+  technicians: TechnicianResponseProjection[];
+  laborActivities: LaborActivityTableViewResponseProjection[];
 }

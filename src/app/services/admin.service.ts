@@ -2,12 +2,12 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_ENDPOINTS} from '../constant/api-endpoints';
-import {VehicleAndCustomerDTO} from '../dto/response/VehicleAndCustomerDTO';
-import {TechnicianNameProjection} from '../dto/response/TechnicianNameProjection';
-import {LaborActivityNameProjection} from '../dto/response/LaborActivityNameProjection';
-import {ItemProjection} from '../dto/response/ItemProjection';
-import {CustomerProjection} from '../dto/response/CustomerProjection';
-import {RoleNameDTO} from '../dto/response/RoleNameDTO';
+import {VehicleAndCustomerResponseDTO} from '../dto/response/VehicleAndCustomerResponseDTO';
+import {TechnicianNameResponseProjection} from '../dto/response/TechnicianNameResponseProjection';
+import {LaborActivityNameResponseProjection} from '../dto/response/LaborActivityNameResponseProjection';
+import {ItemTableViewResponseProjection} from '../dto/response/ItemTableViewResponseProjection';
+import {CustomerResponseProjection} from '../dto/response/CustomerResponseProjection';
+import {RoleNameResponseDTO} from '../dto/response/RoleNameResponseDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -17,28 +17,28 @@ export class AdminService {
   }
 
   // GET BY DRIVING LICENSE (PATH PARAM)
-  getCustomerByContactNumber(contactNumber: string): Observable<CustomerProjection[]> {
-    return this.http.get<CustomerProjection[]>(API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber));
+  getCustomerByContactNumber(contactNumber: string): Observable<CustomerResponseProjection[]> {
+    return this.http.get<CustomerResponseProjection[]>(API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber));
   }
 
   getVehicleAndCustomerByVehicleRegNumber(
     vehicleRegNumber: string,
-  ): Observable<VehicleAndCustomerDTO[]> {
-    return this.http.get<VehicleAndCustomerDTO[]>(
+  ): Observable<VehicleAndCustomerResponseDTO[]> {
+    return this.http.get<VehicleAndCustomerResponseDTO[]>(
       API_ENDPOINTS.GET_BY_VEHICLE_REG_NUMBER(vehicleRegNumber),
     );
   }
 
-  getTechnicianNames(): Observable<TechnicianNameProjection[]> {
-    return this.http.get<TechnicianNameProjection[]>(API_ENDPOINTS.GET_TECHNICIAN_NAMES);
+  getTechnicianNames(): Observable<TechnicianNameResponseProjection[]> {
+    return this.http.get<TechnicianNameResponseProjection[]>(API_ENDPOINTS.GET_TECHNICIAN_NAMES);
   }
 
-  getLaborActivityNames(): Observable<LaborActivityNameProjection[]> {
-    return this.http.get<LaborActivityNameProjection[]>(API_ENDPOINTS.GET_LABOR_ACTIVITY_NAMES);
+  getLaborActivityNames(): Observable<LaborActivityNameResponseProjection[]> {
+    return this.http.get<LaborActivityNameResponseProjection[]>(API_ENDPOINTS.GET_LABOR_ACTIVITY_NAMES);
   }
 
-  getItemParts(): Observable<ItemProjection[]> {
-    return this.http.get<ItemProjection[]>(API_ENDPOINTS.GET_ITEM_PASRTS);
+  getItemParts(): Observable<ItemTableViewResponseProjection[]> {
+    return this.http.get<ItemTableViewResponseProjection[]>(API_ENDPOINTS.GET_ITEM_PASRTS);
   }
 
   saveJobCardBlobVariant(jobCardData: any): Observable<any> {
@@ -242,8 +242,8 @@ export class AdminService {
 
   getVehicleAndCustomerByVehicleVinNumber(
     vehicleVinNumber: string,
-  ): Observable<VehicleAndCustomerDTO[]> {
-    return this.http.get<VehicleAndCustomerDTO[]>(
+  ): Observable<VehicleAndCustomerResponseDTO[]> {
+    return this.http.get<VehicleAndCustomerResponseDTO[]>(
       API_ENDPOINTS.GET_BY_VEHICLE_VIN_NUMBER(vehicleVinNumber),
     );
   }
@@ -338,8 +338,8 @@ export class AdminService {
     return this.http.post<any>(API_ENDPOINTS.SAVE_USER, backendPayload);
   }
 
-  getRoles(): Observable<RoleNameDTO[]> {
-    return this.http.get<RoleNameDTO[]>(API_ENDPOINTS.GET_ROLE_NAMES);
+  getRoles(): Observable<RoleNameResponseDTO[]> {
+    return this.http.get<RoleNameResponseDTO[]>(API_ENDPOINTS.GET_ROLE_NAMES);
   }
 
   modifyUser(backendPayload: any): Observable<any> {

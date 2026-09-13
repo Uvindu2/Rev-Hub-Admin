@@ -1,4 +1,4 @@
-export interface VehicleAndCustomerDTO {
+export interface VehicleAndCustomerResponseDTO {
 
   vehicleRegNo: string;
 

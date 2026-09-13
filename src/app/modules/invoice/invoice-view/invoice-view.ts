@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InvoiceForm } from '../invoice-form/invoice-form';
-import { InvoiceSummaryProjection } from '../../../dto/InvoiceSummaryProjection';
+import { InvoiceTableViewResponseProjection } from '../../../dto/response/InvoiceTableViewResponseProjection';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import {finalize} from 'rxjs';
@@ -20,7 +20,7 @@ import {InvoiceViewAndEdit} from '../invoice-view-and-edit/invoice-view-and-edit
 })
 export class InvoiceView implements OnInit {
 
-  invoices: InvoiceSummaryProjection[] = [];
+  invoices: InvoiceTableViewResponseProjection[] = [];
 
   // BEST PRACTICE: Unified Reactive Form Group for filters
   filterForm!: FormGroup;
@@ -87,7 +87,7 @@ export class InvoiceView implements OnInit {
         let pageData = response.data || response;
 
         // Stage updates in local variables first to prevent layout thrashing
-        let updatedInvoicesSummary: InvoiceSummaryProjection[] = [];
+        let updatedInvoicesSummary: InvoiceTableViewResponseProjection[] = [];
         let updatedTotalElements = 0;
         let updatedTotalPagesCount = 0;
 

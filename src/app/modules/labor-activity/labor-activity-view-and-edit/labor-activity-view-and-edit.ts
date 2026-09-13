@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {CommonModule, NgIf} from '@angular/common';
-import {LaborActivityProjection} from '../../../dto/response/LaborActivityProjection';
+import {LaborActivityTableViewResponseProjection} from '../../../dto/response/LaborActivityTableViewResponseProjection';
 import {finalize} from 'rxjs';
 
 @Component({
@@ -15,7 +15,7 @@ import {finalize} from 'rxjs';
 })
 export class LaborActivityViewAndEdit {
 
-  @Input() laborActivity: LaborActivityProjection | undefined;
+  @Input() laborActivity: LaborActivityTableViewResponseProjection | undefined;
   @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
@@ -42,7 +42,7 @@ export class LaborActivityViewAndEdit {
     }
   }
 
-  private patchFormWithData(data: LaborActivityProjection): void {
+  private patchFormWithData(data: LaborActivityTableViewResponseProjection): void {
     // Use patchValue with a complete object map
     this.laborActivityForm.patchValue({
       laborActivityName: data.activityName,

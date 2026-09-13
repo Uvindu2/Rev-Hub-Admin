@@ -4,7 +4,7 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
-import {LaborActivityNameProjection} from '../../../dto/response/LaborActivityNameProjection';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
 import {finalize} from 'rxjs';
 
@@ -25,7 +25,7 @@ export class ItemForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   itemForm!: FormGroup;
-  laborActivityNameProjection: LaborActivityNameProjection[] = [];
+  laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
   unitTypesList = Object.keys(MeasuringUnitType);
 
   isSubmitting = false;
@@ -64,7 +64,7 @@ export class ItemForm implements OnInit {
 
   loadItemNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameProjection[]) => {
+      next: (res: LaborActivityNameResponseProjection[]) => {
         this.laborActivityNameProjection = res;
       },
       error: (err: any) => console.error('Failed to load names', err)

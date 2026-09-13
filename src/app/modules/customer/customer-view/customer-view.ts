@@ -2,13 +2,13 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../../services/admin.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CustomerSummaryProjection } from '../../../dto/response/CustomerSummaryProjection';
 import { CustomerViewAndEdit } from '../customer-view-and-edit/customer-view-and-edit';
 import { NotificationService } from '../../../services/notificationService';
-import { CustomerProjection } from '../../../dto/response/CustomerProjection';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { CustomerContactNumberEmailAndIdDTO } from '../../../dto/response/CustomerContactNumberEmailAndIdDTO';
+import { CustomerContactNumberEmailAndIdResponseDTO } from '../../../dto/response/CustomerContactNumberEmailAndIdResponseDTO';
+import {CustomerResponseProjection} from '../../../dto/response/CustomerResponseProjection';
+import {CustomerTableViewResponseProjection} from '../../../dto/response/CustomerTableViewResponseProjection';
 
 @Component({
   selector: 'app-customer-view',
@@ -23,9 +23,9 @@ export class CustomerView implements OnInit {
 
   filterForm!: FormGroup;
 
-  cutromerNameEmailIds: CustomerContactNumberEmailAndIdDTO[] = [];
-  allCustomers: CustomerSummaryProjection[] = [];
-  customer: CustomerProjection | undefined;
+  cutromerNameEmailIds: CustomerContactNumberEmailAndIdResponseDTO[] = [];
+  allCustomers: CustomerTableViewResponseProjection[] = [];
+  customer: CustomerResponseProjection | undefined;
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -165,7 +165,7 @@ export class CustomerView implements OnInit {
       .subscribe({
         next: (response: any) => {
           // Stage updates in local variables first to prevent layout thrashing
-          let updatedCustomers: CustomerSummaryProjection[] = [];
+          let updatedCustomers: CustomerTableViewResponseProjection[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 

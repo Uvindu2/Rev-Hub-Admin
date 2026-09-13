@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { CommonModule } from '@angular/common';
 import { VehicleEditFormComponent } from '../vehicle-edit-form/vehicle-edit-form';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { VehicleSummaryProjection } from '../../../dto/response/VehicleSummaryProjection';
+import { VehicleTableViewResponseProjection } from '../../../dto/response/VehicleTableViewResponseProjection';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
-import { VehicleProjection } from '../../../dto/response/VehicleProjection';
+import { VehicleResponseProjection } from '../../../dto/response/VehicleResponseProjection';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 
@@ -18,7 +18,7 @@ import { Dropdown } from '../../../shared/components/dropdown/dropdown';
   styleUrl: './vehicle-view.css',
 })
 export class VehicleView implements OnInit {
-  allVehicles: VehicleSummaryProjection[] = [];
+  allVehicles: VehicleTableViewResponseProjection[] = [];
 
   filterForm!: FormGroup;
 
@@ -43,7 +43,7 @@ export class VehicleView implements OnInit {
   isViewModalOpen: boolean = false;
   isLoading: boolean = false;
   isSearch: boolean = false;
-  selectedVehicle: VehicleProjection | undefined;
+  selectedVehicle: VehicleResponseProjection | undefined;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -194,7 +194,7 @@ export class VehicleView implements OnInit {
       )
       .subscribe({
         next: (response: any) => {
-          let updatedVehicles: VehicleSummaryProjection[] = [];
+          let updatedVehicles: VehicleTableViewResponseProjection[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 

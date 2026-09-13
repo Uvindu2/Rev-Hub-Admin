@@ -24,7 +24,7 @@ import { RouterLink } from '@angular/router';
 import { finalize, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AdminService } from '../../../services/admin.service';
-import { JobCardStatusProjection } from '../../../dto/response/JobCardStatusProjection';
+import { JobCardStatusResponseProjection } from '../../../dto/response/JobCardStatusResponseProjection';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faXRay } from '@fortawesome/free-solid-svg-icons';
 
@@ -71,7 +71,7 @@ export class DashboardOverview implements OnInit {
   isLoading = true;
   isRevenueLoading = false;
   customersCount: any;
-  jobCardStatus: JobCardStatusProjection | undefined;
+  jobCardStatus: JobCardStatusResponseProjection | undefined;
   recentJobCards: any;
   recentInvoices: any;
   topLaborActivities: any = [];
@@ -143,7 +143,7 @@ export class DashboardOverview implements OnInit {
               ...this.chartOptions,
               series: [
                 this.jobCardStatus.pendingCount || 0,
-                this.jobCardStatus.inprogressCount || 0,
+                this.jobCardStatus.inProgressCount || 0,
                 this.jobCardStatus.rejectedCount || 0,
                 this.jobCardStatus.completedCount || 0,
               ],

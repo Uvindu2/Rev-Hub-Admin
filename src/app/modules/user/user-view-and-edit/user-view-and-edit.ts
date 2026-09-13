@@ -1,9 +1,9 @@
 import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {UserResponseDTO} from '../../../dto/response/UserResponseDTO';
+import {UserTableViewResponseDTO} from '../../../dto/response/UserTableViewResponseDTO';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {NgIf} from '@angular/common';
-import {RoleNameDTO} from '../../../dto/response/RoleNameDTO';
+import {RoleNameResponseDTO} from '../../../dto/response/RoleNameResponseDTO';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
@@ -21,13 +21,13 @@ import {finalize} from 'rxjs';
   standalone: true
 })
 export class UserViewAndEdit implements OnInit, AfterViewInit{
-  @Input() user!: UserResponseDTO | undefined;
+  @Input() user!: UserTableViewResponseDTO | undefined;
   @Input() isViewModalOpen!: boolean;
   @Input() isEditModalOpen!: boolean;
   @Output() cancel = new EventEmitter<void>();
 
   userForm!: FormGroup;
-  rolesList: RoleNameDTO[] = [];
+  rolesList: RoleNameResponseDTO[] = [];
   isSubmitting = false;
 
   constructor(
@@ -121,7 +121,7 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
     return (this.userForm?.get('userRoleSelected') as FormControl) || new FormControl([]);
   }
 
-  private patchFormWithData(data: UserResponseDTO) {
+  private patchFormWithData(data: UserTableViewResponseDTO) {
     // Use patchValue with a complete object map
     this.userForm.patchValue({
       username: data.username,

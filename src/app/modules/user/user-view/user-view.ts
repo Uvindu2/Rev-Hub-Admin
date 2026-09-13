@@ -5,10 +5,10 @@ import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import { UserForm } from '../user-form/user-form';
 import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
-import { UserResponseDTO } from '../../../dto/response/UserResponseDTO';
+import { UserTableViewResponseDTO } from '../../../dto/response/UserTableViewResponseDTO';
 import { finalize } from 'rxjs';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { UserIdNameDto } from '../../../dto/response/UserIdNameDto';
+import { UserIdNameResponseDto } from '../../../dto/response/UserIdNameResponseDto';
 
 @Component({
   selector: 'app-user-view',
@@ -17,9 +17,9 @@ import { UserIdNameDto } from '../../../dto/response/UserIdNameDto';
   styleUrl: './user-view.css',
 })
 export class UserView implements OnInit {
-  users: UserResponseDTO[] = [];
-  user: UserResponseDTO | undefined;
-  userIdNameDtos: UserIdNameDto[] = [];
+  users: UserTableViewResponseDTO[] = [];
+  user: UserTableViewResponseDTO | undefined;
+  userIdNameDtos: UserIdNameResponseDto[] = [];
   userRoleNameAndIds: string[] = [];
 
   filterForm!: FormGroup;
@@ -127,7 +127,7 @@ export class UserView implements OnInit {
           let pageData = response?.data || response;
 
           // Stage updates in local variables first to prevent layout thrashing
-          let updatedUsers: UserResponseDTO[] = [];
+          let updatedUsers: UserTableViewResponseDTO[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 

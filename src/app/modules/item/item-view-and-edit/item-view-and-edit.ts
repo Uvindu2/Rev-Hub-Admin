@@ -1,11 +1,11 @@
 import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LaborActivityNameProjection } from '../../../dto/response/LaborActivityNameProjection';
+import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
 import { MeasuringUnitType } from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
 import { MultiSelectDropdown } from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
-import { ItemProjection } from '../../../dto/response/ItemProjection';
+import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
 import { CommonModule } from '@angular/common';
 import {finalize} from 'rxjs';
 
@@ -17,13 +17,13 @@ import {finalize} from 'rxjs';
   standalone: true
 })
 export class ItemViewAndEdit implements OnInit, AfterViewInit {
-  @Input() item: ItemProjection | undefined;
+  @Input() item: ItemTableViewResponseProjection | undefined;
   @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
 
   itemForm!: FormGroup;
-  laborActivityNameProjection: LaborActivityNameProjection[] = [];
+  laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
   unitTypesList = Object.keys(MeasuringUnitType);
 
   isSubmitting = false;
@@ -69,7 +69,7 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
   }
 
 
-  private patchFormWithData(data: ItemProjection): void {
+  private patchFormWithData(data: ItemTableViewResponseProjection): void {
     // Use patchValue with a complete object map
     this.itemForm.patchValue({
       itemName: data.itemName,
@@ -86,7 +86,7 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
 
   loadItemNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameProjection[]) => {
+      next: (res: LaborActivityNameResponseProjection[]) => {
         this.laborActivityNameProjection = res;
         this.cdr.markForCheck();
       },
