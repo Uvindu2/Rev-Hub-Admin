@@ -432,8 +432,4 @@ export class InvoiceForm implements OnInit {
       p.itemName?.toLowerCase().includes(query),
     );
   }
-
-  onCancel() {
-    this.cancel.emit();
-  }
 }

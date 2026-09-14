@@ -5,22 +5,15 @@ export const API_ENDPOINTS = {
   GET_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-names`,
   GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/labor-activity/get-all-labor-activity-names`,
   GET_ITEM_PASRTS: `${API_BASE_URL}/item/fetch-all-items`,
-  GET_BY_LICENSE: (licenseNumber: string) =>
-    `${API_BASE_URL}/customer/get-customer-by-driving-license-number/${licenseNumber}`,
   GET_BY_CONTACT_NUMBER: (contactNumber: string) =>
     `${API_BASE_URL}/customer/get-customer-by-contact-number/${contactNumber}`,
   GET_BY_VEHICLE_REG_NUMBER: (vehicleRegNumber: string) =>
     `${API_BASE_URL}/vehicle/get-vehicle-and-customer-by-vehicle-reg-number/${vehicleRegNumber}`,
-  GET_ALL_JOB_CARDS: (page: number, size: number, sortBy: string, sortDir: string) =>
-    `${API_BASE_URL}/job-card/get-all-job-card?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
-  // Maps to your @PostMapping(value = "/save", produces = MediaType.APPLICATION_PDF_VALUE)
   SAVE_JOB_CARD: `${API_BASE_URL}/job-card/save`,
   MODIFY_JOB_CARD: `${API_BASE_URL}/job-card/modify`,
   SAVE_INVOICE: `${API_BASE_URL}/invoice/save`,
   GET_LABOR_ACTIVITIES_BY_JOB_ID: (jobId: number) =>
     `${API_BASE_URL}/labor-activity/get-labor-activity-by-job-Id/${jobId}`,
-  GET_INVOICE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
-    `${API_BASE_URL}/invoice/get-all-invoice-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_CUSTOMERS: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/customer/get-all-customers-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>
@@ -59,7 +52,6 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/invoice/search?page=${page}&size=${size}&sort=${sortBy},${sortDir}`,
   GET_ALL_VEHICLE_REG_NOS: `${API_BASE_URL}/vehicle/get-all-vehicle-reg-nos`,
   GET_ALL_VEHICLE_VIN_NOS: `${API_BASE_URL}/vehicle/get-all-vehicle-vin-nos`,
-
   GET_ALL_CUSTOMERS_COUNT: `${API_BASE_URL}/dashboard/get-all-customers-count/`,
   GET_ALL_JOB_CARD_STATUS: `${API_BASE_URL}/dashboard/get-all-job-card-status/`,
   GET_RECENT_JOB_CARDS: `${API_BASE_URL}/dashboard/get-recent-job-cards/`,

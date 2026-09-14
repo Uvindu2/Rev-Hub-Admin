@@ -36,6 +36,7 @@ export class InvoiceView implements OnInit {
   sortByField: string = 'invoiceId';
   sortDirection: string = 'desc';
 
+  isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isLoading: boolean = false;
 
@@ -171,12 +172,13 @@ export class InvoiceView implements OnInit {
   }
 
   protected onAddInvoice(): void {
-    this.isEditModalOpen = true;
+    this.isAddModalOpen = true;
     this.cdr.markForCheck();
   }
 
   closeModal(): void {
     this.isEditModalOpen = false;
+    this.isAddModalOpen = false;
     this.cdr.markForCheck();
   }
 
@@ -262,6 +264,7 @@ handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
   editInvoice(invoiceId: number) {
     this.selectedInvoiceId = invoiceId;
     this.isEditModalOpen = true;
+    this.cdr.markForCheck();
   }
 
   onInvoiceUpdated(pdfUrl: SafeResourceUrl): void {

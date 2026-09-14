@@ -51,26 +51,6 @@ export class AdminService {
     return this.http.put<any>(API_ENDPOINTS.MODIFY_JOB_CARD, jobCardData);
   }
 
-  // Add this method to your AdminService class
-  getJobCardsPaginated(
-    page: number,
-    size: number,
-    sortBy: string,
-    sortDir: string,
-  ): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_ALL_JOB_CARDS(page, size, sortBy, sortDir));
-  }
-
-  // Add this method to your AdminService class
-  getInvoiceSummaryPaginated(
-    page: number,
-    size: number,
-    sortBy: string,
-    sortDir: string,
-  ): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.GET_INVOICE_SUMMARIES(page, size, sortBy, sortDir));
-  }
-
   getLaborActivitiesByJobId(jobId: number): Observable<any> {
     return this.http.get<any>(API_ENDPOINTS.GET_LABOR_ACTIVITIES_BY_JOB_ID(jobId));
   }
