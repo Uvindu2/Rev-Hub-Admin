@@ -74,6 +74,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
     // Use patchValue with a complete object map
     this.jobCardForm.patchValue({
       vehicleRegNo: data.vehicle?.vehicleRegNo,
+      vehicleVinNo: data.vehicle?.vehicleVinNo,
       make: data.vehicle?.vehicleMake,
       model: data.vehicle?.vehicleModel,
       year: data.vehicle?.vehicleYear,
@@ -95,6 +96,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
   initForm(): void {
     this.jobCardForm = this.fb.group({
       vehicleRegNo: ['', Validators.required],
+      vehicleVinNo: ['', Validators.required],
       make: ['', Validators.required],
       model: ['', Validators.required],
       year: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
@@ -116,7 +118,7 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       // 1. Disable the whole form
       this.jobCardForm.disable();
 
-      // 2. Explicitly enable only the vehicleRegNo
+      // 2. Explicitly enable only the vehicleRegNo and vehicleVinNo
       this.jobCardForm.get('laborActivitiesSelected')?.enable();
       this.jobCardForm.get('assignedTechniciansSelected')?.enable();
       this.jobCardForm.get('currentMileage')?.enable();

@@ -135,7 +135,7 @@ export class JobCardForm implements OnInit {
 
       laborActivitiesSelected: [[], Validators.required],
       assignedTechniciansSelected: [[], Validators.required],
-      currentMileage: ['', Validators.required],
+      currentMileage: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]]
     });
   }
 
@@ -262,7 +262,7 @@ export class JobCardForm implements OnInit {
         error: (err) => {
           console.error('Submission crash details:', err);
           const serverErrorMessage =
-            err.error?.data?.error || 'Database constraint violation encountered.';
+            err.error?.response || 'Database constraint violation encountered.';
           this.notificationService.show('Error: ' + serverErrorMessage, 'error');
           this.cdr.markForCheck();
         },

@@ -193,8 +193,31 @@
 
             <div class="form-group">
               <label>Current Mileage: <span class="required">*</span></label>
-              <input type="text" formControlName="currentMileage">
-              <div *ngIf="isInvalid('currentMileage')" class="error-msg">Current mileage is required.</div>
+
+              <input
+                type="text"
+                formControlName="currentMileage"
+                inputmode="numeric"
+                pattern="[0-9]*"
+              >
+
+              <!-- Required error -->
+              <div
+                *ngIf="jobCardForm.get('currentMileage')?.hasError('required')
+           && jobCardForm.get('currentMileage')?.touched"
+                class="error-msg"
+              >
+                Current mileage is required.
+              </div>
+
+              <!-- Numbers only error -->
+              <div
+                *ngIf="jobCardForm.get('currentMileage')?.hasError('pattern')
+           && jobCardForm.get('currentMileage')?.touched"
+                class="error-msg"
+              >
+                Current mileage must contain numbers only.
+              </div>
             </div>
 
             <app-multi-select-dropdown

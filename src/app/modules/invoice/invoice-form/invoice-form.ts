@@ -1,27 +1,13 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  OnInit,
-  Output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output,} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-invoice-form',
@@ -62,7 +48,8 @@ export class InvoiceForm implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly http: HttpClient,
     private readonly sanitizer: DomSanitizer,
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -74,7 +61,7 @@ export class InvoiceForm implements OnInit {
     this.invoiceForm = this.fb.group({
       laborActivities: this.fb.array([]),
       paymentMethod: ['Cash', Validators.required],
-      jobCardSearch: ['', Validators.required],
+      jobCardSearch: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
       additionalFees: [1500, [Validators.required, Validators.min(0)]],
       status: ['PAID'],
     });
@@ -130,7 +117,7 @@ export class InvoiceForm implements OnInit {
       name: [name, Validators.required],
       qty: [qty, [Validators.required, Validators.min(1)]],
       unitPrice: [unitPrice, [Validators.required, Validators.min(0)]],
-      total: [{ value: qty * unitPrice, disabled: true }],
+      total: [{value: qty * unitPrice, disabled: true}],
     });
 
     const qty$ = partGroup.get('qty')?.valueChanges;
@@ -140,7 +127,7 @@ export class InvoiceForm implements OnInit {
       partGroup.valueChanges.subscribe(() => {
         const currentQty = partGroup.get('qty')?.value || 0;
         const currentPrice = partGroup.get('unitPrice')?.value || 0;
-        partGroup.get('total')?.setValue(currentQty * currentPrice, { emitEvent: false });
+        partGroup.get('total')?.setValue(currentQty * currentPrice, {emitEvent: false});
       });
     }
 
@@ -254,7 +241,7 @@ export class InvoiceForm implements OnInit {
               bytes[i] = binaryString.charCodeAt(i);
             }
 
-            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const blob = new Blob([bytes], {type: 'application/pdf'});
             const unsafeUrl = window.URL.createObjectURL(blob);
 
             // Bypass security to make it safe for iframe binding in the modal
@@ -362,19 +349,22 @@ export class InvoiceForm implements OnInit {
   onJobCardSearchClick(): void {
     const value = this.invoiceForm.get('jobCardSearch')?.value;
     if (!value) return;
-
+    if (!this.invoiceForm.get('jobCardSearch')?.valid) {
+      this.notificationService.show('Please fill out all required job card number field.', 'warning');
+      return;
+    }
     this.adminService.getLaborActivitiesByJobId(value).subscribe({
       next: (res: any) => {
         this.laborActivities.clear();
         this.partDropdownOpenRowIndex = null;
         const incomingActivities = res?.data || [];
 
-          if (incomingActivities.length === 0) {
-            this.laborActivityAvailable = false;
-            this.notificationService.show('No Job Card found with that Job Id.', 'error');
-            this.cdr.detectChanges();
-            return;
-          }
+        if (incomingActivities.length === 0) {
+          this.laborActivityAvailable = false;
+          this.notificationService.show('No Job Card found with that Job Id.', 'error');
+          this.cdr.detectChanges();
+          return;
+        }
 
         this.laborActivityAvailable = true;
         incomingActivities.forEach((activity: any) => {
@@ -384,8 +374,10 @@ export class InvoiceForm implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.error(err);
-        this.notificationService.show('Please try again later. if not please contact System Administrator', 'error');
+        console.error('crash error:', err);
+        const serverErrorMessage =
+          err.error?.response || 'Please try again later. if not please contact System Administrator.';
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
         this.cdr.detectChanges();
       },
     });

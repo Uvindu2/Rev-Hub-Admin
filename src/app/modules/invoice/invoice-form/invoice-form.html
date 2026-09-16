@@ -9,12 +9,44 @@
       <div class="split-workspace">
 
         <div class="left-panel">
-          <div class="search-box" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-            <input type="text" formControlName="jobCardSearch" placeholder="Search job number..." style="flex: 1;">
-            <button type="button" class="btn-search-action" (click)="onJobCardSearchClick()" [disabled]="isSearching">
-              <span *ngIf="isSearching" class="buttonSpinner"></span>
+          <div class="search-box" style="display: flex; gap: 10px; align-items: flex-start; width: 100%;">
+            <div style="flex: 1;">
+              <input
+                type="text"
+                formControlName="jobCardSearch"
+                placeholder="Search job number..."
+                style="width: 100%;">
+
+              <!-- Inline validation message -->
+              <div
+                *ngIf="invoiceForm.get('jobCardSearch')?.touched &&
+             invoiceForm.get('jobCardSearch')?.invalid"
+                class="error-msg">
+
+      <span *ngIf="invoiceForm.get('jobCardSearch')?.hasError('required')">
+        Job number is required.
+      </span>
+
+                <span *ngIf="invoiceForm.get('jobCardSearch')?.hasError('pattern')">
+        Job number must contain numbers only.
+      </span>
+
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="btn-search-action"
+              (click)="onJobCardSearchClick()"
+              [disabled]="isSearching">
+
+    <span
+      *ngIf="isSearching"
+      class="buttonSpinner">
+    </span>
 
               {{ isSearching ? 'Searching...' : 'Search' }}
+
             </button>
           </div>
 
@@ -153,7 +185,7 @@
                   <input type="number" formControlName="qty" class="dark-input cell-input">
                 </td>
                 <td>
-                  <input type="number" formControlName="unitPrice" class="dark-input cell-input">
+                  <input type="number" [readOnly]="true" formControlName="unitPrice" class="dark-input cell-input">
                 </td>
                 <td class="total-output">
                   LKR {{ part.get('total')?.value | number : '1.2-2' }}
