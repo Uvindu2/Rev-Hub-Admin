@@ -141,6 +141,7 @@
                 <th width="40">#</th>
                 <th>Service Item / Part</th>
                 <th width="100">Qty</th>
+                <th width="120">Unit Type</th>
                 <th width="120">Unit Price</th>
                 <th width="140">Total</th>
                 <th width="60">Actions</th>
@@ -185,6 +186,9 @@
                   <input type="number" formControlName="qty" class="dark-input cell-input">
                 </td>
                 <td>
+                  <input type="text" [readOnly]="true" formControlName="unitType" class="dark-input cell-input">
+                </td>
+                <td>
                   <input type="number" [readOnly]="true" formControlName="unitPrice" class="dark-input cell-input">
                 </td>
                 <td class="total-output">
@@ -227,6 +231,17 @@
               <span class="tile-text">Bank Transfer</span>
             </label>
           </div>
+        </div>
+
+        <!-- Additional Note Textarea Section -->
+        <div class="additionalNote summary-footer-note" style="margin-bottom: 15px;">
+          <label class="section-label" style="display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 6px; font-weight: 600;">
+            📝 Additional Notes:
+          </label>
+          <textarea
+            formControlName="additionalNotes"
+            class="dark-input summary-input"
+            placeholder="Enter any special instructions or remarks for this invoice..."></textarea> <!-- Make sure nothing is inside -->
         </div>
 
         <div class="summary-grid">

@@ -6,7 +6,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
+import {InvoiceItemsResponseDTO} from '../../../dto/response/InvoiceItemsResponseDTO';
 import {finalize} from 'rxjs';
 
 @Component({
@@ -26,11 +26,11 @@ export class InvoiceForm implements OnInit {
 
   availableLaborActivities: LaborActivityNameResponseProjection[] = [];
   filteredLaborActivities: LaborActivityNameResponseProjection[] = [];
-  availableItemParts: ItemTableViewResponseProjection[] = [];
+  availableItemParts: InvoiceItemsResponseDTO[] = [];
 
   // State management properties for the tabular parts searchable dropdown matrix
   partDropdownOpenRowIndex: number | null = null;
-  filteredItemParts: ItemTableViewResponseProjection[] = [];
+  filteredItemParts: InvoiceItemsResponseDTO[] = [];
   isDropdownOpen: boolean = false;
   laborActivityAvailable = false;
 
@@ -62,7 +62,8 @@ export class InvoiceForm implements OnInit {
       laborActivities: this.fb.array([]),
       paymentMethod: ['Cash', Validators.required],
       jobCardSearch: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
-      additionalFees: [1500, [Validators.required, Validators.min(0)]],
+      additionalFees: [0, [Validators.required, Validators.min(0)]],
+      additionalNotes: [''],
       status: ['PAID'],
     });
   }
@@ -109,6 +110,7 @@ export class InvoiceForm implements OnInit {
     laborIndex: number,
     name: string = '',
     qty: number = 1,
+    unitType: string = 'N/A',
     unitPrice: number = 0,
     itemId: number | null = null,
   ) {
@@ -116,6 +118,7 @@ export class InvoiceForm implements OnInit {
       itemId: [itemId, Validators.required],
       name: [name, Validators.required],
       qty: [qty, [Validators.required, Validators.min(1)]],
+      unitType: [unitType],
       unitPrice: [unitPrice, [Validators.required, Validators.min(0)]],
       total: [{value: qty * unitPrice, disabled: true}],
     });
@@ -144,17 +147,19 @@ export class InvoiceForm implements OnInit {
   selectPartOption(rowIndex: number, item: any): void {
     const partsArray = this.getParts(this.selectedLaborIndex);
     const currentRow = partsArray?.at(rowIndex);
-
+console.warn(item)
     if (item && currentRow) {
       currentRow.patchValue({
         itemId: item.itemId || item.id,
         name: item.itemName,
+        unitType: item.unitType || 'N/A',
         unitPrice: item.sellingPrice,
       });
     }
 
     this.partDropdownOpenRowIndex = null;
     this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   selectLaborTask(index: number) {
@@ -325,7 +330,7 @@ export class InvoiceForm implements OnInit {
   }
 
   loadItemParts(): void {
-    this.adminService.getItemParts().subscribe({
+    this.adminService.getInvoiceItems().subscribe({
       next: (res: any) => {
         this.availableItemParts = res?.data || [];
         this.filteredItemParts = [...this.availableItemParts];

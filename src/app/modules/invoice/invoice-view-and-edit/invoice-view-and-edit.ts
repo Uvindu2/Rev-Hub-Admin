@@ -1,27 +1,20 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
   OnInit,
   Output,
-  ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
-import { finalize } from 'rxjs';
+import {CommonModule} from '@angular/common';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {InvoiceItemsResponseDTO} from '../../../dto/response/InvoiceItemsResponseDTO';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-invoice-edit-form',
@@ -41,11 +34,11 @@ export class InvoiceViewAndEdit implements OnInit {
 
   protected availableLaborActivities: LaborActivityNameResponseProjection[] = [];
   protected filteredLaborActivities: LaborActivityNameResponseProjection[] = [];
-  protected availableItemParts: ItemTableViewResponseProjection[] = [];
+  protected availableItemParts: InvoiceItemsResponseDTO[] = [];
 
   // State management properties for the tabular parts searchable dropdown matrix
   protected partDropdownOpenRowIndex: number | null = null;
-  protected filteredItemParts: ItemTableViewResponseProjection[] = [];
+  protected filteredItemParts: InvoiceItemsResponseDTO[] = [];
   protected isDropdownOpen: boolean = false;
   protected laborActivityAvailable = true;
 
@@ -112,8 +105,9 @@ export class InvoiceViewAndEdit implements OnInit {
                     currentLaborIndex,
                     p.name || p.itemName,
                     p.qty || 1,
-                    p.unitPrice || p.price || 0,
-                    p.itemId || p.id
+                    p.unitType || '',
+                    p.unitPrice || 0,
+                    p.itemId || null
                   );
                 });
               }
@@ -174,6 +168,7 @@ export class InvoiceViewAndEdit implements OnInit {
     laborIndex: number,
     name: string = '',
     qty: number = 1,
+    unitType: string = 'N/A',
     unitPrice: number = 0,
     itemId: number | null = null,
   ) {
@@ -181,6 +176,7 @@ export class InvoiceViewAndEdit implements OnInit {
       itemId: [itemId, Validators.required],
       name: [name, Validators.required],
       qty: [qty, [Validators.required, Validators.min(1)]],
+      unitType: [unitType],
       unitPrice: [unitPrice, [Validators.required, Validators.min(0)]],
       total: [{ value: qty * unitPrice, disabled: true }],
     });
@@ -209,12 +205,17 @@ export class InvoiceViewAndEdit implements OnInit {
       currentRow.patchValue({
         itemId: item.itemId || item.id,
         name: item.itemName,
-        unitPrice: item.sellingPrice,
+        unitType: item.unitType || 'N/A',
+        unitPrice: item.unitPrice || item.sellingPrice || 0,
       });
+
+      // Force Angular change detection to immediately push value to read-only inputs
+      currentRow.get('unitType')?.updateValueAndValidity({ emitEvent: false });
     }
 
     this.partDropdownOpenRowIndex = null;
     this.cdr.markForCheck();
+    this.cdr.detectChanges(); // Use detectChanges() for instant template rendering
   }
 
   selectLaborTask(index: number) {
@@ -365,7 +366,7 @@ export class InvoiceViewAndEdit implements OnInit {
   }
 
   loadItemParts(): void {
-    this.adminService.getItemParts().subscribe({
+    this.adminService.getInvoiceItems().subscribe({
       next: (res: any) => {
         this.availableItemParts = res?.data || [];
         this.filteredItemParts = [...this.availableItemParts];

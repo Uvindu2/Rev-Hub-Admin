@@ -6,6 +6,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
   imports: [],
   templateUrl: './print-preview.html',
   styleUrl: './print-preview.css',
+  standalone: true
 })
 export class PrintPreview {
   @Input() pdfName: String = "Print Preview";

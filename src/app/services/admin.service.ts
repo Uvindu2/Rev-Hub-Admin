@@ -8,6 +8,7 @@ import {LaborActivityNameResponseProjection} from '../dto/response/LaborActivity
 import {ItemTableViewResponseProjection} from '../dto/response/ItemTableViewResponseProjection';
 import {CustomerResponseProjection} from '../dto/response/CustomerResponseProjection';
 import {RoleNameResponseDTO} from '../dto/response/RoleNameResponseDTO';
+import {InvoiceItemsResponseDTO} from '../dto/response/InvoiceItemsResponseDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -37,8 +38,8 @@ export class AdminService {
     return this.http.get<LaborActivityNameResponseProjection[]>(API_ENDPOINTS.GET_LABOR_ACTIVITY_NAMES);
   }
 
-  getItemParts(): Observable<ItemTableViewResponseProjection[]> {
-    return this.http.get<ItemTableViewResponseProjection[]>(API_ENDPOINTS.GET_ITEM_PASRTS);
+  getInvoiceItems(): Observable<InvoiceItemsResponseDTO[]> {
+    return this.http.get<InvoiceItemsResponseDTO[]>(API_ENDPOINTS.GET_INVOICE_ITEMS);
   }
 
   saveJobCardBlobVariant(jobCardData: any): Observable<any> {

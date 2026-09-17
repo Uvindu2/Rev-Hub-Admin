@@ -106,6 +106,7 @@
                 <th width="40">#</th>
                 <th>Service Item / Part</th>
                 <th width="100">Qty</th>
+                <th width="120">Unit Type</th>
                 <th width="120">Unit Price</th>
                 <th width="140">Total</th>
                 <th width="60">Actions</th>
@@ -150,7 +151,10 @@
                   <input type="number" formControlName="qty" class="dark-input cell-input">
                 </td>
                 <td>
-                  <input type="number" formControlName="unitPrice" class="dark-input cell-input">
+                  <input type="text" [readOnly]="true" formControlName="unitType" class="dark-input cell-input">
+                </td>
+                <td>
+                  <input type="number" [readOnly]="true" formControlName="unitPrice" class="dark-input cell-input">
                 </td>
                 <td class="total-output">
                   LKR {{ part.get('total')?.value | number : '1.2-2' }}

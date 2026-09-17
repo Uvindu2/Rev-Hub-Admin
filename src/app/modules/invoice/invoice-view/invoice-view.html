@@ -166,6 +166,6 @@
 <app-print-preview
   *ngIf="showPrintModal"
   [pdfUrl]="invoicePdfUrl"
-  [pdfName]="`Invoice Print Preview`"
+  [pdfName]="'Invoice Print Preview'"
   (close)="closePrintPreview()">
 </app-print-preview>

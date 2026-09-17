@@ -4,7 +4,7 @@ export const API_ENDPOINTS = {
   GET_ALL: `${API_BASE_URL}/customer`,
   GET_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-names`,
   GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/labor-activity/get-all-labor-activity-names`,
-  GET_ITEM_PASRTS: `${API_BASE_URL}/item/fetch-all-items`,
+  GET_INVOICE_ITEMS: `${API_BASE_URL}/item/fetch-all-invoice-items`,
   GET_BY_CONTACT_NUMBER: (contactNumber: string) =>
     `${API_BASE_URL}/customer/get-customer-by-contact-number/${contactNumber}`,
   GET_BY_VEHICLE_REG_NUMBER: (vehicleRegNumber: string) =>
