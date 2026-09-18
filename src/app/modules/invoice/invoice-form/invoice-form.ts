@@ -8,6 +8,7 @@ import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {InvoiceItemsResponseDTO} from '../../../dto/response/InvoiceItemsResponseDTO';
 import {finalize} from 'rxjs';
+import {AuthService} from '../../../services/auth.service';
 
 @Component({
   selector: 'app-invoice-form',
@@ -46,7 +47,7 @@ export class InvoiceForm implements OnInit {
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly http: HttpClient,
+    private readonly authService: AuthService,
     private readonly sanitizer: DomSanitizer,
   ) {
   }
@@ -147,7 +148,6 @@ export class InvoiceForm implements OnInit {
   selectPartOption(rowIndex: number, item: any): void {
     const partsArray = this.getParts(this.selectedLaborIndex);
     const currentRow = partsArray?.at(rowIndex);
-console.warn(item)
     if (item && currentRow) {
       currentRow.patchValue({
         itemId: item.itemId || item.id,
@@ -193,6 +193,9 @@ console.warn(item)
   }
 
   onSubmit() {
+    // 1. Fetch current logged-in user details from your auth service
+    const currentUser = this.authService.getCurrentUser();
+    console.log(currentUser);
     if (this.laborActivities.length < 1) {
       this.notificationService.show(
         'An invoice must contain at least one labor activity.',
@@ -200,7 +203,6 @@ console.warn(item)
       );
       return;
     }
-
     if (this.invoiceForm.invalid) {
       this.markAllAsTouched(this.invoiceForm);
       this.notificationService.show(

@@ -49,4 +49,19 @@ export class AuthService {
       return '';
     }
   }
+
+  getCurrentUser(): string {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) {
+      return '';
+    }
+    try {
+      const user = JSON.parse(userJson);
+      // Adjust 'username' if your backend returns a different property name (e.g., userName, email)
+      return user || '';
+    } catch (error) {
+      console.error('Failed to parse user data from localStorage', error);
+      return '';
+    }
+  }
 }
