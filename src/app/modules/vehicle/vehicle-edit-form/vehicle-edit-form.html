@@ -71,7 +71,7 @@
       </div>
 
       <div class="modal-footer">
-        <button type="submit" class="btn-submit"  (click)="submitForm()" [disabled]="isSubmitting">
+        <button type="submit" class="btn-primary"  (click)="submitForm()" [disabled]="isSubmitting">
           <span *ngIf="!isSubmitting" class="icon">+</span>
           <span *ngIf="isSubmitting" class="buttonSpinner"></span>
 
@@ -83,5 +83,8 @@
   </div>
 </div>
 
-<app-add-customer-form *ngIf="showCustomerPopup" (close)="showCustomerPopup = false" (customerSaved)="onCustomerSaved($event)">
+<app-add-customer-form
+  *ngIf="showCustomerPopup"
+  (close)="showCustomerPopup = false"
+  (customerSaved)="onCustomerSaved($event)">
 </app-add-customer-form>

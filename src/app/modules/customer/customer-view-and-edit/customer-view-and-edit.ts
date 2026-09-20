@@ -41,7 +41,7 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
   initForm(): void {
     this.customerForm = this.fb.group({
       customerName: ['', Validators.required],
-      contactNumber: ['', Validators.required],
+      contactNumber: [{ value: '', disabled: true }, Validators.required],
       email: ['', Validators.required],
       customerAddress: ['', Validators.required]
     });
@@ -81,7 +81,6 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
     const backendPayload = {
       customerId: this.customer?.customerId,
       customerName: formValue.customerName,
-      contactNumber: formValue.contactNumber,
       email: formValue.email,
       customerAddress: formValue.customerAddress
     };
@@ -96,9 +95,12 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit {
         this.notificationService.show('Customer saved successfully!', 'success');
         this.cancel.emit();
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error saving Customer:', err);
-        this.notificationService.show('Failed to save Customer.', 'error');
+        const serverErrorMessage =
+          err.error?.response || 'Failed to save Customer.';
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+        this.cdr.markForCheck();
       }
     });
   }

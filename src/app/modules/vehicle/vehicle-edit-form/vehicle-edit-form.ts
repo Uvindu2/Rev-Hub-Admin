@@ -55,7 +55,6 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
       vehicleMake: [this.vehicle?.vehicleMake || '', Validators.required],
       vehicleYear: [this.vehicle?.vehicleYear || '', Validators.required],
       vehicleModel: [this.vehicle?.vehicleModel || '', Validators.required],
-      // This is our hidden field for validation
       customerId: [this.currentCustomer?.customerId || null]
     });
   }
