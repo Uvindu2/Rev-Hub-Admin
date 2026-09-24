@@ -13,11 +13,12 @@ import {NotificationService} from '../../../services/notificationService';
 })
 export class AddCustomerForm implements OnInit {
 
-  @Output() close = new EventEmitter<void>();
-  @Output() customerSaved = new EventEmitter<any>();
+  @Output() close = new EventEmitter();
+  @Output() customerSaved = new EventEmitter();
 
   customerAddForm!: FormGroup;
   searchContactNumber: string = '';
+  customer: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -32,11 +33,12 @@ export class AddCustomerForm implements OnInit {
   }
 
   initForm(): void {
+    // Start with form fields disabled by default since no customer exists yet
     this.customerAddForm = this.fb.group({
-      customerName: ['', Validators.required],
-      contactNumber: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      customerAddress: ['', Validators.required],
+      customerName: [{value: '', disabled: true}, Validators.required],
+      contactNumber: [{value: '', disabled: true}, Validators.required],
+      email: [{value: '', disabled: true}, [Validators.required, Validators.email]],
+      customerAddress: [{value: '', disabled: true}],
     });
   }
 
@@ -50,10 +52,15 @@ export class AddCustomerForm implements OnInit {
       console.warn('Please enter a contact number to search.');
       return;
     }
-    this.customerAddForm.reset();
+
     this.adminService.getCustomerByContactNumber(this.searchContactNumber).subscribe({
       next: (response: any) => {
         if (response && response.data) {
+          this.customer = response.data;
+
+          // Enable form fields since the customer exists
+          this.customerAddForm.disable();
+
           this.customerAddForm.patchValue({
             customerName: response.data.customerName,
             contactNumber: response.data.contactNumber,
@@ -61,6 +68,8 @@ export class AddCustomerForm implements OnInit {
             customerAddress: response.data.customerAddress
           });
           this.cdr.markForCheck();
+        } else {
+          this.handleCustomerNotFound();
         }
       },
       error: (err) => {
@@ -68,15 +77,39 @@ export class AddCustomerForm implements OnInit {
         const serverErrorMessage =
           err.error?.response || 'Customer not found with this contact number.';
         this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-        this.cdr.markForCheck();
+        this.handleCustomerNotFound();
+
       },
     });
   }
 
+  private handleCustomerNotFound(): void {
+    this.customer = null;
+    this.customerAddForm.reset();
+
+    // Enable the form so user can fill out details for a new customer
+    this.customerAddForm.enable();
+
+    // Set contact number to the search term and disable ONLY the contact number field
+    this.customerAddForm.patchValue({
+      contactNumber: this.searchContactNumber
+    });
+    this.customerAddForm.get('contactNumber')?.disable();
+
+    this.cdr.markForCheck();
+  }
+
   saveCustomer(): void {
+    this.customerAddForm.enable();
     if (this.customerAddForm.valid) {
-      console.log('Saving form data:', this.customerAddForm.value);
-      this.customerSaved.emit(null);
+      // Merge the existing customer ID (if editing/found) with the form values
+      const payload = {
+        customerId: this.customer ? this.customer.customerId : null,
+        ...this.customerAddForm.getRawValue() // Use getRawValue() to capture disabled values if needed
+      };
+      this.customerAddForm.disable();
+      console.log('Saving customer payload:', payload);
+      this.customerSaved.emit(payload);
       this.closePopup();
     } else {
       this.notificationService.show(

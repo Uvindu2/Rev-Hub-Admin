@@ -3,8 +3,8 @@ import {LaborActivityNameResponseProjection} from './LaborActivityNameResponsePr
 export interface ItemTableViewResponseProjection {
   itemId: number;
   itemName: string;
-  dateModify: string;
-  userModify: string;
+  lastModifiedDate: string;
+  lastModifiedUser: string;
   balanceQty: number;
   supplierPrice: number;
   measuringUnitType:any;

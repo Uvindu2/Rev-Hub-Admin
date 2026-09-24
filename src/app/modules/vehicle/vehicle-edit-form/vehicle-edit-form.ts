@@ -51,10 +51,11 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
   initForm(): void {
     this.vehicleForm = this.fb.group({
-      vehicleRegNo: [this.vehicle?.vehicleRegNo || '', Validators.required],
+      vehicleRegNo: [{value: this.vehicle?.vehicleRegNo || '', disabled: true}, Validators.required],
       vehicleMake: [this.vehicle?.vehicleMake || '', Validators.required],
       vehicleYear: [this.vehicle?.vehicleYear || '', Validators.required],
       vehicleModel: [this.vehicle?.vehicleModel || '', Validators.required],
+      colour: [this.vehicle?.colour || ''],
       customerId: [this.currentCustomer?.customerId || null]
     });
   }
@@ -85,6 +86,7 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
       return;
     }
     // Validation check
+    this.vehicleForm.enable();
     if (this.vehicleForm.invalid) {
       this.vehicleForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields.', 'error');

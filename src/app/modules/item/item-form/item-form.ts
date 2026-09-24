@@ -105,10 +105,13 @@ export class ItemForm implements OnInit {
         this.notificationService.show('Item saved successfully!', 'success');
         this.cancel.emit();
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error saving Item:', err);
-        this.notificationService.show('Failed to save Item.', 'error');
-      }
+        const serverErrorMessage =
+          err.error?.response || 'Failed to save Item.';
+        this.notificationService.show(serverErrorMessage, 'error');
+        this.cdr.markForCheck();
+      },
     });
   }
 

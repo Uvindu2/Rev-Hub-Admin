@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { NgForOf, NgIf } from '@angular/common';
+import {DatePipe, NgForOf, NgIf} from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
@@ -12,7 +12,7 @@ import { ItemIdNameResponseDTO } from '../../../dto/response/ItemIdNameResponseD
 
 @Component({
   selector: 'app-item-view',
-  imports: [ItemForm, NgForOf, NgIf, ReactiveFormsModule, ItemViewAndEdit, Dropdown],
+  imports: [ItemForm, NgForOf, NgIf, ReactiveFormsModule, ItemViewAndEdit, Dropdown, DatePipe],
   templateUrl: './item-view.html',
   styleUrl: './item-view.css',
 })
