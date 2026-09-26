@@ -19,6 +19,9 @@
             bindLabel="contactNumber"
             bindValue="contactNumber"
             [data]="cutromerNameEmailIds"
+            [showAllOption]="true"
+            allLabel="All"
+            [allValue]="null"
             placeholder="All Contact Numbers"
             errorMessage="Please select a contact number."
           >
@@ -33,6 +36,9 @@
             bindLabel="email"
             bindValue="email"
             [data]="cutromerNameEmailIds"
+            [showAllOption]="true"
+            allLabel="All"
+            [allValue]="null"
             placeholder="All Customer Emails"
             errorMessage="Please select a email."
           >
@@ -163,8 +169,7 @@
 
 <app-customer-view-and-edit
   *ngIf="isEditModalOpen || isViewModalOpen"
+  [isEditModalOpen]="isEditModalOpen"
   (cancel)="closeModal()"
   [customer]="customer"
-  [isViewModalOpen]="isViewModalOpen"
-  [isEditModalOpen]="isEditModalOpen"
 ></app-customer-view-and-edit>

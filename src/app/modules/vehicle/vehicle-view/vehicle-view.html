@@ -19,6 +19,9 @@
       formControlName="vehicleRegNo"
       label="Vehicle Reg Number"
       [data]="availableVehicles"
+      [showAllOption]="true"
+      allLabel="All"
+      [allValue]="null"
       placeholder="All Vehicles"
       errorMessage="Please select a reg no.">
     </app-dropdown>
@@ -30,6 +33,9 @@
       formControlName="vehicleVinNo"
       label="Vehicle Vin Number"
       [data]="availableVehicleVins"
+      [showAllOption]="true"
+      allLabel="All"
+      [allValue]="null"
       placeholder="All Vehicles"
       errorMessage="Please select a vin no.">
     </app-dropdown>
@@ -128,5 +134,5 @@
 
   </div>
 
-  <app-vehicle-edit-form *ngIf="isEditModalOpen || isViewModalOpen" [vehicle]="selectedVehicle" (cancel)="closeModal()"></app-vehicle-edit-form>
+  <app-vehicle-edit-form *ngIf="isEditModalOpen || isViewModalOpen" [isEditModalOpen]="isEditModalOpen" [vehicle]="selectedVehicle" (cancel)="closeModal()"></app-vehicle-edit-form>
 </div>

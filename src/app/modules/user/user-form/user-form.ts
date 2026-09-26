@@ -41,8 +41,23 @@ export class UserForm implements OnInit {
 
   initForm(): void {
     this.userForm = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      username: ['',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(20),
+          Validators.pattern(/^[a-zA-Z0-9_.-]+$/) // Allows only letters, numbers, underscores, dots, and hyphens
+        ]
+      ],
+      password: ['',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(30),
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/)
+          // Requires: at least 1 lowercase, 1 uppercase, 1 number, and 1 special character
+        ]
+      ],
       fullName: ['', Validators.required],
       speciality: [''],
       userRoleSelected: [[], Validators.required],

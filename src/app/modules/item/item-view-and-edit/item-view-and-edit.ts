@@ -1,12 +1,22 @@
-import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { MeasuringUnitType } from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
-import { MultiSelectDropdown } from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
-import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
-import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
+import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
+import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
+import {CommonModule} from '@angular/common';
 import {finalize} from 'rxjs';
 
 @Component({
@@ -16,9 +26,9 @@ import {finalize} from 'rxjs';
   styleUrl: './item-view-and-edit.css',
   standalone: true
 })
-export class ItemViewAndEdit implements OnInit, AfterViewInit {
+export class ItemViewAndEdit implements OnInit, AfterViewInit, OnChanges {
+
   @Input() item: ItemTableViewResponseProjection | undefined;
-  @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
 
@@ -50,27 +60,50 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
     console.warn('Item data received in ItemViewAndEdit:', this.item);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isEditModalOpen'] && this.itemForm) {
+      this.updateFormMode();
+    }
+
+    if (changes['item'] && this.item && this.itemForm) {
+      this.patchFormWithData(this.item);
+    }
+  }
+
   initForm(): void {
     this.itemForm = this.fb.group({
       itemName: ['', Validators.required],
       balanceQty: [0, [Validators.required, Validators.min(0)]],
       supplierPrice: [0, [Validators.required, Validators.min(0)]],
       sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      measuringUnitType: ['', Validators.required],// e.g., 'PIECES', 'LITERS'
+      measuringUnitType: ['', Validators.required],
       laborActivitiesSelected: [[], Validators.required]
     });
+
+    this.updateFormMode();
   }
 
   ngAfterViewInit(): void {
-    // If data already exists, patch it after the view is ready
     if (this.item) {
       this.patchFormWithData(this.item);
     }
   }
 
+  private updateFormMode(): void {
+    if (!this.itemForm) {
+      return;
+    }
+
+    if (this.isEditModalOpen) {
+      this.itemForm.enable();
+    } else {
+      this.itemForm.disable();
+    }
+
+    this.cdr.markForCheck();
+  }
 
   private patchFormWithData(data: ItemTableViewResponseProjection): void {
-    // Use patchValue with a complete object map
     this.itemForm.patchValue({
       itemName: data.itemName,
       balanceQty: data.balanceQty,
@@ -78,11 +111,10 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
       sellingPrice: data.sellingPrice,
       measuringUnitType: data.measuringUnitType,
       laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
-    }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops
+    }, {emitEvent: false});
 
     this.cdr.markForCheck();
   }
-
 
   loadItemNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
@@ -95,14 +127,16 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
   }
 
   onSubmit(): void {
-    if (this.isSubmitting) {
+    if (this.isSubmitting || !this.isEditModalOpen) {
       return;
     }
+
     if (this.itemForm.invalid) {
       this.itemForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
+
     this.isSubmitting = true;
     const formValue = this.itemForm.value;
 
@@ -117,8 +151,6 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
     };
 
     this.adminService.modifyItem(backendPayload).pipe(
-      // Always reset submit loader
-      // success OR error
       finalize(() => {
         this.isSubmitting = false;
       })).subscribe({
@@ -143,6 +175,6 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit {
   }
 
   get repairLaborActivitiesSelectedControl(): FormControl {
-    return (this.itemForm?.get('laborActivitiesSelected') as FormControl) || new FormControl([]);
+    return this.itemForm?.get('laborActivitiesSelected') as FormControl;
   }
 }

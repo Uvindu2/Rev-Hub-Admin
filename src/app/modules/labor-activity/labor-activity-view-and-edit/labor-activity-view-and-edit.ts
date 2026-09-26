@@ -1,8 +1,18 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, Output} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {CommonModule, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {LaborActivityTableViewResponseProjection} from '../../../dto/response/LaborActivityTableViewResponseProjection';
 import {finalize} from 'rxjs';
 
@@ -13,10 +23,9 @@ import {finalize} from 'rxjs';
   styleUrl: './labor-activity-view-and-edit.css',
   standalone: true
 })
-export class LaborActivityViewAndEdit {
+export class LaborActivityViewAndEdit implements OnInit, AfterViewInit, OnChanges {
 
   @Input() laborActivity: LaborActivityTableViewResponseProjection | undefined;
-  @Input() isViewModalOpen: boolean = true;
   @Input() isEditModalOpen: boolean = false;
   @Output() cancel = new EventEmitter<void>();
 
@@ -35,55 +44,75 @@ export class LaborActivityViewAndEdit {
     this.initForm();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isEditModalOpen'] && this.laborActivityForm) {
+      this.updateFormMode();
+    }
+
+    if (changes['laborActivity'] && this.laborActivity && this.laborActivityForm) {
+      this.patchFormWithData(this.laborActivity);
+    }
+  }
+
+  initForm(): void {
+    this.laborActivityForm = this.fb.group({
+      laborActivityName: ['', Validators.required],
+      active: ['', Validators.required]
+    });
+
+    this.updateFormMode();
+  }
+
   ngAfterViewInit(): void {
-    // If data already exists, patch it after the view is ready
     if (this.laborActivity) {
       this.patchFormWithData(this.laborActivity);
     }
   }
 
-  private patchFormWithData(data: LaborActivityTableViewResponseProjection): void {
-    // Use patchValue with a complete object map
-    this.laborActivityForm.patchValue({
-      laborActivityName: data.activityName,
-      active: data.active
-    }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops
+  private updateFormMode(): void {
+    if (!this.laborActivityForm) {
+      return;
+    }
+
+    if (this.isEditModalOpen) {
+      this.laborActivityForm.enable();
+    } else {
+      this.laborActivityForm.disable();
+    }
 
     this.cdr.markForCheck();
   }
 
-  initForm(): void {
-    this.laborActivityForm = this.fb.group({
-      // Adding core validations
-      laborActivityName: ['', Validators.required],
-      active: [true, Validators.required] // Default to true (Active)
-    });
+  private patchFormWithData(data: LaborActivityTableViewResponseProjection): void {
+    this.laborActivityForm.patchValue({
+      laborActivityName: data.activityName,
+      active: data.active
+    }, {emitEvent: false});
+
+    this.cdr.markForCheck();
   }
 
   onSubmit(): void {
-    if (this.isSubmitting) {
+    if (this.isSubmitting || !this.isEditModalOpen) {
       return;
     }
-    // 1. Trigger validations across ALL controls (including the common dropdown components)
+
     if (this.laborActivityForm.invalid) {
       this.laborActivityForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields before submitting.', 'error');
-      return; // Block submission execution completely
+      return;
     }
+
     this.isSubmitting = true;
     const formValue = this.laborActivityForm.value;
 
-    // 2. Safely construct the exact payload contract structure expected by the backend
     const backendPayload = {
       laborActivityId: this.laborActivity?.laborActivityId,
       activityName: formValue.laborActivityName,
       active: formValue.active
     };
 
-    // 3. Dispatch the payload request
     this.adminService.modifyLaborActivity(backendPayload).pipe(
-      // Always reset submit loader
-      // success OR error
       finalize(() => {
         this.isSubmitting = false;
       })).subscribe({

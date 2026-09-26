@@ -76,10 +76,13 @@ export class LaborActivityForm implements OnInit {
         this.notificationService.show('Labor Activity saved successfully!', 'success');
         this.cancel.emit();
       },
-      error: (err: any) => {
-        console.error('Error saving Labor Activity', err);
-        this.notificationService.show('Failed to save Labor Activity. Please verify details.', 'error');
-      }
+      error: (err) => {
+        console.error('Error saving Labor Activity: ', err);
+        const serverErrorMessage =
+          err.error?.response || 'Failed to save Labor Activity.';
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+        this.cdr.markForCheck();
+      },
     });
   }
 

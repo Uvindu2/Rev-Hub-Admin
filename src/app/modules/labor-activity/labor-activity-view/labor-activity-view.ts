@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
@@ -20,7 +20,8 @@ import { LaborActivityNameResponseProjection } from '../../../dto/response/Labor
     LaborActivityForm,
     LaborActivityViewAndEdit,
     Dropdown,
-    NgClass
+    NgClass,
+    DatePipe
   ],
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',
@@ -185,6 +186,8 @@ export class LaborActivityView implements OnInit, OnDestroy {
   // Local action triggers require instant local checks
   onAddLaborActivity(): void {
     this.isAddModalOpen = true;
+    this.isViewModalOpen = false;
+    this.isEditModalOpen = false;
     this.cdr.markForCheck();
   }
 
@@ -206,8 +209,9 @@ export class LaborActivityView implements OnInit, OnDestroy {
     this.adminService.getLaborActivityById(id).subscribe({
       next: (response: any) => {
         this.laborActivity = response.data;
-        console.log(response);
         this.isViewModalOpen = true;
+        this.isEditModalOpen = false;
+        this.isAddModalOpen = false;
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -223,8 +227,9 @@ export class LaborActivityView implements OnInit, OnDestroy {
     this.adminService.getLaborActivityById(id).subscribe({
       next: (response: any) => {
         this.laborActivity = response.data;
-        console.log(response);
         this.isEditModalOpen = true;
+        this.isAddModalOpen = false;
+        this.isViewModalOpen = false;
         this.cdr.detectChanges();
       },
       error: (err: any) => {

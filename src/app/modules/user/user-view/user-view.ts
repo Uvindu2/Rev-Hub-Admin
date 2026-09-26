@@ -215,6 +215,8 @@ export class UserView implements OnInit {
 
   onAddUser(): void {
     this.isAddModalOpen = true;
+    this.isViewModalOpen = false;
+    this.isEditModalOpen = false;
     this.cdr.markForCheck();
   }
 
@@ -231,6 +233,8 @@ export class UserView implements OnInit {
       next: (response: any) => {
         this.user = response.data;
         this.isViewModalOpen = true;
+        this.isEditModalOpen = false;
+        this.isAddModalOpen = false;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -245,6 +249,8 @@ export class UserView implements OnInit {
       next: (response: any) => {
         this.user = response.data;
         this.isEditModalOpen = true;
+        this.isAddModalOpen = false;
+        this.isViewModalOpen = false;
         this.cdr.detectChanges();
       },
       error: () => {

@@ -11,13 +11,19 @@ import { ControlValueAccessor, FormsModule, NgControl } from '@angular/forms';
   styleUrl: './dropdown.css',
 })
 export class Dropdown implements ControlValueAccessor, OnInit {
-    @Input() label = '';
+  @Input() label = '';
   @Input() data: any[] = [];
   @Input() bindLabel: string = '';
   @Input() bindValue: string = '';
-
+  @Input() allValue!: null;
   // Custom error message input string
   @Input() errorMessage: string = 'This field is required.';
+
+  // Show "All" option
+  @Input() showAllOption: boolean = false;
+
+  // Display text for null value
+  @Input() allLabel: string = 'All';
 
   isOpen = false;
   searchText = '';
@@ -36,6 +42,7 @@ export class Dropdown implements ControlValueAccessor, OnInit {
   ngOnInit(): void {}
 
   // If there are no validators on the parent form control, ngControl.invalid is false.
+
   get isInvalid(): boolean {
     return !!(
       this.ngControl &&
@@ -45,19 +52,21 @@ export class Dropdown implements ControlValueAccessor, OnInit {
   }
 
   writeValue(value: any): void {
-    this.value = value !== undefined ? value : null;
+    this.value = value ?? null;
     this.updateDisplayLabel();
   }
 
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
+
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
   }
 
   toggleDropdown() {
     this.isOpen = !this.isOpen;
+
     if (!this.isOpen) {
       this.onTouched();
     }
@@ -69,24 +78,43 @@ export class Dropdown implements ControlValueAccessor, OnInit {
 
   getItemLabel(item: any): string {
     if (item === null || item === undefined) return '';
+
     if (typeof item !== 'object') {
       if (this.bindValue && this.data) {
         const matchingObject = this.data.find((x) => x[this.bindValue] == item);
-        return matchingObject && this.bindLabel ? matchingObject[this.bindLabel] : item.toString();
+
+        return matchingObject && this.bindLabel
+          ? matchingObject[this.bindLabel]
+          : item.toString();
       }
+
       return item.toString();
     }
+
     return this.bindLabel ? item[this.bindLabel] : item.toString();
   }
 
   updateDisplayLabel() {
-    if (this.value === null || this.value === undefined || this.value === '') {
+    // null means All / no filter
+    if (this.value === null) {
+      this.selectedDisplayLabel = this.showAllOption
+        ? this.allLabel
+        : '';
+
+      return;
+    }
+
+    if (this.value === undefined || this.value === '') {
       this.selectedDisplayLabel = '';
       return;
     }
+
     if (this.bindValue && this.data) {
       const found = this.data.find((x) => x[this.bindValue] === this.value);
-      this.selectedDisplayLabel = found ? found[this.bindLabel] : this.value;
+
+      this.selectedDisplayLabel = found
+        ? found[this.bindLabel]
+        : this.value;
     } else {
       this.selectedDisplayLabel = this.getItemLabel(this.value);
     }
@@ -98,11 +126,24 @@ export class Dropdown implements ControlValueAccessor, OnInit {
 
   selectItem(item: any) {
     const targetValue = this.getItemValue(item);
+
     this.value = targetValue;
     this.selectedDisplayLabel = this.getItemLabel(item);
-    this.searchText = ''; // clear search text after selection
+    this.searchText = '';
     this.isOpen = false;
+
     this.onChange(this.value);
+    this.onTouched();
+  }
+
+  selectAll() {
+    // null means All / no filter
+    this.value = null;
+    this.selectedDisplayLabel = this.allLabel;
+    this.searchText = '';
+    this.isOpen = false;
+
+    this.onChange(null);
     this.onTouched();
   }
 

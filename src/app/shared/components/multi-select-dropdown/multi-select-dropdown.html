@@ -3,7 +3,12 @@
 </label>
 
 <div class="dropdown-container">
-  <div class="dropdown-input-wrapper" [class.invalid-border]="isInvalid">
+
+  <!-- Search input -->
+  <div
+    class="dropdown-input-wrapper"
+    [class.invalid-border]="isInvalid">
+
     <input
       type="text"
       [(ngModel)]="searchText"
@@ -11,34 +16,98 @@
       class="dropdown-search-input"
       (focus)="isOpen = true"
     />
-    <span class="dropdown-toggle" (click)="$event.stopPropagation(); toggleDropdown()">
+
+    <span
+      class="dropdown-toggle"
+      (click)="$event.stopPropagation(); toggleDropdown()">
       {{ isOpen ? '▲' : '▼' }}
     </span>
+
   </div>
 
-  <div class="dropdown-options-box" *ngIf="isOpen">
-    <div *ngFor="let item of filteredItems" class="checkbox-option">
+  <!-- Dropdown -->
+  <div
+    class="dropdown-options-box"
+    *ngIf="isOpen">
+
+    <!-- Select All -->
+    <div
+      class="checkbox-option select-all-option"
+      *ngIf="filteredItems.length > 0">
+
       <label class="checkbox-label-wrapper">
+
+        <input
+          type="checkbox"
+          [checked]="areAllFilteredSelected()"
+          [indeterminate]="isSomeFilteredSelected()"
+          (change)="toggleSelectAll()"
+        />
+
+        <span class="option-text">
+          {{ areAllFilteredSelected() ? 'Deselect All' : 'Select All' }}
+        </span>
+
+      </label>
+
+    </div>
+
+    <!-- Individual options -->
+    <div
+      *ngFor="let item of filteredItems"
+      class="checkbox-option">
+
+      <label class="checkbox-label-wrapper">
+
         <input
           type="checkbox"
           [checked]="isSelected(item)"
-          (change)="toggle(item)">
-        <span class="option-text">{{ getItemLabel(item) }}</span>
+          (change)="toggle(item)"
+        />
+
+        <span class="option-text">
+          {{ getItemLabel(item) }}
+        </span>
+
       </label>
+
     </div>
-    <div *ngIf="filteredItems.length === 0" class="no-results">
+
+    <!-- No results -->
+    <div
+      *ngIf="filteredItems.length === 0"
+      class="no-results">
       No matching items found
     </div>
+
   </div>
 
-  <div class="selected-tags-container" *ngIf="value.length">
-    <span *ngFor="let item of value" class="selected-tag">
+  <!-- Selected tags -->
+  <div
+    class="selected-tags-container"
+    *ngIf="value.length > 0">
+
+    <span
+      *ngFor="let item of value"
+      class="selected-tag">
+
       {{ getSelectedLabel(item) }}
-      <span class="remove-tag-btn" (click)="remove(item)">×</span>
+
+      <span
+        class="remove-tag-btn"
+        (click)="remove(item)">
+        ×
+      </span>
+
     </span>
+
   </div>
 
-  <div *ngIf="isInvalid" class="dropdown-error-msg">
+  <!-- Validation error -->
+  <div
+    *ngIf="isInvalid"
+    class="dropdown-error-msg">
     {{ errorMessage }}
   </div>
+
 </div>

@@ -49,7 +49,7 @@
 
     </div>
 
-    <div class="modal-footer">
+    <div *ngIf="isEditModalOpen" class="modal-footer">
       <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
         <span *ngIf="!isSubmitting" class="icon">+</span>
         <span *ngIf="isSubmitting" class="buttonSpinner"></span>

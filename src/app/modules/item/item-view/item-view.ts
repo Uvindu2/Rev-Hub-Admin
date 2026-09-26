@@ -186,6 +186,8 @@ export class ItemView implements OnInit, OnDestroy {
 
   onAddItem(): void {
     this.isAddModalOpen = true;
+    this.isViewModalOpen = false;
+    this.isEditModalOpen = false;
     this.cdr.markForCheck();
   }
 
@@ -202,6 +204,8 @@ export class ItemView implements OnInit, OnDestroy {
       next: (response: any) => {
         this.item = response.data;
         this.isViewModalOpen = true;
+        this.isEditModalOpen = false;
+        this.isAddModalOpen=false;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -218,6 +222,8 @@ export class ItemView implements OnInit, OnDestroy {
       next: (response: any) => {
         this.item = response.data;
         this.isEditModalOpen = true;
+        this.isViewModalOpen=false;
+        this.isAddModalOpen=false;
         this.cdr.detectChanges();
       },
       error: () => {

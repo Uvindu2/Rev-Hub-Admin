@@ -15,30 +15,33 @@
 
       <div class="form-group">
         <label>Status <span class="required">*</span></label>
-        <div class="radio-group">
+
+        <div *ngIf="isEditModalOpen" class="radio-group">
           <label class="radio-option">
             <input type="radio" formControlName="active" [value]="true">
             <span>Active</span>
           </label>
+
           <label class="radio-option">
             <input type="radio" formControlName="active" [value]="false">
             <span>Inactive</span>
           </label>
         </div>
+
+        <div *ngIf="!isEditModalOpen" class="view-value">
+          {{ laborActivity?.active ? 'Active' : 'Inactive' }}
+        </div>
       </div>
 
     </div>
 
-    <div class="modal-footer">
+    <div *ngIf="isEditModalOpen" class="modal-footer">
       <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
-        <span *ngIf="!isSubmitting" class="icon">+</span>
         <span *ngIf="isSubmitting" class="buttonSpinner"></span>
 
         {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
       </button>
-      <button type="button" class="btn-cancel" (click)="onCancel()">
-        CANCEL
-      </button>
+      <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
     </div>
   </form>
 </div>

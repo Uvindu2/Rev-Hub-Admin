@@ -9,14 +9,63 @@
 
       <div class="form-group">
         <label>Username <span class="required">*</span></label>
-        <input type="text" formControlName="username" placeholder="e.g. johndoe">
-        <div *ngIf="isInvalid('username')" class="error-msg">Username is required.</div>
+
+        <input
+          type="text"
+          formControlName="username"
+          placeholder="e.g. johndoe"
+        >
+
+        <div *ngIf="isInvalid('username')" class="error-msg">
+
+    <span *ngIf="userForm.get('username')?.hasError('required')">
+      Username is required.
+    </span>
+
+          <span *ngIf="userForm.get('username')?.hasError('minlength')">
+      Username must be at least 3 characters.
+    </span>
+
+          <span *ngIf="userForm.get('username')?.hasError('maxlength')">
+      Username cannot exceed 20 characters.
+    </span>
+
+          <span *ngIf="userForm.get('username')?.hasError('pattern')">
+      Username can contain only letters, numbers, underscores, dots, and hyphens.
+    </span>
+
+        </div>
       </div>
 
       <div class="form-group">
         <label>Password <span class="required">*</span></label>
-        <input type="password" formControlName="password" placeholder="Enter password">
-        <div *ngIf="isInvalid('password')" class="error-msg">Password must be at least 6 characters.</div>
+
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Enter password"
+        >
+
+        <div *ngIf="isInvalid('password')" class="error-msg">
+
+          <div *ngIf="userForm.get('password')?.hasError('required')">
+            Password is required.
+          </div>
+
+          <div *ngIf="userForm.get('password')?.hasError('minlength')">
+            Password must be at least 8 characters.
+          </div>
+
+          <div *ngIf="userForm.get('password')?.hasError('maxlength')">
+            Password must not exceed 30 characters.
+          </div>
+
+          <div *ngIf="userForm.get('password')?.hasError('pattern')">
+            Password must contain at least 1 uppercase letter, 1 lowercase letter,
+            1 number, and 1 special character.
+          </div>
+
+        </div>
       </div>
 
       <div class="form-group">

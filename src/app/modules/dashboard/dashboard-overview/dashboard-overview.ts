@@ -27,6 +27,7 @@ import { AdminService } from '../../../services/admin.service';
 import { JobCardStatusResponseProjection } from '../../../dto/response/JobCardStatusResponseProjection';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faXRay } from '@fortawesome/free-solid-svg-icons';
+import {JobCardSummaryResponseProjection} from '../../../dto/response/JobCardSummaryResponseProjection';
 
 export type ChartOptions = {
   series?: ApexAxisChartSeries | ApexNonAxisChartSeries;
@@ -72,7 +73,7 @@ export class DashboardOverview implements OnInit {
   isRevenueLoading = false;
   customersCount: any;
   jobCardStatus: JobCardStatusResponseProjection | undefined;
-  recentJobCards: any;
+  recentJobCards: JobCardSummaryResponseProjection[] | undefined;
   recentInvoices: any;
   topLaborActivities: any = [];
   invoicesCount: any;

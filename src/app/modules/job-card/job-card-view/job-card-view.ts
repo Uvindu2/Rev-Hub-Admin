@@ -10,8 +10,8 @@ import {JobCardForm} from '../job-card-form/job-card-form';
 import {finalize} from 'rxjs';
 import {PrintPreview} from '../../invoice/print-preview/print-preview';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import {Dropdown} from '../../../shared/components/dropdown/dropdown';
 import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
+import {Dropdown} from '../../../shared/components/dropdown/dropdown';
 
 @Component({
   selector: 'app-job-card-view',
@@ -23,7 +23,8 @@ import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
     FormsModule,
     JobCardForm,
     PrintPreview,
-    Dropdown
+    Dropdown,
+
   ],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',

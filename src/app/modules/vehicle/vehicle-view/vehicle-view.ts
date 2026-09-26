@@ -109,6 +109,7 @@ export class VehicleView implements OnInit {
     this.adminService.getVehicleById(id).subscribe({
       next: (response: any) => {
         this.selectedVehicle = response.data;
+        this.isEditModalOpen=false;
         this.isViewModalOpen = true;
         this.cdr.detectChanges();
       },
@@ -126,6 +127,7 @@ export class VehicleView implements OnInit {
       next: (response: any) => {
         this.selectedVehicle = response.data;
         this.isEditModalOpen = true;
+        this.isViewModalOpen = false;
         this.cdr.detectChanges();
       },
       error: (err: any) => {

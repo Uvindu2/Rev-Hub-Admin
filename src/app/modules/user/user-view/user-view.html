@@ -23,6 +23,9 @@
             bindLabel="userName"
             bindValue="userId"
             [data]="userIdNameDtos"
+            [showAllOption]="true"
+            allLabel="All"
+            [allValue]="null"
             placeholder="All User names"
             errorMessage="Please select an user."
           >
@@ -37,6 +40,9 @@
             bindLabel="roleName"
             bindValue="roleId"
             [data]="userRoleNameAndIds"
+            [showAllOption]="true"
+            allLabel="All"
+            [allValue]="null"
             placeholder="All Roles"
             errorMessage="Please select a role."
           >
@@ -150,5 +156,9 @@
 </div>
 
 <app-user-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-user-form>
-<app-user-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [user]="user" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-user-view-and-edit>
+<app-user-view-and-edit
+  *ngIf="isEditModalOpen || isViewModalOpen"
+  [isEditModalOpen]="isEditModalOpen"
+  (cancel)="closeModal()" [user]="user">
+</app-user-view-and-edit>
 

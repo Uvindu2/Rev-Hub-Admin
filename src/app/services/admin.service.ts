@@ -9,6 +9,7 @@ import {ItemTableViewResponseProjection} from '../dto/response/ItemTableViewResp
 import {CustomerResponseProjection} from '../dto/response/CustomerResponseProjection';
 import {RoleNameResponseDTO} from '../dto/response/RoleNameResponseDTO';
 import {InvoiceItemsResponseDTO} from '../dto/response/InvoiceItemsResponseDTO';
+import {JobCardSummaryResponseProjection} from '../dto/response/JobCardSummaryResponseProjection';
 
 @Injectable({
   providedIn: 'root',

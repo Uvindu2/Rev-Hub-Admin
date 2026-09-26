@@ -20,6 +20,9 @@
           bindLabel="activityName"
           bindValue="laborActivityId"
           [data]="laborActivityNameProjection"
+          [showAllOption]="true"
+          allLabel="All"
+          [allValue]="null"
           placeholder="All Labor Activities"
           errorMessage="Please select an Activity."
         >
@@ -33,6 +36,8 @@
         <tr>
           <th>Labor Activity Name</th>
           <th>Status</th>
+          <th>Last Modified Date</th>
+          <th>Last Modified User</th>
           <th class="text-center">Actions</th>
         </tr>
         </thead>
@@ -61,6 +66,8 @@
                {{ setActiveInactive(!!laborActivity.active) }}
               </span>
           </td>
+          <td class="font-semibold">{{ laborActivity.lastModifiedDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
+          <td class="font-semibold">{{ laborActivity.lastModifiedUser }}</td>
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewLaborActivity(laborActivity.laborActivityId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editLaborActivity(laborActivity.laborActivityId)">✏️</button>
@@ -105,4 +112,4 @@
 </div>
 <app-labor-activity-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-labor-activity-form>
 
-<app-labor-activity-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" [laborActivity]="laborActivity" (cancel)="closeModal()"></app-labor-activity-view-and-edit>
+<app-labor-activity-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" [isEditModalOpen]="isEditModalOpen" [laborActivity]="laborActivity" (cancel)="closeModal()"></app-labor-activity-view-and-edit>

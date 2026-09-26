@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {UserTableViewResponseDTO} from '../../../dto/response/UserTableViewResponseDTO';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
@@ -20,7 +20,8 @@ import {finalize} from 'rxjs';
   styleUrl: './user-view-and-edit.css',
   standalone: true
 })
-export class UserViewAndEdit implements OnInit, AfterViewInit{
+export class UserViewAndEdit implements OnInit, AfterViewInit, OnChanges {
+
   @Input() user!: UserTableViewResponseDTO | undefined;
   @Input() isViewModalOpen!: boolean;
   @Input() isEditModalOpen!: boolean;
@@ -37,16 +38,25 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit(): void {
-    // If data already exists, patch it after the view is ready
-    if (this.user) {
-      this.patchFormWithData(this.user);
-    }
-    }
-
   ngOnInit(): void {
     this.initForm();
     this.loadRoles();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isEditModalOpen'] && this.userForm) {
+      this.updateFormMode();
+    }
+
+    if (changes['user'] && this.user && this.userForm) {
+      this.patchFormWithData(this.user);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.user) {
+      this.patchFormWithData(this.user);
+    }
   }
 
   initForm(): void {
@@ -57,42 +67,58 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
       userRoleSelected: [[], Validators.required],
       active: [true, Validators.required]
     });
+
+    this.updateFormMode();
+  }
+
+  private updateFormMode(): void {
+    if (!this.userForm) {
+      return;
+    }
+
+    if (this.isEditModalOpen) {
+      this.userForm.enable();
+      this.userForm.get('username')?.disable();
+    } else {
+      this.userForm.disable();
+    }
+
+    this.cdr.markForCheck();
   }
 
   loadRoles(): void {
     this.adminService.getRoles().subscribe({
       next: (res: any) => {
-        // Assuming your standard response nests the list in 'data' or returns it directly
         this.rolesList = res.data || res;
+        this.cdr.markForCheck();
       },
       error: (err: any) => console.error('Failed to load roles', err)
     });
   }
 
   onSubmit(): void {
-    if (this.isSubmitting) {
+    if (this.isSubmitting || !this.isEditModalOpen) {
       return;
     }
+
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields correctly.', 'error');
       return;
     }
-    this.isSubmitting = true;
-    const formValue = this.userForm.value;
 
-    // Payload matches UserSaveRequestDTO expected by Spring Boot backend
+    this.isSubmitting = true;
+    const formValue = this.userForm.getRawValue();
+
     const backendPayload = {
       userId: this.user?.userId,
-      fullName: formValue?.fullName,
-      speciality: formValue?.speciality,
-      roleIds: formValue?.userRoleSelected || [],
-      active: formValue?.active,
+      fullName: formValue.fullName,
+      speciality: formValue.speciality,
+      roleIds: formValue.userRoleSelected || [],
+      active: formValue.active,
     };
 
     this.adminService.modifyUser(backendPayload).pipe(
-      // Always reset submit loader
-      // success OR error
       finalize(() => {
         this.isSubmitting = false;
       })).subscribe({
@@ -118,19 +144,19 @@ export class UserViewAndEdit implements OnInit, AfterViewInit{
   }
 
   get userRoleSelectedControl(): FormControl {
-    return (this.userForm?.get('userRoleSelected') as FormControl) || new FormControl([]);
+    return this.userForm?.get('userRoleSelected') as FormControl;
   }
 
-  private patchFormWithData(data: UserTableViewResponseDTO) {
-    // Use patchValue with a complete object map
+  private patchFormWithData(data: UserTableViewResponseDTO): void {
     this.userForm.patchValue({
       username: data.username,
       fullName: data.fullName,
       speciality: data.speciality,
-      userRoleSelected: data.role?.map((r: { roleId: any; }) => r.roleId) || [],
+      userRoleSelected: data.role?.map((r: { roleId: any }) => r.roleId) || [],
       active: data.active,
     }, {emitEvent: false});
 
+    this.updateFormMode();
     this.cdr.markForCheck();
   }
 }

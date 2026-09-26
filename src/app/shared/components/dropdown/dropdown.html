@@ -3,6 +3,7 @@
 </label>
 
 <div class="dropdown-container">
+
   <div class="dropdown-input-wrapper" [class.invalid-border]="isInvalid">
     <input
       type="text"
@@ -11,12 +12,26 @@
       class="dropdown-search-input"
       (focus)="isOpen = true"
     />
-    <span class="dropdown-toggle" (click)="$event.stopPropagation(); toggleDropdown()">
+
+    <span
+      class="dropdown-toggle"
+      (click)="$event.stopPropagation(); toggleDropdown()">
       {{ isOpen ? '▲' : '▼' }}
     </span>
   </div>
 
   <div class="dropdown-options-box" *ngIf="isOpen">
+
+    <!-- ALL OPTION -->
+    <div
+      *ngIf="showAllOption"
+      class="checkbox-option all-option"
+      [class.option]="value === allLabel"
+      (click)="selectAll()">
+      <span class="option-text">{{ allLabel }}</span>
+    </div>
+
+    <!-- NORMAL OPTIONS -->
     <div
       *ngFor="let item of filteredItems"
       class="checkbox-option"
@@ -24,12 +39,19 @@
       (click)="selectItem(item)">
       <span class="option-text">{{ getItemLabel(item) }}</span>
     </div>
-    <div *ngIf="filteredItems.length === 0" class="no-results">
+
+    <!-- NO RESULTS -->
+    <div
+      *ngIf="filteredItems.length === 0 && !showAllOption"
+      class="no-results">
       No matching items found
     </div>
+
   </div>
 
+  <!-- ERROR -->
   <div *ngIf="isInvalid" class="dropdown-error-msg">
     {{ errorMessage }}
   </div>
+
 </div>

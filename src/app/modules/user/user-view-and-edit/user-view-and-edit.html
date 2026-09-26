@@ -1,7 +1,7 @@
 <div class="modal-container">
   <div class="modal-header">
     <h2>CREATE NEW USER</h2>
-    <button class="close-btn" (click)="onCancel()">&times;</button> <!-- Fixed typo from onCancel if needed, or keep your handler -->
+    <button class="close-btn" (click)="onCancel()">&times;</button>
   </div>
 
   <form [formGroup]="userForm">
@@ -24,7 +24,6 @@
         <input type="text" formControlName="speciality" placeholder="e.g. Customer Relationship">
       </div>
 
-      <!-- Multi-select element mapped to roleIds array -->
       <app-multi-select-dropdown
         label="User Role:"
         [formControl]="userRoleSelectedControl"
@@ -36,19 +35,21 @@
 
       <div class="form-group checkbox-group">
         <label>
-          <input type="checkbox" formControlName="active"> Active Account
+          <input type="checkbox" formControlName="active">
+          Active Account
         </label>
       </div>
 
     </div>
 
-    <div class="modal-footer">
+    <div *ngIf="isEditModalOpen" class="modal-footer">
       <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
         <span *ngIf="!isSubmitting" class="icon">+</span>
         <span *ngIf="isSubmitting" class="buttonSpinner"></span>
 
         {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
       </button>
+
       <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
     </div>
   </form>

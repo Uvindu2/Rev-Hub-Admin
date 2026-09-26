@@ -95,8 +95,9 @@ export class CustomerView implements OnInit {
     this.adminService.getCustomerById(customerId).subscribe({
       next: (response: any) => {
         this.customer = response.data;
-        console.log(response);
+        this.isEditModalOpen = false;
         this.isViewModalOpen = true;
+        console.log(this.isViewModalOpen);
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -112,7 +113,7 @@ export class CustomerView implements OnInit {
       next: (response: any) => {
         this.customer = response.data;
         console.log(response);
-        this.isViewModalOpen = true;
+        this.isEditModalOpen = true;
         this.cdr.detectChanges();
       },
       error: (err: any) => {

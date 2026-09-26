@@ -5,8 +5,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
-  Output
+  Output,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,12 +24,13 @@ import {finalize} from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, AddCustomerForm, ReactiveFormsModule],
   templateUrl: './vehicle-edit-form.html',
-  changeDetection: ChangeDetectionStrategy.OnPush, // Changed to OnPush for better performance
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './vehicle-edit-form.css'
 })
-export class VehicleEditFormComponent implements OnInit, AfterViewInit {
+export class VehicleEditFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   @Input() vehicle: VehicleResponseProjection | undefined;
+  @Input() isEditModalOpen: boolean = false;
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -44,9 +47,32 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // 1. Initialize the "Slot"
+    console.log(this.isEditModalOpen)
     this.currentCustomer = this.vehicle?.customer || null;
     this.initForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isEditModalOpen'] && this.vehicleForm) {
+      this.updateFormMode();
+      this.cdr.markForCheck();
+    }
+
+    if (changes['vehicle'] && this.vehicle && this.vehicleForm) {
+      this.currentCustomer = this.vehicle.customer || null;
+
+      this.vehicleForm.patchValue({
+        vehicleRegNo: this.vehicle.vehicleRegNo || '',
+        vehicleMake: this.vehicle.vehicleMake || '',
+        vehicleYear: this.vehicle.vehicleYear || '',
+        vehicleModel: this.vehicle.vehicleModel || '',
+        colour: this.vehicle.colour || '',
+        customerId: this.currentCustomer?.customerId || null
+      });
+
+      this.updateFormMode();
+      this.cdr.markForCheck();
+    }
   }
 
   initForm(): void {
@@ -58,6 +84,28 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
       colour: [this.vehicle?.colour || ''],
       customerId: [this.currentCustomer?.customerId || null]
     });
+
+    this.updateFormMode();
+  }
+
+  private updateFormMode(): void {
+    if (!this.vehicleForm) {
+      return;
+    }
+
+    if (this.isEditModalOpen) {
+      this.vehicleForm.get('vehicleMake')?.enable();
+      this.vehicleForm.get('vehicleYear')?.enable();
+      this.vehicleForm.get('vehicleModel')?.enable();
+      this.vehicleForm.get('colour')?.enable();
+
+      // Registration number should remain disabled
+      this.vehicleForm.get('vehicleRegNo')?.disable();
+
+      this.vehicleForm.get('customerId')?.enable();
+    } else {
+      this.vehicleForm.disable();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -66,14 +114,18 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
   onCustomerSaved(customer: CustomerResponseProjection): void {
     this.currentCustomer = customer;
-    this.vehicleForm.patchValue({ customerId: customer.customerId });
+    this.vehicleForm.patchValue({customerId: customer.customerId});
     this.showCustomerPopup = false;
     this.cdr.markForCheck();
   }
 
   removeCustomer(): void {
+    if (!this.isEditModalOpen) {
+      return;
+    }
+
     this.currentCustomer = null;
-    this.vehicleForm.patchValue({ customerId: '' });
+    this.vehicleForm.patchValue({customerId: ''});
     this.cdr.markForCheck();
   }
 
@@ -81,12 +133,17 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
     const control = this.vehicleForm.get(controlName);
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
+
   submitForm(): void {
-    if (this.isSubmitting) {
+    if (this.isSubmitting || !this.isEditModalOpen) {
       return;
     }
-    // Validation check
-    this.vehicleForm.enable();
+
+    this.vehicleForm.get('vehicleMake')?.enable();
+    this.vehicleForm.get('vehicleYear')?.enable();
+    this.vehicleForm.get('vehicleModel')?.enable();
+    this.vehicleForm.get('colour')?.enable();
+
     if (this.vehicleForm.invalid) {
       this.vehicleForm.markAllAsTouched();
       this.notificationService.show('Please fill out all required fields.', 'error');
@@ -97,18 +154,20 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
       this.notificationService.show('Please assign a customer.', 'error');
       return;
     }
-    this.isSubmitting = true;
-    // Define the payload structure inline
-    const backendPayload = {
-      vehicleRegNo: this.vehicleForm.value.vehicleRegNo,
-      vehicleMake: this.vehicleForm.value.vehicleMake,
-      vehicleModel: this.vehicleForm.value.vehicleModel,
-      vehicleYear: this.vehicleForm.value.vehicleYear,
-      vehicleMileage: this.vehicleForm.value.vehicleMileage,
-      colour: this.vehicleForm.value.colour,
-      otherSpecs: this.vehicleForm.value.otherSpecs,
 
-      // Logic for Customer
+    this.isSubmitting = true;
+
+    const formValue = this.vehicleForm.getRawValue();
+
+    const backendPayload = {
+      vehicleRegNo: formValue.vehicleRegNo,
+      vehicleMake: formValue.vehicleMake,
+      vehicleModel: formValue.vehicleModel,
+      vehicleYear: formValue.vehicleYear,
+      vehicleMileage: formValue.vehicleMileage,
+      colour: formValue.colour,
+      otherSpecs: formValue.otherSpecs,
+
       customerId: this.currentCustomer.customerId || 0,
       customer: this.currentCustomer.customerId ? null : {
         customerName: this.currentCustomer.customerName,
@@ -122,19 +181,16 @@ export class VehicleEditFormComponent implements OnInit, AfterViewInit {
 
     console.log('Payload sending to backend:', backendPayload);
 
-    // Send
     this.adminService.modifyVehicle(backendPayload).pipe(
-      // Always reset submit loader
-      // success OR error
       finalize(() => {
         this.isSubmitting = false;
-      })).subscribe({
+      })
+    ).subscribe({
       next: (res: any) => {
         this.notificationService.show('Vehicle modified successfully!', 'success');
         this.cancel.emit();
       },
       error: (err: any) => {
-        // Show backend error message if available
         const errorMsg = err.error?.message || 'Failed to modify vehicle.';
         this.notificationService.show(errorMsg, 'error');
       }
