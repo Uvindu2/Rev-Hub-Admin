@@ -122,7 +122,7 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit, OnChanges {
       error: (err) => {
         console.error('Error saving Customer:', err);
 
-        const serverErrorMessage = err.error?.response || 'Failed to save Customer.';
+        const serverErrorMessage = err.error?.data || 'Failed to save Customer.';
         this.notificationService.show('Error: ' + serverErrorMessage, 'error');
 
         this.cdr.markForCheck();

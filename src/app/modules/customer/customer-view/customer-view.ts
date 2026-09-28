@@ -116,12 +116,13 @@ export class CustomerView implements OnInit {
         this.isEditModalOpen = true;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load job card from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
-      },
+
+          error: (err) => {
+            console.error('Customer not found or error occurred:', err);
+            const serverErrorMessage =
+              err.error?.data || 'Failed to load job card from server:';
+            this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+          },
     });
   }
 
