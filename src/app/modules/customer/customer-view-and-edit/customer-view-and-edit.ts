@@ -30,7 +30,6 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    console.log(this.isEditModalOpen);
     this.initForm();
   }
 
@@ -107,7 +106,8 @@ export class CustomerViewAndEdit implements OnInit, AfterViewInit, OnChanges {
       customerId: this.customer?.customerId,
       customerName: formValue.customerName,
       email: formValue.email,
-      customerAddress: formValue.customerAddress
+      customerAddress: formValue.customerAddress,
+      active: this.customer?.active
     };
 
     this.adminService.modifyCustomer(backendPayload).pipe(

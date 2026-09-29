@@ -443,7 +443,7 @@ export class JobCardForm implements OnInit {
   }
 
   private handleVehicleLookupSuccess(res: any, searchValue: string, status: string): void {
-    this.vehicleAndCustomerDTO = res;
+    this.vehicleAndCustomerDTO = res.data;
     this.isExistingVehicle = true;
     this.isExistingCustomer = true;
 

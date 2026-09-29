@@ -120,10 +120,13 @@ export class LaborActivityViewAndEdit implements OnInit, AfterViewInit, OnChange
         this.notificationService.show('Labor Activity modified successfully!', 'success');
         this.cancel.emit();
       },
-      error: (err: any) => {
-        console.error('Error saving Labor Activity', err);
-        this.notificationService.show('Failed to save Labor Activity. Please verify details.', 'error');
-      }
+          error: (err) => {
+            console.error('Error modifying Labor Activity: ', err);
+            const serverErrorMessage =
+              err.error?.data || 'Failed to modify Labor Activity. Please verify details.';
+            this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+            this.cdr.markForCheck();
+          },
     });
   }
 

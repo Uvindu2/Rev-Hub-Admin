@@ -75,7 +75,7 @@ export class AddCustomerForm implements OnInit {
       error: (err) => {
         console.error('Customer not found or error occurred:', err);
         const serverErrorMessage =
-          err.error?.response || 'Customer not found with this contact number.';
+          err.error?.data || 'Customer not found with this contact number.';
         this.notificationService.show('Error: ' + serverErrorMessage, 'error');
         this.handleCustomerNotFound();
 

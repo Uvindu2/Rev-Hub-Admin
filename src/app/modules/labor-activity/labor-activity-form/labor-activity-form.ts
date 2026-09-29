@@ -79,7 +79,7 @@ export class LaborActivityForm implements OnInit {
       error: (err) => {
         console.error('Error saving Labor Activity: ', err);
         const serverErrorMessage =
-          err.error?.response || 'Failed to save Labor Activity.';
+          err.error?.data || 'Failed to save Labor Activity.';
         this.notificationService.show('Error: ' + serverErrorMessage, 'error');
         this.cdr.markForCheck();
       },

@@ -107,11 +107,13 @@ export class UserForm implements OnInit {
         this.notificationService.show('User saved successfully!', 'success');
         this.cancel.emit();
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error saving User:', err);
-        const errorMsg = err.error?.message || 'Failed to save User.';
-        this.notificationService.show(errorMsg, 'error');
-      }
+        const serverErrorMessage =
+          err.error?.data || 'Failed to save User.';
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+
+      },
     });
   }
 
