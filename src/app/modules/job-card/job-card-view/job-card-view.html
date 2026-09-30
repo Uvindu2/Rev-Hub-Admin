@@ -116,16 +116,17 @@
           <th>Vehicle Reg Number</th>
           <th>Vehicle VIN Number</th>
           <th>Status</th>
-          <th>Technician</th>
-          <th>Created User</th>
-          <th>Created Date</th>
+          <th class="desktop-only">Technician</th>
+          <th class="desktop-only">Created User</th>
+          <th class="desktop-only">Created Date</th>
           <th class="text-center">Actions</th>
         </tr>
         </thead>
+
         <tbody>
 
         <tr *ngIf="isLoading">
-          <td colspan="7" class="table-loader-cell">
+          <td colspan="9" class="table-loader-cell">
             <div class="table-loader">
               <span class="spinner"></span>
               <span>Loading job cards...</span>
@@ -134,33 +135,44 @@
         </tr>
 
         <tr *ngIf="!isLoading && (!jobCards || jobCards.length === 0)">
-          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
+          <td colspan="9" class="no-data-cell">
             No job cards found matching current filter parameters.
           </td>
         </tr>
+
         <tr *ngFor="let job of jobCards" [class.loading-hidden]="isLoading">
           <td class="font-semibold">{{ job.jobCardNumber }}</td>
           <td>{{ job.customerName }}</td>
           <td class="text-uppercase">{{ job.vehicleRegNumber }}</td>
           <td class="text-uppercase">{{ job.vehicleVinNumber }}</td>
+
           <td>
-    <span class="badge" [ngClass]="{
-      'badge-progress': job.status === 'In Progress',
-      'badge-pending': job.status === 'Pending',
-      'badge-completed': job.status === 'Completed',
-      'badge-cancelled': job.status === 'Cancelled'
-    }">
-      {{ job.status }}
-    </span>
+        <span class="badge" [ngClass]="{
+          'badge-progress': job.status === 'In Progress',
+          'badge-pending': job.status === 'Pending',
+          'badge-completed': job.status === 'Completed',
+          'badge-cancelled': job.status === 'Cancelled'
+        }">
+          {{ job.status }}
+        </span>
           </td>
-          <td>{{ job.technicianName }}</td>
-          <td>{{ job.createdUser || 'N/A' }}</td>
-          <td>{{ job.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
+
+          <td class="desktop-only">{{ job.technicianName }}</td>
+
+          <td class="desktop-only">
+            {{ job.createdUser || 'N/A' }}
+          </td>
+
+          <td class="desktop-only">
+            {{ job.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}
+          </td>
+
           <td class="actions-cell">
             <button class="btn-table-action view-btn" (click)="viewJob(job.jobId)">👁️</button>
             <button class="btn-table-action edit-btn" (click)="editJob(job.jobId)">✏️</button>
           </td>
         </tr>
+
         </tbody>
       </table>
     </div>
