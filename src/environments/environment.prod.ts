@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://daring-perfection-production-fbe1.up.railway.app'
+  apiUrl: 'https://revhubbackend-production.up.railway.app'
 };
