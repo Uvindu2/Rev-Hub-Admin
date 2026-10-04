@@ -6,10 +6,11 @@ import {
   Input,
   OnInit,
   Optional,
-  Self
+  Self,
+  ViewChild
 } from '@angular/core';
 
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import {
   ControlValueAccessor,
@@ -17,25 +18,16 @@ import {
   NgControl
 } from '@angular/forms';
 
-
 @Component({
-  selector: 'app-multi-select-dropdown',
-
+  selector: 'app-multi-select-search-dropdown',
   standalone: true,
-
   imports: [
     CommonModule,
     FormsModule
   ],
-
-  templateUrl: './multi-select-dropdown.html',
-
-  styleUrls: [
-    './multi-select-dropdown.css'
-  ],
-
-  changeDetection:
-  ChangeDetectionStrategy.Eager
+  templateUrl: './multi-select-search-dropdown.html',
+  styleUrls: ['./multi-select-search-dropdown.css'],
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class MultiSelectDropdown
   implements ControlValueAccessor, OnInit {
@@ -58,10 +50,20 @@ export class MultiSelectDropdown
 
 
   /* =======================================================
+     VIEW
+     ======================================================= */
+
+  @ViewChild('searchInput')
+  searchInput?: ElementRef<HTMLInputElement>;
+
+
+  /* =======================================================
      STATE
      ======================================================= */
 
   isOpen = false;
+
+  searchText = '';
 
   value: any[] = [];
 
@@ -70,11 +72,9 @@ export class MultiSelectDropdown
      CONTROL VALUE ACCESSOR
      ======================================================= */
 
-  onChange = (value: any[]) => {
-  };
+  onChange = (value: any[]) => {};
 
-  onTouched = () => {
-  };
+  onTouched = () => {};
 
 
   /* =======================================================
@@ -85,13 +85,12 @@ export class MultiSelectDropdown
     @Self()
     @Optional()
     public ngControl: NgControl,
+
     private elementRef: ElementRef
   ) {
 
     if (this.ngControl) {
-
       this.ngControl.valueAccessor = this;
-
     }
 
   }
@@ -101,8 +100,7 @@ export class MultiSelectDropdown
      INIT
      ======================================================= */
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
 
   /* =======================================================
@@ -159,7 +157,21 @@ export class MultiSelectDropdown
     this.isOpen = !this.isOpen;
 
 
-    if (!this.isOpen) {
+    if (this.isOpen) {
+
+      this.searchText = '';
+
+
+      // Focus search box after rendering
+      setTimeout(() => {
+
+        this.searchInput?.nativeElement.focus();
+
+      });
+
+    } else {
+
+      this.searchText = '';
 
       this.onTouched();
 
@@ -176,9 +188,7 @@ export class MultiSelectDropdown
     'document:click',
     ['$event']
   )
-  onDocumentClick(
-    event: MouseEvent
-  ): void {
+  onDocumentClick(event: MouseEvent): void {
 
     const clickedInside =
       this.elementRef.nativeElement.contains(
@@ -193,6 +203,8 @@ export class MultiSelectDropdown
 
       this.isOpen = false;
 
+      this.searchText = '';
+
       this.onTouched();
 
     }
@@ -204,9 +216,7 @@ export class MultiSelectDropdown
      GET VALUE
      ======================================================= */
 
-  private getItemValue(
-    item: any
-  ): any {
+  private getItemValue(item: any): any {
 
     return this.bindValue
       ? item[this.bindValue]
@@ -219,9 +229,7 @@ export class MultiSelectDropdown
      GET LABEL
      ======================================================= */
 
-  getItemLabel(
-    item: any
-  ): string {
+  getItemLabel(item: any): string {
 
     if (
       item === null ||
@@ -233,9 +241,7 @@ export class MultiSelectDropdown
     }
 
 
-    /* -----------------------------------------------------
-       Primitive value
-       ----------------------------------------------------- */
+    // Primitive value
 
     if (
       typeof item !== 'object'
@@ -268,9 +274,7 @@ export class MultiSelectDropdown
     }
 
 
-    /* -----------------------------------------------------
-       Object
-       ----------------------------------------------------- */
+    // Object
 
     return this.bindLabel
       ? item[this.bindLabel]
@@ -317,18 +321,14 @@ export class MultiSelectDropdown
 
   get selectedDisplayText(): string {
 
-    if (
-      this.value.length === 0
-    ) {
+    if (this.value.length === 0) {
 
       return 'Select options...';
 
     }
 
 
-    if (
-      this.value.length === 1
-    ) {
+    if (this.value.length === 1) {
 
       return this.getSelectedLabel(
         this.value[0]
@@ -346,9 +346,7 @@ export class MultiSelectDropdown
      CHECK SELECTED
      ======================================================= */
 
-  isSelected(
-    item: any
-  ): boolean {
+  isSelected(item: any): boolean {
 
     const itemValue =
       this.getItemValue(item);
@@ -362,68 +360,18 @@ export class MultiSelectDropdown
 
 
   /* =======================================================
-     CHECK ALL SELECTED
-     ======================================================= */
-
-  areAllSelected(): boolean {
-
-    if (
-      this.data.length === 0
-    ) {
-
-      return false;
-
-    }
-
-
-    return this.data.every(
-      item =>
-        this.isSelected(item)
-    );
-
-  }
-
-
-  /* =======================================================
-     CHECK SOME SELECTED
-     ======================================================= */
-
-  isSomeSelected(): boolean {
-
-    const someSelected =
-      this.data.some(
-        item =>
-          this.isSelected(item)
-      );
-
-
-    return (
-      someSelected &&
-      !this.areAllSelected()
-    );
-
-  }
-
-
-  /* =======================================================
      TOGGLE ITEM
      ======================================================= */
 
-  toggle(
-    item: any
-  ): void {
+  toggle(item: any): void {
 
     const targetValue =
       this.getItemValue(item);
 
 
-    if (
-      this.isSelected(item)
-    ) {
+    if (this.isSelected(item)) {
 
-      /* ---------------------------------------------------
-         REMOVE
-         --------------------------------------------------- */
+      // Remove
 
       this.value =
         this.value.filter(
@@ -433,56 +381,11 @@ export class MultiSelectDropdown
 
     } else {
 
-      /* ---------------------------------------------------
-         ADD
-         --------------------------------------------------- */
+      // Add
 
       this.value = [
         ...this.value,
         targetValue
-      ];
-
-    }
-
-
-    this.onChange(this.value);
-
-    this.onTouched();
-
-  }
-
-
-  /* =======================================================
-     SELECT / DESELECT ALL
-     ======================================================= */
-
-  toggleSelectAll(): void {
-
-    const allValues =
-      this.data.map(
-        item =>
-          this.getItemValue(item)
-      );
-
-
-    if (
-      this.areAllSelected()
-    ) {
-
-      /* ---------------------------------------------------
-         DESELECT ALL
-         --------------------------------------------------- */
-
-      this.value = [];
-
-    } else {
-
-      /* ---------------------------------------------------
-         SELECT ALL
-         --------------------------------------------------- */
-
-      this.value = [
-        ...allValues
       ];
 
     }
@@ -508,6 +411,134 @@ export class MultiSelectDropdown
         x =>
           x !== selectedValue
       );
+
+
+    this.onChange(this.value);
+
+    this.onTouched();
+
+  }
+
+
+  /* =======================================================
+     SEARCH / FILTER
+     ======================================================= */
+
+  get filteredItems(): any[] {
+
+    if (!this.searchText) {
+
+      return this.data;
+
+    }
+
+
+    const search =
+      this.searchText
+        .replace(/\s+/g, '')
+        .toLowerCase();
+
+
+    return this.data.filter(
+      item => {
+
+        const label =
+          this.getItemLabel(item)
+            .replace(/\s+/g, '')
+            .toLowerCase();
+
+
+        return label.includes(search);
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     ALL FILTERED ITEMS SELECTED
+     ======================================================= */
+
+  areAllFilteredSelected(): boolean {
+
+    if (
+      this.filteredItems.length === 0
+    ) {
+
+      return false;
+
+    }
+
+
+    return this.filteredItems.every(
+      item =>
+        this.isSelected(item)
+    );
+
+  }
+
+
+  /* =======================================================
+     SOME FILTERED ITEMS SELECTED
+     ======================================================= */
+
+  isSomeFilteredSelected(): boolean {
+
+    const someSelected =
+      this.filteredItems.some(
+        item =>
+          this.isSelected(item)
+      );
+
+
+    return (
+      someSelected &&
+      !this.areAllFilteredSelected()
+    );
+
+  }
+
+
+  /* =======================================================
+     SELECT / DESELECT ALL
+     ======================================================= */
+
+  toggleSelectAll(): void {
+
+    const filteredValues =
+      this.filteredItems.map(
+        item =>
+          this.getItemValue(item)
+      );
+
+
+    if (
+      this.areAllFilteredSelected()
+    ) {
+
+      // Deselect filtered items
+
+      this.value =
+        this.value.filter(
+          value =>
+            !filteredValues.includes(value)
+        );
+
+    } else {
+
+      // Select filtered items
+
+      this.value = [
+        ...this.value,
+
+        ...filteredValues.filter(
+          value =>
+            !this.value.includes(value)
+        )
+      ];
+
+    }
 
 
     this.onChange(this.value);

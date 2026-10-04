@@ -7,12 +7,12 @@ import { UserForm } from '../user-form/user-form';
 import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
 import { UserTableViewResponseDTO } from '../../../dto/response/UserTableViewResponseDTO';
 import { finalize } from 'rxjs';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 import { UserIdNameResponseDto } from '../../../dto/response/UserIdNameResponseDto';
+import {Dropdown} from '../../../shared/components/dropdown/dropdown';
 
 @Component({
   selector: 'app-user-view',
-  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule, Dropdown, NgClass],
+  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule, NgClass, Dropdown],
   templateUrl: './user-view.html',
   styleUrl: './user-view.css',
 })

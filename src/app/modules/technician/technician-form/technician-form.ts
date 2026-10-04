@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
+import {MultiSelectDropdown} from "../../../shared/components/multi-select-search-dropdown/multi-select-search-dropdown";
 import {NgForOf, NgIf} from "@angular/common";
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';

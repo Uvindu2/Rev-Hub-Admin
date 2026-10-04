@@ -1,20 +1,30 @@
-import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import {UserTableViewResponseDTO} from '../../../dto/response/UserTableViewResponseDTO';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {NgIf} from '@angular/common';
 import {RoleNameResponseDTO} from '../../../dto/response/RoleNameResponseDTO';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
+import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 
 @Component({
   selector: 'app-user-view-and-edit',
   imports: [
     FormsModule,
-    MultiSelectDropdown,
     NgIf,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MultiSelectDropdown
   ],
   templateUrl: './user-view-and-edit.html',
   styleUrl: './user-view-and-edit.css',

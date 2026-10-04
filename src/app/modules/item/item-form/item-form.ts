@@ -3,18 +3,20 @@ import {NgForOf, NgIf} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
 import {finalize} from 'rxjs';
+import {
+  MultiSelectDropdown
+} from '../../../shared/components/multi-select-search-dropdown/multi-select-search-dropdown';
 
 @Component({
   selector: 'app-item-form',
   imports: [
     ReactiveFormsModule,
     NgIf,
-    MultiSelectDropdown,
-    NgForOf
+    NgForOf,
+    MultiSelectDropdown
   ],
   templateUrl: './item-form.html',
   styleUrl: './item-form.css',
@@ -57,7 +59,7 @@ export class ItemForm implements OnInit {
       balanceQty: [0, [Validators.required, Validators.min(0)]],
       supplierPrice: [0, [Validators.required, Validators.min(0)]],
       sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      measuringUnitType: ['', Validators.required] ,// e.g., 'PIECES', 'LITERS'
+      measuringUnitType: ['', Validators.required],// e.g., 'PIECES', 'LITERS'
       laborActivitiesSelected: [[], Validators.required]
     });
   }

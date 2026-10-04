@@ -9,26 +9,23 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { MatOptionModule } from '@angular/material/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { finalize } from 'rxjs';
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {MatOptionModule} from '@angular/material/core';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {finalize} from 'rxjs';
 
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { VehicleAndCustomerResponseDTO } from '../../../dto/response/VehicleAndCustomerResponseDTO';
-import { CustomerResponseProjection } from '../../../dto/response/CustomerResponseProjection';
-import { TechnicianNameResponseProjection } from '../../../dto/response/TechnicianNameResponseProjection';
-import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
-import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {VehicleAndCustomerResponseDTO} from '../../../dto/response/VehicleAndCustomerResponseDTO';
+import {CustomerResponseProjection} from '../../../dto/response/CustomerResponseProjection';
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+import {VehicleMakeResponseDTO} from '../../../dto/response/VehicleMakeResponseDTO';
+import {VehicleModelResponseDTO} from '../../../dto/response/VehicleModelResponseDTO';
+import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
+import {Dropdown} from '../../../shared/components/dropdown/dropdown';
 
 @Component({
   selector: 'app-job-card-form',
@@ -36,17 +33,47 @@ import { MultiSelectDropdown } from '../../../shared/components/multi-select-dro
   styleUrls: ['./job-card-form.css'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, MatOptionModule, MultiSelectDropdown],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    CommonModule,
+    MatOptionModule,
+    MultiSelectDropdown,
+    SearchDropdown,
+    Dropdown,
+  ],
 })
 export class JobCardForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
   @Output() jobCardGenerated = new EventEmitter<SafeResourceUrl>();
   @ViewChild('dropdownWrapper') dropdownWrapper!: ElementRef;
 
+  vehicleColourList: string[] = [
+    'Black',
+    'White',
+    'Silver',
+    'Grey',
+    'Red',
+    'Blue',
+    'Green',
+    'Brown',
+    'Beige',
+    'Gold',
+    'Orange',
+    'Yellow',
+    'Purple',
+    'Maroon',
+    'Other'
+  ];
+
   jobCardForm!: FormGroup;
 
   customer?: CustomerResponseProjection;
   vehicleAndCustomerDTO?: VehicleAndCustomerResponseDTO;
+  makeList: VehicleMakeResponseDTO[] = [];
+  modelList: VehicleModelResponseDTO[] = [];
+
+  yearList: number[] = [];
 
   isDropdownOpen = false;
   isExistingVehicle = true;
@@ -71,14 +98,26 @@ export class JobCardForm implements OnInit {
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
     private readonly sanitizer: DomSanitizer,
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.isExistingVehicle = true;
     this.initForm();
+    this.generateVehicleYearOptions();
     this.setupFormListeners();
     this.loadItemNames();
     this.loadTechnicianNames();
+    this.loadVehicleMakeList();
+  }
+
+  generateVehicleYearOptions(): void {
+    const currentYear = new Date().getFullYear();
+
+    this.yearList = Array.from(
+      {length: currentYear - 1980 + 1},
+      (_, index) => currentYear - index,
+    );
   }
 
   get isUnregistered(): boolean {
@@ -90,7 +129,9 @@ export class JobCardForm implements OnInit {
   }
 
   get assignedTechniciansSelectedControl(): FormControl {
-    return (this.jobCardForm?.get('assignedTechniciansSelected') as FormControl) || new FormControl([]);
+    return (
+      (this.jobCardForm?.get('assignedTechniciansSelected') as FormControl) || new FormControl([])
+    );
   }
 
   loadTechnicianNames(): void {
@@ -99,6 +140,56 @@ export class JobCardForm implements OnInit {
         this.technicianNameProjection = res;
       },
       error: (err: any) => console.error(err),
+    });
+  }
+
+  loadVehicleMakeList(): void {
+    this.adminService.getVehicleMakeList().subscribe({
+      next: (res: any) => {
+        this.makeList = res?.data || [];
+
+        if (this.makeList.length === 0) {
+          this.notificationService.show('No vehicle makes found.', 'error');
+          this.cdr.detectChanges();
+          return;
+        }
+      },
+
+      error: (err: any) => {
+        console.error('crash error:', err);
+
+        const serverErrorMessage =
+          err.error?.response ||
+          'Please try again later. If not, please contact System Administrator.';
+
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadVehicleModelsByMakeId(makeId: number): void {
+    this.adminService.getVehicleModelListByMakeId(makeId).subscribe({
+      next: (res: any) => {
+        this.modelList = res?.data || [];
+
+        if (this.modelList.length === 0) {
+          this.notificationService.show('No vehicle models found for the selected make.', 'error');
+        }
+      },
+
+      error: (err: any) => {
+        console.error('Failed to load vehicle models:', err);
+
+        this.modelList = [];
+
+        const serverErrorMessage =
+          err.error?.response ||
+          'Please try again later. If not, please contact System Administrator.';
+
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+      },
     });
   }
 
@@ -135,11 +226,12 @@ export class JobCardForm implements OnInit {
 
       laborActivitiesSelected: [[], Validators.required],
       assignedTechniciansSelected: [[], Validators.required],
-      currentMileage: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]]
+      currentMileage: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
     });
   }
 
   onSubmit(): void {
+    console.log(this.jobCardForm.get('make')?.value);
     if (this.isSubmitting) return;
 
     // 1. Verify Vehicle Search
@@ -197,7 +289,25 @@ export class JobCardForm implements OnInit {
     }
 
     this.isSubmitting = true;
-    const formValue = this.jobCardForm.value;
+    const formValue:any = this.jobCardForm.value;
+
+    const vehicleMake: VehicleMakeResponseDTO | undefined = this.makeList.find(x =>
+      x.makeId === Number(formValue.make));
+
+    const vehicleModel: VehicleModelResponseDTO | undefined = this.modelList.find(x =>
+      x.id === Number(formValue.model));
+
+    if (!vehicleMake) {
+      this.notificationService.show('Please select a valid vehicle make.', 'warning');
+      this.isSubmitting = false;
+      return;
+    }
+
+    if (!vehicleModel) {
+      this.notificationService.show('Please select a valid vehicle model.', 'warning');
+      this.isSubmitting = false;
+      return;
+    }
 
     const backendPayload = {
       dateAdded: new Date().toISOString(),
@@ -215,8 +325,8 @@ export class JobCardForm implements OnInit {
       vehicleSaveRequestDTO: {
         vehicleRegNo: formValue.vehicleRegNo,
         vehicleVinNo: formValue.vehicleVinNo,
-        vehicleMake: formValue.make,
-        vehicleModel: formValue.model,
+        vehicleMake: vehicleMake?.name,
+        vehicleModel: vehicleModel?.name,
         vehicleYear: formValue.year,
         colour: formValue.colour,
         otherSpecs: formValue.otherSpecs,
@@ -246,7 +356,7 @@ export class JobCardForm implements OnInit {
               bytes[i] = binaryString.charCodeAt(i);
             }
 
-            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const blob = new Blob([bytes], {type: 'application/pdf'});
             const unsafeUrl = window.URL.createObjectURL(blob);
             const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
 
@@ -425,7 +535,7 @@ export class JobCardForm implements OnInit {
             vehicleVinNo: 'N/A',
             entryMode: 'new',
           },
-          { emitEvent: false },
+          {emitEvent: false},
         );
       } else {
         this.jobCardForm.patchValue(
@@ -435,10 +545,23 @@ export class JobCardForm implements OnInit {
             vehicleVinNo: currentUnRegSearch || 'N/A',
             entryMode: 'new',
           },
-          { emitEvent: false },
+          {emitEvent: false},
         );
       }
       this.isExistingVehicle = false;
+    });
+
+    // Make -> Model
+    this.jobCardForm.get('make')?.valueChanges.subscribe((makeId) => {
+      this.modelList = [];
+
+      this.jobCardForm.get('model')?.reset(null, {
+        emitEvent: false
+      });
+
+      if (makeId) {
+        this.loadVehicleModelsByMakeId(Number(makeId));
+      }
     });
   }
 

@@ -36,12 +36,29 @@
     (click)="$event.stopPropagation()"
   >
 
-    <!-- =========================================
-         OPTIONS
-         ========================================= -->
+    <!-- SEARCH -->
+    <div class="dropdown-search-wrapper">
+
+      <span class="dropdown-search-icon">
+        🔍
+      </span>
+
+      <input
+        #searchInput
+        type="text"
+        [(ngModel)]="searchText"
+        placeholder="Search makes..."
+        class="dropdown-search-input"
+        autocomplete="off"
+      />
+
+    </div>
+
+
+    <!-- OPTIONS -->
     <div class="dropdown-items-container">
 
-      <!-- ALL OPTION -->
+      <!-- ALL -->
       <div
         *ngIf="showAllOption"
         class="checkbox-option all-option"
@@ -56,7 +73,7 @@
 
       <!-- NORMAL OPTIONS -->
       <div
-        *ngFor="let item of data"
+        *ngFor="let item of filteredItems"
         class="checkbox-option"
         [class.option]="isSelected(item)"
         (click)="selectItem(item)"
@@ -69,10 +86,10 @@
 
       <!-- NO RESULTS -->
       <div
-        *ngIf="data.length === 0 && !showAllOption"
+        *ngIf="filteredItems.length === 0 && !showAllOption"
         class="no-results"
       >
-        No items found
+        No matching items found
       </div>
 
     </div>
@@ -80,9 +97,7 @@
   </div>
 
 
-  <!-- =========================================
-       VALIDATION ERROR
-       ========================================= -->
+  <!-- ERROR -->
   <div
     *ngIf="isInvalid"
     class="dropdown-error-msg"

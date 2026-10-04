@@ -10,7 +10,6 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
 import {NgIf} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Customer} from '../../../dto/response/customer/Customer';
@@ -20,13 +19,14 @@ import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
 import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
+import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 
 @Component({
   selector: 'app-job-card-view-and-edit',
   imports: [
-    MultiSelectDropdown,
     NgIf,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MultiSelectDropdown
   ],
   templateUrl: './job-card-view-and-edit.html',
   styleUrl: './job-card-view-and-edit.css',

@@ -1,18 +1,18 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { VehicleEditFormComponent } from '../vehicle-edit-form/vehicle-edit-form';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { VehicleTableViewResponseProjection } from '../../../dto/response/VehicleTableViewResponseProjection';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { VehicleResponseProjection } from '../../../dto/response/VehicleResponseProjection';
-import { finalize } from 'rxjs';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {VehicleEditFormComponent} from '../vehicle-edit-form/vehicle-edit-form';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {VehicleTableViewResponseProjection} from '../../../dto/response/VehicleTableViewResponseProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {VehicleResponseProjection} from '../../../dto/response/VehicleResponseProjection';
+import {finalize} from 'rxjs';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-vehicle-view',
   standalone: true,
-  imports: [CommonModule, VehicleEditFormComponent, FormsModule, Dropdown, ReactiveFormsModule],
+  imports: [CommonModule, VehicleEditFormComponent, FormsModule, ReactiveFormsModule, SearchDropdown],
   templateUrl: './vehicle-view.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './vehicle-view.css',
@@ -109,7 +109,7 @@ export class VehicleView implements OnInit {
     this.adminService.getVehicleById(id).subscribe({
       next: (response: any) => {
         this.selectedVehicle = response.data;
-        this.isEditModalOpen=false;
+        this.isEditModalOpen = false;
         this.isViewModalOpen = true;
         this.cdr.detectChanges();
       },

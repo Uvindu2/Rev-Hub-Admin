@@ -14,14 +14,16 @@ import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborAc
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
-import {MultiSelectDropdown} from "../../../shared/components/multi-select-dropdown/multi-select-dropdown";
 import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
 import {CommonModule} from '@angular/common';
 import {finalize} from 'rxjs';
+import {
+  MultiSelectDropdown
+} from '../../../shared/components/multi-select-search-dropdown/multi-select-search-dropdown';
 
 @Component({
   selector: 'app-item-view-and-edit',
-  imports: [CommonModule, MultiSelectDropdown, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MultiSelectDropdown],
   templateUrl: './item-view-and-edit.html',
   styleUrl: './item-view-and-edit.css',
   standalone: true

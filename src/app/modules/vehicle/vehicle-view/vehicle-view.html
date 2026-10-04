@@ -13,9 +13,9 @@
       <!-- Filter Inputs Grid Row 1 (Inline Dropdowns & Action Buttons) -->
 <div class="filter-grid-row">
 
-  <!-- 1. Vehicle Dropdown Filter -->
+  <!-- 1. Vehicle SearchDropdown Filter -->
   <div class="filter-group">
-    <app-dropdown
+    <app-search-dropdown
       formControlName="vehicleRegNo"
       label="Vehicle Reg Number"
       [data]="availableVehicles"
@@ -24,12 +24,12 @@
       [allValue]="null"
       placeholder="All Vehicles"
       errorMessage="Please select a reg no.">
-    </app-dropdown>
+    </app-search-dropdown>
   </div>
 
-  <!-- 2. Vin Dropdown Filter -->
+  <!-- 2. Vin SearchDropdown Filter -->
   <div class="filter-group">
-    <app-dropdown
+    <app-search-dropdown
       formControlName="vehicleVinNo"
       label="Vehicle Vin Number"
       [data]="availableVehicleVins"
@@ -38,7 +38,7 @@
       [allValue]="null"
       placeholder="All Vehicles"
       errorMessage="Please select a vin no.">
-    </app-dropdown>
+    </app-search-dropdown>
   </div>
 
   <!-- 3. Reset & Search Trigger Buttons (Third Column) -->

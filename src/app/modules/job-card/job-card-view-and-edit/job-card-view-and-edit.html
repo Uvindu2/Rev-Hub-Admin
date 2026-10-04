@@ -68,7 +68,7 @@
             <app-multi-select-dropdown
               label="Select Repair Items:"
               [formControl]="repairLaborActivitiesSelectedControl"
-              [b]="laborActivityNameProjection"
+              [data]="laborActivityNameProjection"
               bindLabel="activityName"
               bindValue="laborActivityId"
               errorMessage="Please select at least one repair activity.">
@@ -83,7 +83,7 @@
             <app-multi-select-dropdown
               label="Assigned Technician:"
               [formControl]="assignedTechniciansSelectedControl"
-              [b]="technicianNameProjection"
+              [data]="technicianNameProjection"
               bindLabel="technicianName"
               bindValue="technicianId"
               errorMessage="Please select at least one technician.">

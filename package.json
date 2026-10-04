@@ -25,6 +25,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.3.0",
     "apexcharts": "^5.15.2",
     "ng-apexcharts": "^2.4.0",
+    "ngx-extended-pdf-viewer": "^30.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -25,14 +25,14 @@
         <div *ngIf="isInvalid('sellingPrice')" class="error-msg">Selling price is required.</div>
       </div>
 
-      <app-multi-select-dropdown
+      <app-multi-select-search-dropdown
         label="Select Labor Activity:"
         [formControl]="repairLaborActivitiesSelectedControl"
-        [b]="laborActivityNameProjection"
+        [data]="laborActivityNameProjection"
         bindLabel="activityName"
         bindValue="laborActivityId"
         errorMessage="Please select at least one labor activity.">
-      </app-multi-select-dropdown>
+      </app-multi-select-search-dropdown>
 
       <div class="form-group">
         <label>Unit of Measure <span class="required">*</span></label>

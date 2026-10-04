@@ -1,18 +1,18 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { ItemTableViewResponseProjection } from '../../../dto/response/ItemTableViewResponseProjection';
-import { ItemForm } from '../item-form/item-form';
-import { ItemViewAndEdit } from '../item-view-and-edit/item-view-and-edit';
-import { debounceTime, distinctUntilChanged, finalize, Subject, takeUntil } from 'rxjs';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { ItemIdNameResponseDTO } from '../../../dto/response/ItemIdNameResponseDTO';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
+import {ItemForm} from '../item-form/item-form';
+import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
+import {debounceTime, distinctUntilChanged, finalize, Subject, takeUntil} from 'rxjs';
+import {ItemIdNameResponseDTO} from '../../../dto/response/ItemIdNameResponseDTO';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-item-view',
-  imports: [ItemForm, NgForOf, NgIf, ReactiveFormsModule, ItemViewAndEdit, Dropdown, DatePipe],
+  imports: [ItemForm, NgForOf, NgIf, ReactiveFormsModule, ItemViewAndEdit, DatePipe, SearchDropdown],
   templateUrl: './item-view.html',
   styleUrl: './item-view.css',
 })

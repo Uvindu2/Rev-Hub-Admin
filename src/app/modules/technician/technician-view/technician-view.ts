@@ -1,15 +1,15 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core'; // Fixed: Added OnInit import
-import { CommonModule } from '@angular/common';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TechnicianTableViewResponseProjection } from '../../../dto/response/TechnicianTableViewResponseProjection';
-import { TechnicianForm } from '../technician-form/technician-form';
-import { TechnicianViewAndEdit } from '../technician-view-and-edit/technician-view-and-edit';
-import { TechnicianResponseProjection } from '../../../dto/response/TechnicianResponseProjection';
-import { finalize } from 'rxjs';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection'; // Fixed: Added CommonModule import
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core'; // Fixed: Added OnInit import
+import {CommonModule} from '@angular/common';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {TechnicianTableViewResponseProjection} from '../../../dto/response/TechnicianTableViewResponseProjection';
+import {TechnicianForm} from '../technician-form/technician-form';
+import {TechnicianViewAndEdit} from '../technician-view-and-edit/technician-view-and-edit';
+import {TechnicianResponseProjection} from '../../../dto/response/TechnicianResponseProjection';
+import {finalize} from 'rxjs';
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
+import {Dropdown} from '../../../shared/components/dropdown/dropdown'; // Fixed: Added CommonModule import
 
 @Component({
   selector: 'app-technician-view',
@@ -21,6 +21,7 @@ import {TechnicianNameResponseProjection} from '../../../dto/response/Technician
     TechnicianViewAndEdit,
     ReactiveFormsModule,
     Dropdown,
+
   ], // Fixed: Added CommonModule for table structural bindings (*ngFor, ngClass)
   templateUrl: './technician-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -33,7 +34,7 @@ export class TechnicianView implements OnInit {
 
   technicians: TechnicianTableViewResponseProjection[] = [];
   technician: TechnicianResponseProjection | undefined;
-  technicianIdNameDtos:TechnicianNameResponseProjection[]=[];
+  technicianIdNameDtos: TechnicianNameResponseProjection[] = [];
 
   // Pagination Parameters
   currentPage: number = 1;
@@ -65,7 +66,7 @@ export class TechnicianView implements OnInit {
     this.fetchTechnicians();
   }
 
-  fetchTechnicianIdNames(){
+  fetchTechnicianIdNames() {
     this.adminService.getAllTechnicianIdNames().subscribe({
       next: (response: any) => {
         const TechnicianNameProjection = response?.data || response;
@@ -100,7 +101,7 @@ export class TechnicianView implements OnInit {
     const formValues = this.filterForm.value;
 
     this.adminService
-      .searchTechniciansPaginated(formValues,backendPage, this.pageSize, this.sortByField, this.sortDirection)
+      .searchTechniciansPaginated(formValues, backendPage, this.pageSize, this.sortByField, this.sortDirection)
       .pipe(
         finalize(() => {
           // Stop loader for both success and error

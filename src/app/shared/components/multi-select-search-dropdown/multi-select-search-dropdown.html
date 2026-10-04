@@ -1,3 +1,7 @@
+<!-- =========================================================
+     LABEL
+     ========================================================= -->
+
 <label
   *ngIf="label"
   class="dropdown-component-label">
@@ -44,6 +48,28 @@
   >
 
     <!-- =====================================================
+         SEARCH
+         ===================================================== -->
+
+    <div class="dropdown-search-wrapper">
+
+      <span class="dropdown-search-icon">
+        🔍
+      </span>
+
+      <input
+        #searchInput
+        type="text"
+        [(ngModel)]="searchText"
+        placeholder="Search options..."
+        class="dropdown-search-input"
+        autocomplete="off"
+      />
+
+    </div>
+
+
+    <!-- =====================================================
          OPTIONS
          ===================================================== -->
 
@@ -52,7 +78,7 @@
       <!-- SELECT ALL -->
 
       <div
-        *ngIf="data.length > 0"
+        *ngIf="filteredItems.length > 0"
         class="checkbox-option select-all-option"
       >
 
@@ -60,14 +86,14 @@
 
           <input
             type="checkbox"
-            [checked]="areAllSelected()"
-            [indeterminate]="isSomeSelected()"
+            [checked]="areAllFilteredSelected()"
+            [indeterminate]="isSomeFilteredSelected()"
             (change)="toggleSelectAll()"
           />
 
           <span class="option-text">
             {{
-              areAllSelected()
+              areAllFilteredSelected()
                 ? 'Deselect All'
                 : 'Select All'
             }}
@@ -81,7 +107,7 @@
       <!-- INDIVIDUAL OPTIONS -->
 
       <div
-        *ngFor="let item of data"
+        *ngFor="let item of filteredItems"
         class="checkbox-option"
       >
 
@@ -102,13 +128,13 @@
       </div>
 
 
-      <!-- NO OPTIONS -->
+      <!-- NO RESULTS -->
 
       <div
-        *ngIf="data.length === 0"
+        *ngIf="filteredItems.length === 0"
         class="no-results">
 
-        No items found
+        No matching items found
 
       </div>
 

@@ -1,26 +1,28 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {API_ENDPOINTS} from '../constant/api-endpoints';
-import {VehicleAndCustomerResponseDTO} from '../dto/response/VehicleAndCustomerResponseDTO';
-import {TechnicianNameResponseProjection} from '../dto/response/TechnicianNameResponseProjection';
-import {LaborActivityNameResponseProjection} from '../dto/response/LaborActivityNameResponseProjection';
-import {ItemTableViewResponseProjection} from '../dto/response/ItemTableViewResponseProjection';
-import {CustomerResponseProjection} from '../dto/response/CustomerResponseProjection';
-import {RoleNameResponseDTO} from '../dto/response/RoleNameResponseDTO';
-import {InvoiceItemsResponseDTO} from '../dto/response/InvoiceItemsResponseDTO';
-import {JobCardSummaryResponseProjection} from '../dto/response/JobCardSummaryResponseProjection';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { API_ENDPOINTS } from '../constant/api-endpoints';
+import { CustomerResponseProjection } from '../dto/response/CustomerResponseProjection';
+import { InvoiceItemsResponseDTO } from '../dto/response/InvoiceItemsResponseDTO';
+import { LaborActivityNameResponseProjection } from '../dto/response/LaborActivityNameResponseProjection';
+import { RoleNameResponseDTO } from '../dto/response/RoleNameResponseDTO';
+import { TechnicianNameResponseProjection } from '../dto/response/TechnicianNameResponseProjection';
+import { VehicleAndCustomerResponseDTO } from '../dto/response/VehicleAndCustomerResponseDTO';
+import { VehicleMakeResponseDTO } from '../dto/response/VehicleMakeResponseDTO';
+import { VehicleModelResponseDTO } from '../dto/response/VehicleModelResponseDTO';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-  constructor(private readonly http: HttpClient) {
-  }
+  constructor(private readonly http: HttpClient) {}
 
   // GET BY DRIVING LICENSE (PATH PARAM)
   getCustomerByContactNumber(contactNumber: string): Observable<CustomerResponseProjection[]> {
-    return this.http.get<CustomerResponseProjection[]>(API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber));
+    return this.http.get<CustomerResponseProjection[]>(
+      API_ENDPOINTS.GET_BY_CONTACT_NUMBER(contactNumber),
+    );
   }
 
   getVehicleAndCustomerByVehicleRegNumber(
@@ -36,7 +38,16 @@ export class AdminService {
   }
 
   getLaborActivityNames(): Observable<LaborActivityNameResponseProjection[]> {
-    return this.http.get<LaborActivityNameResponseProjection[]>(API_ENDPOINTS.GET_LABOR_ACTIVITY_NAMES);
+    return this.http.get<LaborActivityNameResponseProjection[]>(
+      API_ENDPOINTS.GET_LABOR_ACTIVITY_NAMES,
+    );
+  }
+  getVehicleMakeList(): Observable<VehicleMakeResponseDTO[]> {
+    return this.http.get<any>(API_ENDPOINTS.GET_VEHICLE_MAKE_LIST);
+  }
+
+  getVehicleModelListByMakeId(makeId: number): Observable<VehicleModelResponseDTO[]> {
+    return this.http.get<any>(API_ENDPOINTS.GET_VEHICLE_MODEL_LIST_BY_MAKE_ID(makeId));
   }
 
   getInvoiceItems(): Observable<InvoiceItemsResponseDTO[]> {
@@ -105,7 +116,7 @@ export class AdminService {
     size: number,
     sortBy: string,
     sortDir: string,
-    itemId?: number | null
+    itemId?: number | null,
   ): Observable<any> {
     const sort = `${sortBy},${sortDir.toLowerCase()}`;
 
@@ -118,7 +129,7 @@ export class AdminService {
       params = params.set('itemId', itemId.toString());
     }
 
-    return this.http.post<any>(API_ENDPOINTS.GET_ALL_ITEMS, null, {params});
+    return this.http.post<any>(API_ENDPOINTS.GET_ALL_ITEMS, null, { params });
   }
 
   getLaborActivitiesPaginated(
@@ -135,11 +146,9 @@ export class AdminService {
       params = params.set('laborActivityId', laborActivityId.toString());
     }
 
-    return this.http.post<any>(
-      API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sort),
-      null,
-      {params}
-    );
+    return this.http.post<any>(API_ENDPOINTS.GET_ALL_LABOR_ACTIVITIES(page, size, sort), null, {
+      params,
+    });
   }
 
   getLaborActivityById(id: number): Observable<any> {
@@ -357,8 +366,11 @@ export class AdminService {
     return this.http.put<any>(API_ENDPOINTS.MODIFY_INVOICE, payload);
   }
 
-  changePassword(backendPayload: { username: string; currentPassword: string; newPassword: string }): Observable<any> {
+  changePassword(backendPayload: {
+    username: string;
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<any> {
     return this.http.put(API_ENDPOINTS.CHANGE_PASSWORD, backendPayload);
   }
-
 }

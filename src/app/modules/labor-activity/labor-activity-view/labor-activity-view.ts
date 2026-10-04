@@ -1,15 +1,15 @@
-import {ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityTableViewResponseProjection} from '../../../dto/response/LaborActivityTableViewResponseProjection';
-import { LaborActivityViewAndEdit } from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
-import {finalize, takeUntil, debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {LaborActivityViewAndEdit} from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
+import {debounceTime, distinctUntilChanged, finalize, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
-import { Dropdown } from "../../../shared/components/dropdown/dropdown";
-import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-labor-activity-view',
@@ -19,9 +19,9 @@ import { LaborActivityNameResponseProjection } from '../../../dto/response/Labor
     ReactiveFormsModule,
     LaborActivityForm,
     LaborActivityViewAndEdit,
-    Dropdown,
     NgClass,
-    DatePipe
+    DatePipe,
+    SearchDropdown
   ],
   templateUrl: './labor-activity-view.html',
   styleUrl: './labor-activity-view.css',

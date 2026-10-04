@@ -11,9 +11,9 @@
 
       <!-- Filter Inputs Grid Row 1 (Inline Dropdowns & Action Buttons) -->
       <div class="filter-grid-row">
-        <!-- 1. Customer Mobile Number Dropdown Filter -->
+        <!-- 1. Customer Mobile Number SearchDropdown Filter -->
         <div class="filter-group">
-          <app-dropdown
+          <app-search-dropdown
             formControlName="contactNumber"
             label="Contact Number"
             bindLabel="contactNumber"
@@ -25,12 +25,12 @@
             placeholder="All Contact Numbers"
             errorMessage="Please select a contact number."
           >
-          </app-dropdown>
+          </app-search-dropdown>
         </div>
 
-        <!-- 1. Customer Email Dropdown Filter -->
+        <!-- 1. Customer Email SearchDropdown Filter -->
         <div class="filter-group">
-          <app-dropdown
+          <app-search-dropdown
             formControlName="email"
             label="Customer Email"
             bindLabel="email"
@@ -42,10 +42,10 @@
             placeholder="All Customer Emails"
             errorMessage="Please select a email."
           >
-          </app-dropdown>
+          </app-search-dropdown>
         </div>
 
-        <!-- Status Dropdown Filter -->
+        <!-- Status SearchDropdown Filter -->
         <div class="filter-group">
           <label>Status</label>
           <div class="select-wrapper">

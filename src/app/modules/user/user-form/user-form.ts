@@ -1,11 +1,11 @@
-import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {NgIf} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import {RoleNameResponseDTO} from '../../../dto/response/RoleNameResponseDTO';
 import {finalize} from 'rxjs';
+import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 
 @Component({
   selector: 'app-user-form',
@@ -31,8 +31,8 @@ export class UserForm implements OnInit {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService
-
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initForm();

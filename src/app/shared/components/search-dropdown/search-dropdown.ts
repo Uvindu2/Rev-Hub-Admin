@@ -1,41 +1,37 @@
 import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
   Input,
+  OnInit,
   Optional,
-  Self
+  Self,
+  ViewChild
 } from '@angular/core';
 
 import {
-  NgForOf,
-  NgIf
-} from '@angular/common';
-
-import {
   ControlValueAccessor,
-  NgControl,
-  ReactiveFormsModule
+  FormsModule,
+  NgControl
 } from '@angular/forms';
 
 @Component({
-  selector: 'app-dropdown',
-
-  imports: [
-    NgForOf,
-    NgIf,
-    ReactiveFormsModule
-  ],
-
-  templateUrl: './dropdown.html',
+  selector: 'app-search-dropdown',
   standalone: true,
-  styleUrl: './dropdown.css'
+  imports: [
+    CommonModule,
+    FormsModule
+  ],
+  templateUrl: './search-dropdown.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './search-dropdown.css',
 })
-export class Dropdown implements ControlValueAccessor {
-
-  /* =========================================================
-     INPUTS
-     ========================================================= */
+export class SearchDropdown implements ControlValueAccessor, OnInit {
 
   @Input() label = '';
 
@@ -55,35 +51,28 @@ export class Dropdown implements ControlValueAccessor {
   @Input() allLabel: string = 'All';
 
 
-  /* =========================================================
-     DROPDOWN STATE
-     ========================================================= */
+  @ViewChild('searchInput')
+  searchInput?: ElementRef<HTMLInputElement>;
+
 
   isOpen = false;
+
+  searchText = '';
 
   value: any = null;
 
   selectedDisplayLabel = '';
 
 
-  /* =========================================================
-     CONTROL VALUE ACCESSOR
-     ========================================================= */
-
   onChange = (value: any) => {};
 
   onTouched = () => {};
 
 
-  /* =========================================================
-     CONSTRUCTOR
-     ========================================================= */
-
   constructor(
     @Self()
     @Optional()
     public ngControl: NgControl,
-
     private elementRef: ElementRef
   ) {
 
@@ -94,9 +83,12 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     VALIDATION
-     ========================================================= */
+  ngOnInit(): void {}
+
+
+  // =========================================
+  // VALIDATION
+  // =========================================
 
   get isInvalid(): boolean {
 
@@ -112,9 +104,9 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     CONTROL VALUE ACCESSOR
-     ========================================================= */
+  // =========================================
+  // CONTROL VALUE ACCESSOR
+  // =========================================
 
   writeValue(value: any): void {
 
@@ -139,29 +131,39 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     DROPDOWN OPEN / CLOSE
-     ========================================================= */
+  // =========================================
+  // DROPDOWN OPEN / CLOSE
+  // =========================================
 
   toggleDropdown(): void {
 
     this.isOpen = !this.isOpen;
 
-    if (!this.isOpen) {
+    if (this.isOpen) {
+
+      this.searchText = '';
+
+      // Focus search input after panel is rendered
+      setTimeout(() => {
+
+        this.searchInput?.nativeElement.focus();
+
+      });
+
+    } else {
+
       this.onTouched();
+
     }
 
   }
 
 
-  /* =========================================================
-     CLOSE WHEN CLICKING OUTSIDE
-     ========================================================= */
+  // =========================================
+  // CLOSE WHEN CLICKING OUTSIDE
+  // =========================================
 
-  @HostListener(
-    'document:click',
-    ['$event']
-  )
+  @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
 
     const clickedInside =
@@ -173,6 +175,8 @@ export class Dropdown implements ControlValueAccessor {
 
       this.isOpen = false;
 
+      this.searchText = '';
+
       this.onTouched();
 
     }
@@ -180,9 +184,9 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     VALUE
-     ========================================================= */
+  // =========================================
+  // VALUE
+  // =========================================
 
   private getItemValue(item: any): any {
 
@@ -193,9 +197,9 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     LABEL
-     ========================================================= */
+  // =========================================
+  // LABEL
+  // =========================================
 
   getItemLabel(item: any): string {
 
@@ -207,9 +211,6 @@ export class Dropdown implements ControlValueAccessor {
     }
 
 
-    /*
-     * Primitive value
-     */
     if (typeof item !== 'object') {
 
       if (
@@ -223,20 +224,19 @@ export class Dropdown implements ControlValueAccessor {
               x[this.bindValue] == item
           );
 
+
         return matchingObject && this.bindLabel
           ? matchingObject[this.bindLabel]
           : item.toString();
 
       }
 
+
       return item.toString();
 
     }
 
 
-    /*
-     * Object value
-     */
     return this.bindLabel
       ? item[this.bindLabel]
       : item.toString();
@@ -244,15 +244,13 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     DISPLAY SELECTED LABEL
-     ========================================================= */
+  // =========================================
+  // DISPLAY SELECTED LABEL
+  // =========================================
 
   updateDisplayLabel(): void {
 
-    /*
-     * NULL = ALL
-     */
+    // NULL = ALL
     if (this.value === null) {
 
       this.selectedDisplayLabel =
@@ -265,9 +263,6 @@ export class Dropdown implements ControlValueAccessor {
     }
 
 
-    /*
-     * EMPTY VALUE
-     */
     if (
       this.value === undefined ||
       this.value === ''
@@ -280,9 +275,6 @@ export class Dropdown implements ControlValueAccessor {
     }
 
 
-    /*
-     * OBJECT DATA + BIND VALUE
-     */
     if (
       this.bindValue &&
       this.data
@@ -300,12 +292,7 @@ export class Dropdown implements ControlValueAccessor {
           ? found[this.bindLabel]
           : this.value;
 
-    }
-
-    /*
-     * DIRECT VALUE
-     */
-    else {
+    } else {
 
       this.selectedDisplayLabel =
         this.getItemLabel(this.value);
@@ -315,9 +302,9 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     CHECK SELECTED ITEM
-     ========================================================= */
+  // =========================================
+  // SELECTED
+  // =========================================
 
   isSelected(item: any): boolean {
 
@@ -329,9 +316,9 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     SELECT ITEM
-     ========================================================= */
+  // =========================================
+  // SELECT ITEM
+  // =========================================
 
   selectItem(item: any): void {
 
@@ -345,6 +332,8 @@ export class Dropdown implements ControlValueAccessor {
       this.getItemLabel(item);
 
 
+    this.searchText = '';
+
     this.isOpen = false;
 
 
@@ -355,9 +344,9 @@ export class Dropdown implements ControlValueAccessor {
   }
 
 
-  /* =========================================================
-     SELECT ALL
-     ========================================================= */
+  // =========================================
+  // SELECT ALL
+  // =========================================
 
   selectAll(): void {
 
@@ -366,12 +355,50 @@ export class Dropdown implements ControlValueAccessor {
     this.selectedDisplayLabel =
       this.allLabel;
 
+    this.searchText = '';
+
     this.isOpen = false;
 
 
     this.onChange(null);
 
     this.onTouched();
+
+  }
+
+
+  // =========================================
+  // FILTER
+  // =========================================
+
+  get filteredItems(): any[] {
+
+    if (!this.searchText) {
+
+      return this.data;
+
+    }
+
+
+    const cleanedSearchText =
+      this.searchText
+        .replace(/\s+/g, '')
+        .toLowerCase();
+
+
+    return this.data.filter(item => {
+
+      const cleanedLabel =
+        this.getItemLabel(item)
+          .replace(/\s+/g, '')
+          .toLowerCase();
+
+
+      return cleanedLabel.includes(
+        cleanedSearchText
+      );
+
+    });
 
   }
 

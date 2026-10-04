@@ -1,169 +1,425 @@
-.form-group {
+/* =========================================================
+     MULTI SELECT DROPDOWN
+     ========================================================= */
+
+
+  /* =========================================================
+     HOST & LABEL
+     ========================================================= */
+
+:host {
+  display: block;
   width: 100%;
 }
 
-.form-group label {
+.dropdown-component-label {
+  display: block;
+  margin-bottom: 6px;
+
+  color: var(--text-main, #aaa);
   font-size: 0.85rem;
-  color: var(--text-main);
-  margin-bottom: 5px;
+  font-weight: 500;
 }
 
-/* container */
+
+/* =========================================================
+   CONTAINER
+   ========================================================= */
+
 .dropdown-container {
   position: relative;
   width: 100%;
 }
 
-/* input wrapper */
+
+/* =========================================================
+   MAIN SELECT / TRIGGER
+   ========================================================= */
+
 .dropdown-input-wrapper {
-  padding-top: 3px;
   position: relative;
+
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
-}
 
-/* search input */
-.dropdown-search-input {
   width: 100%;
-  padding: 10px 35px 10px 10px;
+  height: 36px;
+  min-height: 36px;
+
+  padding: 0 38px 0 12px;
+
+  background: #2b2b2b;
   border: 1px solid #444;
   border-radius: 6px;
-  outline: none;
-  background: #333333;
-  color: #ddd;
+
+  color: #fff;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
-/* focus effect */
-.dropdown-search-input:focus {
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.dropdown-input-wrapper:hover {
+  background: #303030;
+  border-color: #555;
+}
+
+
+/* =========================================================
+   FOCUS / OPEN
+   ========================================================= */
+
+.dropdown-input-wrapper:focus-within {
   border-color: #666;
 }
 
-/* dropdown arrow */
+
+/* =========================================================
+   INVALID
+   ========================================================= */
+
+.dropdown-input-wrapper.invalid-border {
+  border-color: #dc3545;
+}
+
+
+/* =========================================================
+   DISPLAY TEXT
+   ========================================================= */
+
+.dropdown-display-text {
+  width: 100%;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #e0e0e0;
+  font-size: 0.85rem;
+}
+
+
+/* =========================================================
+   PLACEHOLDER
+   ========================================================= */
+
+.dropdown-display-text.placeholder {
+  color: #888;
+}
+
+
+/* =========================================================
+   DROPDOWN ARROW
+   ========================================================= */
+
 .dropdown-toggle {
   position: absolute;
-  right: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #888;
-  user-select: none;
+
+  top: 50%;
+  right: 12px;
+
+  transform: translateY(-50%);
+
+  color: #aaa;
+  font-size: 10px;
+
+  pointer-events: none;
 }
 
-/* dropdown box */
-.dropdown-options-box {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  z-index: 100;
 
-  max-height: 220px;
-  overflow-y: auto;
-
-  margin-top: 4px;
-
-  background: #1f1f1f;
-  border: 1px solid #444;
-  border-radius: 6px;
-
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-
-  animation: fadeIn 0.15s ease-in-out;
-}
-
-/* option item */
-.checkbox-option {
-  padding: 6px 10px;
-  color: #bbb;
-  cursor: pointer;
-}
-
-/* hover */
-.checkbox-option:hover {
-  background: #2a2a2a;
-}
-
-/* label */
-.checkbox-option label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  width: 100%;
-}
-
-/* checkbox */
-.checkbox-option input {
-  cursor: pointer;
-}
-
-/* no results */
-.no-results {
-  padding: 12px;
-  text-align: center;
-  color: #888;
-  font-size: 13px;
-}
-
-/* selected tags container */
-.selected-tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
-  margin-bottom: 13px;
-}
-
-/* tag */
-.selected-tag {
-  background: #3a3a3a;
-  color: #ddd;
-  padding: 5px 10px;
-  border-radius: 20px;
-
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-
-  font-size: 13px;
-}
-
-/* remove button */
-.remove-tag-btn {
-  cursor: pointer;
-  color: #ff5c5c;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-/* animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Base styles remain identical... */
-
-/* Validation error highlighting container */
-.dropdown-input-wrapper.invalid-border .dropdown-search-input {
-  border: 1px solid #dc3545 !important;
-}
+/* =========================================================
+   INVALID ARROW
+   ========================================================= */
 
 .dropdown-input-wrapper.invalid-border .dropdown-toggle {
   color: #dc3545;
 }
 
-/* Component error message tracking label spacing */
+
+/* =========================================================
+   DROPDOWN PANEL
+   ========================================================= */
+
+.dropdown-options-box {
+  position: absolute;
+
+  top: calc(100% + 4px);
+  left: 0;
+
+  z-index: 1000;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.65);
+
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+
+/* =========================================================
+   OPTIONS CONTAINER
+   ========================================================= */
+
+.dropdown-items-container {
+  max-height: 150px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   CUSTOM SCROLLBAR
+   ========================================================= */
+
+.dropdown-items-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dropdown-items-container::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.dropdown-items-container::-webkit-scrollbar-thumb {
+  background: #fff;
+  border: 2px solid #1e1e1e;
+  border-radius: 5px;
+}
+
+.dropdown-items-container::-webkit-scrollbar-thumb:hover {
+  background: #dcdcdc;
+}
+
+
+/* =========================================================
+   FIREFOX SCROLLBAR
+   ========================================================= */
+
+.dropdown-items-container {
+  scrollbar-color: #fff #1e1e1e;
+  scrollbar-width: auto;
+}
+
+
+/* =========================================================
+   OPTION
+   ========================================================= */
+
+.checkbox-option {
+  min-height: 40px;
+  padding: 0 14px;
+
+  background: #1e1e1e;
+
+  color: #ddd;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+
+/* =========================================================
+   OPTION HOVER
+   ========================================================= */
+
+.checkbox-option:hover {
+  background: #2b2b2b;
+  color: #fff;
+}
+
+
+/* =========================================================
+   CHECKBOX LABEL
+   ========================================================= */
+
+.checkbox-label-wrapper {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 40px;
+
+  gap: 8px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.checkbox-option input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+
+  margin: 0;
+
+  accent-color: #dc2626;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   OPTION TEXT
+   ========================================================= */
+
+.option-text {
+  flex: 1;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   SELECT ALL
+   ========================================================= */
+
+.select-all-option {
+  border-bottom: 1px solid #303030;
+}
+
+
+/* =========================================================
+   NO RESULTS / NO ITEMS
+   ========================================================= */
+
+.no-results {
+  padding: 18px 14px;
+
+  color: #888;
+  font-size: 13px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SELECTED TAGS
+   ========================================================= */
+
+.selected-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  margin-top: 10px;
+  margin-bottom: 13px;
+}
+
+
+/* =========================================================
+   SELECTED TAG
+   ========================================================= */
+
+.selected-tag {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 5px 10px;
+
+  background: #3a3a3a;
+  border-radius: 20px;
+
+  color: #ddd;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   SELECTED TAG TEXT
+   ========================================================= */
+
+.selected-tag-text {
+  max-width: 200px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   REMOVE TAG
+   ========================================================= */
+
+.remove-tag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ff5c5c;
+
+  font-size: 14px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.remove-tag-btn:hover {
+  color: #ff3333;
+  transform: scale(1.1);
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
 .dropdown-error-msg {
+  display: block;
+
+  margin-top: 5px;
+
   color: #dc3545;
   font-size: 0.85rem;
-  margin-top: 5px;
   font-weight: 500;
-  display: block;
+}
+
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes fadeIn {
+
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
 }

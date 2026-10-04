@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { MultiSelectDropdown } from './multi-select-dropdown';
 
 describe('MultiSelectDropdown', () => {

@@ -1,19 +1,21 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AdminService } from '../../../services/admin.service';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CustomerViewAndEdit } from '../customer-view-and-edit/customer-view-and-edit';
-import { NotificationService } from '../../../services/notificationService';
-import { finalize } from 'rxjs';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
-import { CustomerContactNumberEmailAndIdResponseDTO } from '../../../dto/response/CustomerContactNumberEmailAndIdResponseDTO';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {AdminService} from '../../../services/admin.service';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {CustomerViewAndEdit} from '../customer-view-and-edit/customer-view-and-edit';
+import {NotificationService} from '../../../services/notificationService';
+import {finalize} from 'rxjs';
+import {
+  CustomerContactNumberEmailAndIdResponseDTO
+} from '../../../dto/response/CustomerContactNumberEmailAndIdResponseDTO';
 import {CustomerResponseProjection} from '../../../dto/response/CustomerResponseProjection';
 import {CustomerTableViewResponseProjection} from '../../../dto/response/CustomerTableViewResponseProjection';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-customer-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomerViewAndEdit, ReactiveFormsModule, Dropdown],
+  imports: [CommonModule, FormsModule, CustomerViewAndEdit, ReactiveFormsModule, SearchDropdown],
   templateUrl: './customer-view.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customer-view.css',

@@ -11,7 +11,7 @@ import {finalize} from 'rxjs';
 import {PrintPreview} from '../../invoice/print-preview/print-preview';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
-import {Dropdown} from '../../../shared/components/dropdown/dropdown';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-job-card-view',
@@ -23,7 +23,8 @@ import {Dropdown} from '../../../shared/components/dropdown/dropdown';
     FormsModule,
     JobCardForm,
     PrintPreview,
-    Dropdown,
+    SearchDropdown,
+
 
   ],
   templateUrl: './job-card-view.html',
@@ -31,6 +32,7 @@ import {Dropdown} from '../../../shared/components/dropdown/dropdown';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobCardView implements OnInit {
+
   jobCards: JobCardTableViewResponseDTO[] = [];
   jobCard: JobCardResponseDto | undefined;
 
