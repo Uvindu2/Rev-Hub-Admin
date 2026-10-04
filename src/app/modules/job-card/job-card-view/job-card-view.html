@@ -1,7 +1,6 @@
 <div class="page-header">
   <div class="card-container" [formGroup]="filterForm">
 
-    <!-- Search & Filter Card Section -->
     <div class="filter-card-section">
       <div class="filter-card-header">
         <div class="filter-title-wrapper">
@@ -10,14 +9,11 @@
         </div>
 
         <button class="btn-add" type="button" (click)="onAddJobCard()">
-          <span class="icon-plus" aria-hidden="true">+</span> ADD JOB CARD
+          <span class="icon-plus" aria-hidden="true">+</span> ADD NEW
         </button>
       </div>
 
-      <!-- Filter Inputs Grid Row 1 -->
       <div class="filter-grid-row">
-
-        <!-- Search Field -->
         <div class="filter-group">
           <label>Search Job Card</label>
           <div class="search-box full-width-search">
@@ -26,33 +22,14 @@
           </div>
         </div>
 
-        <!-- Vehicle SearchDropdown Filter -->
-         <div class="filter-group">
-          <app-search-dropdown
-            formControlName="vehicleRegNo"
-            label="Vehicle Reg Number"
-            [data]="availableVehicles"
-            [showAllOption]="true"
-            allLabel="All"
-            [allValue]="null"
-            placeholder="All Vehicles"
-            errorMessage="Please select a reg no.">
-          </app-search-dropdown>
+        <div class="filter-group">
+          <app-search-dropdown formControlName="vehicleRegNo" label="Vehicle Reg Number" [data]="availableVehicles" [showAllOption]="true" allLabel="All" [allValue]="null" placeholder="All Vehicles" errorMessage="Please select a reg no."></app-search-dropdown>
         </div>
 
         <div class="filter-group">
-          <app-search-dropdown
-            formControlName="vehicleVinNo"
-            label="Vehicle Vin Number"
-            [data]="availableVehicleVins"
-            [showAllOption]="true"
-            allLabel="All"
-            [allValue]="null"
-            placeholder="All Vehicles"
-            errorMessage="Please select a vin no.">
-          </app-search-dropdown>
+          <app-search-dropdown formControlName="vehicleVinNo" label="Vehicle Vin Number" [data]="availableVehicleVins" [showAllOption]="true" allLabel="All" [allValue]="null" placeholder="All Vehicles" errorMessage="Please select a vin no."></app-search-dropdown>
         </div>
-        <!-- Technician SearchDropdown Filter -->
+
         <div class="filter-group">
           <label>Technician</label>
           <div class="select-wrapper">
@@ -63,68 +40,55 @@
           </div>
         </div>
 
-        <!-- Status SearchDropdown Filter -->
         <div class="filter-group">
           <label>Status</label>
           <div class="select-wrapper">
             <select formControlName="status">
               <option value="">All Status</option>
               <option value="Pending">Pending</option>
-              <option value="Rejected">In Progress</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Rejected">Rejected</option>
               <option value="Completed">Completed</option>
             </select>
           </div>
         </div>
-
       </div>
 
-      <!-- Filter Inputs Grid Row 2 (Dates & Action Triggers) -->
       <div class="filter-grid-row filter-row-bottom">
-
-        <!-- Date From -->
         <div class="filter-group">
           <label>Date From</label>
           <input type="date" formControlName="dateFrom">
         </div>
 
-        <!-- Date To -->
         <div class="filter-group">
           <label>Date To</label>
           <input type="date" formControlName="dateTo">
         </div>
 
-        <!-- Reset & Search Trigger Buttons -->
         <div class="filter-actions-group">
-          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">
-            🔄 RESET
-          </button>
-          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">
-            🔍 SEARCH
-          </button>
+          <button type="button" (click)="onResetFilters()" class="btn-filter-reset">🔄 RESET</button>
+          <button type="button" (click)="onApplyFilters()" class="btn-filter-search">🔍 SEARCH</button>
         </div>
-
       </div>
     </div>
 
-    <!-- Table Section -->
     <div class="table-responsive">
       <table class="custom-table">
         <thead>
         <tr>
-          <th>Job Number</th>
-          <th>Customer Name</th>
-          <th>Vehicle Reg Number</th>
-          <th>Vehicle VIN Number</th>
+          <th>Job #</th>
+          <th>Customer</th>
+          <th>Reg #</th>
+          <th>VIN</th>
           <th>Status</th>
           <th class="desktop-only">Technician</th>
-          <th class="desktop-only">Created User</th>
-          <th class="desktop-only">Created Date</th>
+          <th class="desktop-only">Created By</th>
+          <th>Created</th>
           <th class="text-center">Actions</th>
         </tr>
         </thead>
 
         <tbody>
-
         <tr *ngIf="isLoading">
           <td colspan="9" class="table-loader-cell">
             <div class="table-loader">
@@ -135,9 +99,7 @@
         </tr>
 
         <tr *ngIf="!isLoading && (!jobCards || jobCards.length === 0)">
-          <td colspan="9" class="no-data-cell">
-            No job cards found matching current filter parameters.
-          </td>
+          <td colspan="9" class="no-data-cell">No job cards found matching current filter parameters.</td>
         </tr>
 
         <tr *ngFor="let job of jobCards" [class.loading-hidden]="isLoading">
@@ -147,37 +109,29 @@
           <td class="text-uppercase">{{ job.vehicleVinNumber }}</td>
 
           <td>
-        <span class="badge" [ngClass]="{
-          'badge-progress': job.status === 'In Progress',
-          'badge-pending': job.status === 'Pending',
-          'badge-completed': job.status === 'Completed',
-          'badge-cancelled': job.status === 'Cancelled'
-        }">
-          {{ job.status }}
-        </span>
+            <span class="badge" [ngClass]="{
+              'badge-progress': job.status === 'In Progress',
+              'badge-pending': job.status === 'Pending',
+              'badge-completed': job.status === 'Completed',
+              'badge-cancelled': job.status === 'Cancelled' || job.status === 'Rejected'
+            }">
+              {{ job.status }}
+            </span>
           </td>
 
           <td class="desktop-only">{{ job.technicianName }}</td>
-
-          <td class="desktop-only">
-            {{ job.createdUser || 'N/A' }}
-          </td>
-
-          <td class="desktop-only">
-            {{ job.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}
-          </td>
+          <td class="desktop-only">{{ job.createdUser || 'N/A' }}</td>
+          <td>{{ job.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
 
           <td class="actions-cell">
-            <button class="btn-table-action view-btn" (click)="viewJob(job.jobId)">👁️</button>
-            <button class="btn-table-action edit-btn" (click)="editJob(job.jobId)">✏️</button>
+            <button class="btn-table-action view-btn" type="button" (click)="viewJob(job.jobId)">👁️</button>
+            <button class="btn-table-action edit-btn" type="button" (click)="editJob(job.jobId)">✏️</button>
           </td>
         </tr>
-
         </tbody>
       </table>
     </div>
 
-    <!-- Footer Summary & Pagination -->
     <div class="table-footer-summary custom-footer-layout">
       <div class="record-counter left-counter-anchor">
         Showing {{ jobCards?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
@@ -192,15 +146,13 @@
         </div>
 
         <div class="pagination">
-          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|&lt;</button>
+          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()">&lt;</button>
 
-          <span class="page-indicator">
-            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
-          </span>
+          <span class="page-indicator">Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}</span>
 
-          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
-          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">&gt;</button>
+          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">&gt;|</button>
         </div>
       </div>
     </div>
@@ -208,14 +160,6 @@
   </div>
 </div>
 
-<app-job-card-form *ngIf="isAddModalOpen" (cancel)="closeModal()"
- (jobCardGenerated)="handleJobCardGenerated($event)">
-</app-job-card-form>
+<app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-job-card-view-and-edit>
 
-<app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()"
- [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen">
-</app-job-card-view-and-edit>
-
-<app-print-preview *ngIf="showPrintModal"
-[pdfUrl]="jobCardPdfUrl" [pdfName]="`Job Card Print Preview`" (close)="closePrintPreview()">
-</app-print-preview>
+<app-print-preview *ngIf="showPrintModal" [pdfUrl]="jobCardPdfUrl" [pdfName]="'Job Card Print Preview'" (close)="closePrintPreview()"></app-print-preview>

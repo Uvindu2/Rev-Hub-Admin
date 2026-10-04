@@ -1,22 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
-import {
-  faCar,
-  faChartLine,
-  faFileLines,
-  faGauge,
-  faGear,
-  faUserGroup,
-  faWrench,
-  faXRay,
-  faBars, faChevronDown, faUser, faBox, faClipboardList
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
-import {AuthService} from '../../../services/auth.service';
-
-type View = 'dashboard' | 'job-cards' | 'invoices' | 'customers' | 'technicians' | 'vehicles' | 'items' | 'users' | 'labor-activities';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  faBars, faBox, faCar, faChartLine, faChevronDown, faClipboardList,
+  faFileLines, faGauge, faUser, faUserGroup, faWrench, faXRay
+} from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,39 +33,37 @@ export class Dashboard implements OnInit, OnDestroy {
 
   isSidebarCollapsed = false;
   isDropdownOpen = false;
-  showPasswordModal = false;
+  currentTitle = 'Dashboard';
+  private routerSubscription?: Subscription;
 
   pageTitles: Record<string, string> = {
-    'overview': 'Dashboard',
+    overview: 'Dashboard',
     'job-cards': 'Job Cards',
-    'invoices': 'Invoices',
-    'customers': 'Customers',
-    'technicians': 'Technicians',
-    'vehicles': 'Vehicles',
-    'items': 'Items',
-    'users': 'Users',
+    invoices: 'Invoices',
+    customers: 'Customers',
+    technicians: 'Technicians',
+    vehicles: 'Vehicles',
+    items: 'Items',
+    users: 'Users',
     'labor-activities': 'Labor Activities'
   };
 
-  currentTitle: string = 'Dashboard';
-  private routerSubscription?: Subscription;
-
-  constructor(private authService:AuthService, private router:Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    // Listen to route changes to update the title dynamically
     this.routerSubscription = this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.updatePageTitle(event.urlAfterRedirects);
-    });
+    ).subscribe(event => this.updatePageTitle(event.urlAfterRedirects));
 
-    // Set initial title on load
     this.updatePageTitle(this.router.url);
   }
 
   private updatePageTitle(url: string): void {
-    // Extract the segment after /dashboard/
+    if (url.includes('/dashboard/job-cards/new')) {
+      this.currentTitle = 'Job Cards';
+      return;
+    }
+
     const segments = url.split('/');
     const lastSegment = segments[segments.length - 1];
     this.currentTitle = this.pageTitles[lastSegment] || 'Dashboard';
@@ -84,23 +73,20 @@ export class Dashboard implements OnInit, OnDestroy {
     return this.currentTitle;
   }
 
-  toggleSidebar() {
+  toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout();
-
     this.router.navigate(['/login']);
   }
 
   ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.routerSubscription?.unsubscribe();
   }
 }

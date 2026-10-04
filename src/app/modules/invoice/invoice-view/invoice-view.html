@@ -10,7 +10,7 @@
         </div>
 
         <button class="btn-add" type="button" (click)="onAddInvoice()">
-          <span class="icon-plus" aria-hidden="true">+</span> ADD INVOICE
+          <span class="icon-plus" aria-hidden="true">+</span> ADD NEW
         </button>
       </div>
 
@@ -70,14 +70,14 @@
       <table class="custom-table">
         <thead>
         <tr>
-          <th>Invoice Number</th>
-          <th>Job Number</th>
-          <th>Customer Name</th>
-          <th>Amount (USD)</th>
-          <th>Payment Status</th>
-          <th class="desktop-only">Created User</th>
-          <th>Created Date</th>
-          <th class="text-center">Actions</th>
+          <th>Invoice #</th>
+          <th>Job #</th>
+          <th>Customer</th>
+          <th>Amount ($)</th>
+          <th>Status</th>
+          <th>Created By</th>
+          <th>Created</th>
+          <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -108,7 +108,7 @@
               {{ invoice.status }}
             </span>
           </td>
-          <td class="desktop-only">{{ invoice.createdUser || 'N/A' }}</td>
+          <td>{{ invoice.createdUser || 'N/A' }}</td>
           <td>{{ invoice.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
           <td class="actions-cell">
             <button class="btn-action view-btn" title="View" (click)="viewInvoice(invoice.invoiceId)">
