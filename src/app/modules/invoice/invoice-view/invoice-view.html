@@ -154,8 +154,6 @@
   </div>
 </div>
 
-<app-invoice-form *ngIf="isAddModalOpen" (cancel)="closeModal()" (invoiceGenerated)="handleInvoiceGenerated($event)"></app-invoice-form>
-
 <app-invoice-edit-form
   *ngIf="isEditModalOpen"
   [invoiceId]="selectedInvoiceId"

@@ -29,6 +29,9 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/invoice/invoice-view/invoice-view').then(m => m.InvoiceView)
       },
       {
+        path: 'invoices/new', loadComponent: () => import('./modules/invoice/invoice-form/invoice-form').then(m => m.InvoiceForm)
+      },
+      {
         path: 'customers',
         loadComponent: () => import('./modules/customer/customer-view/customer-view').then(m => m.CustomerView)
       },

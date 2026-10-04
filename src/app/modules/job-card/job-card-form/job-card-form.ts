@@ -303,7 +303,7 @@ export class JobCardForm implements OnInit {
     });
   }
 
-  onCancel(): void {
+  onBack(): void {
     this.router.navigate(['/dashboard/job-cards']);
   }
 
@@ -545,5 +545,11 @@ export class JobCardForm implements OnInit {
     });
 
     this.cdr.detectChanges();
+  }
+
+  toUpperCase(controlName: string): void {
+    const control = this.jobCardForm.get(controlName);
+    const value = control?.value || '';
+    control?.setValue(value.toUpperCase(), { emitEvent: false });
   }
 }

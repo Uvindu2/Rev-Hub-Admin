@@ -6,7 +6,7 @@
       <p>Create a new job card by entering vehicle, customer and job details.</p>
     </div>
 
-    <button type="button" class="close-btn" (click)="onCancel()" aria-label="Close">×</button>
+<!--    <button type="button" class="close-btn" (click)="onCancel()" aria-label="Close">×</button>-->
   </div>
 
   <form [formGroup]="jobCardForm" (ngSubmit)="onSubmit()">
@@ -31,11 +31,11 @@
             <label>Search Vehicle (VIN No):</label>
 
             <div class="search-input-wrapper">
-              <input type="text" formControlName="unRegVehicleSearch" placeholder="Type Vehicle VIN No..." class="flex-1">
+              <input type="text" formControlName="unRegVehicleSearch" placeholder="Type Vehicle VIN No..." class="flex-1" (input)="toUpperCase('unRegVehicleSearch')">
 
               <button type="button" class="btn-search-action" (click)="onUnRegVehicleSearchClick()" [disabled]="isSearchingUnRegVehicle">
                 <span *ngIf="isSearchingUnRegVehicle" class="buttonSpinner"></span>
-                {{ isSearchingUnRegVehicle ? 'Searching...' : 'Search' }}
+                {{ isSearchingUnRegVehicle ? 'Searching...' : 'SEARCH' }}
               </button>
             </div>
 
@@ -54,11 +54,11 @@
             <label>Search Vehicle (Reg No):</label>
 
             <div class="search-input-wrapper">
-              <input type="text" formControlName="vehicleSearch" placeholder="Type Vehicle Reg No..." class="flex-1">
+              <input type="text" formControlName="vehicleSearch" placeholder="Type Vehicle Reg No..." class="flex-1" (input)="toUpperCase('unRegVehicleSearch')">
 
               <button type="button" class="btn-search-action" (click)="onVehicleSearchClick()" [disabled]="isSearchingRegVehicle">
                 <span *ngIf="isSearchingRegVehicle" class="buttonSpinner"></span>
-                {{ isSearchingRegVehicle ? 'Searching...' : 'Search' }}
+                {{ isSearchingRegVehicle ? 'Searching...' : 'SEARCH' }}
               </button>
             </div>
 
@@ -131,7 +131,7 @@
 
               <button type="button" class="btn-search-action" (click)="onCustomerSearchClick()" [disabled]="isSearchingCustomer">
                 <span *ngIf="isSearchingCustomer" class="buttonSpinner"></span>
-                {{ isSearchingCustomer ? 'Searching...' : 'Search' }}
+                {{ isSearchingCustomer ? 'Searching...' : 'SEARCH' }}
               </button>
             </div>
 
@@ -215,12 +215,11 @@
     </div>
 
     <div class="form-footer">
-      <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
+      <button type="button" class="btn-cancel" (click)="onBack()">BACK</button>
 
       <button type="submit" class="btn-submit" [disabled]="isSubmitting">
-        <span *ngIf="!isSubmitting" class="icon">+</span>
         <span *ngIf="isSubmitting" class="buttonSpinner"></span>
-        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT JOB CARD' }}
+        {{ isSubmitting ? 'GENERATING...' : 'GENERATE' }}
       </button>
     </div>
 

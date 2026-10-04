@@ -9,6 +9,7 @@ import {NotificationService} from '../../../services/notificationService';
 import {InvoiceItemsResponseDTO} from '../../../dto/response/InvoiceItemsResponseDTO';
 import {finalize} from 'rxjs';
 import {AuthService} from '../../../services/auth.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-invoice-form',
@@ -49,6 +50,7 @@ export class InvoiceForm implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly authService: AuthService,
     private readonly sanitizer: DomSanitizer,
+    private readonly router: Router,
   ) {
   }
 
@@ -430,5 +432,9 @@ export class InvoiceForm implements OnInit {
     this.filteredItemParts = this.availableItemParts.filter((p) =>
       p.itemName?.toLowerCase().includes(query),
     );
+  }
+
+  onBack(): void {
+    this.router.navigate(['/dashboard/invoices']);
   }
 }

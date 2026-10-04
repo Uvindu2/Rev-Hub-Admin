@@ -1,6 +1,5 @@
-<div class="modal-overlay">
-  <div class="revhub-builder-card">
-    <button class="close-btn" (click)="cancel.emit()">&times;</button>
+<div class="page-header">
+  <div class="card-container">
     <div class="form-title-bar">
       <h2>CREATE INVOICE</h2>
     </div>
@@ -264,12 +263,11 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="cancel.emit()">Cancel</button>
+          <button type="button" class="btn-cancel" (click)="onBack()">BACK</button>
           <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
-            <span *ngIf="!isSubmitting" class="icon">+</span>
             <span *ngIf="isSubmitting" class="buttonSpinner"></span>
 
-            {{ isSubmitting ? 'GENERATING...' : 'Generate Invoice' }}
+            {{ isSubmitting ? 'GENERATING...' : 'GENERATE' }}
           </button>
         </div>
       </div>

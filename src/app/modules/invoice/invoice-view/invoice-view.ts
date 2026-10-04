@@ -1,19 +1,20 @@
-import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InvoiceForm } from '../invoice-form/invoice-form';
-import { InvoiceTableViewResponseProjection } from '../../../dto/response/InvoiceTableViewResponseProjection';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
+import {ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {InvoiceForm} from '../invoice-form/invoice-form';
+import {InvoiceTableViewResponseProjection} from '../../../dto/response/InvoiceTableViewResponseProjection';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import { PrintPreview } from "../print-preview/print-preview";
+import {PrintPreview} from "../print-preview/print-preview";
 import {InvoiceViewAndEdit} from '../invoice-view-and-edit/invoice-view-and-edit';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-invoice-view',
   standalone: true,
-  imports: [CommonModule, InvoiceForm, ReactiveFormsModule, FormsModule, PrintPreview, InvoiceViewAndEdit],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PrintPreview, InvoiceViewAndEdit],
   templateUrl: './invoice-view.html',
   styleUrl: './invoice-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,7 +37,6 @@ export class InvoiceView implements OnInit {
   sortByField: string = 'invoiceId';
   sortDirection: string = 'desc';
 
-  isAddModalOpen: boolean = false;
   isEditModalOpen: boolean = false;
   isLoading: boolean = false;
 
@@ -45,12 +45,14 @@ export class InvoiceView implements OnInit {
   generatedPdfUrl: SafeResourceUrl | null = null;
   invoicePdfUrl: SafeResourceUrl | null = null;
   selectedInvoiceId!: number | string;
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
     private readonly sanitizer: DomSanitizer,
+    private readonly router: Router,
   ) {
     this.initFilterForm();
   }
@@ -84,47 +86,47 @@ export class InvoiceView implements OnInit {
         })
       )
       .subscribe({
-      next: (response: any) => {
-        let pageData = response.data || response;
+        next: (response: any) => {
+          let pageData = response.data || response;
 
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedInvoicesSummary: InvoiceTableViewResponseProjection[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
+          // Stage updates in local variables first to prevent layout thrashing
+          let updatedInvoicesSummary: InvoiceTableViewResponseProjection[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
 
-        if (pageData?.content !== undefined) {
-          updatedInvoicesSummary = pageData.content || [];
+          if (pageData?.content !== undefined) {
+            updatedInvoicesSummary = pageData.content || [];
 
-          // Fallback check for different Spring Data Page serialization structures
-          if (pageData.page) {
-            updatedTotalElements = pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
-            updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
-          } else {
-            updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
-            updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+            // Fallback check for different Spring Data Page serialization structures
+            if (pageData.page) {
+              updatedTotalElements = pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
+              updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
+            } else {
+              updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
+              updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+            }
+          } else if (Array.isArray(pageData)) {
+            updatedInvoicesSummary = pageData;
+            updatedTotalElements = pageData.length;
+            updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
           }
-        } else if (Array.isArray(pageData)) {
-          updatedInvoicesSummary = pageData;
-          updatedTotalElements = pageData.length;
-          updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
+
+          // Apply properties all at once
+          this.invoices = updatedInvoicesSummary;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
+
+          // Notify Angular to redraw on the next frame paint seamlessly
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load invoices from server:', err);
+          this.invoices = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+          this.cdr.markForCheck();
         }
-
-        // Apply properties all at once
-        this.invoices = updatedInvoicesSummary;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
-
-        // Notify Angular to redraw on the next frame paint seamlessly
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load invoices from server:', err);
-        this.invoices = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
-        this.cdr.markForCheck();
-      }
-    });
+      });
   }
 
   onApplyFilters(): void {
@@ -171,14 +173,12 @@ export class InvoiceView implements OnInit {
     }
   }
 
-  protected onAddInvoice(): void {
-    this.isAddModalOpen = true;
-    this.cdr.markForCheck();
+  onAddInvoice(): void {
+    this.router.navigate(['/dashboard/invoices/new']);
   }
 
   closeModal(): void {
     this.isEditModalOpen = false;
-    this.isAddModalOpen = false;
     this.cdr.markForCheck();
   }
 
@@ -195,7 +195,7 @@ export class InvoiceView implements OnInit {
               bytes[i] = binaryString.charCodeAt(i);
             }
 
-            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const blob = new Blob([bytes], {type: 'application/pdf'});
             const unsafeUrl = window.URL.createObjectURL(blob);
 
             // Bypass security to make it safe for iframe binding in the modal
@@ -248,7 +248,7 @@ export class InvoiceView implements OnInit {
     });
   }
 
-handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
+  handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
     this.isEditModalOpen = false;     // Close the invoice form modal
     this.invoicePdfUrl = pdfUrl;     // Assign to invoicePdfUrl for the print preview modal
     this.showPrintModal = true;      // Open the print preview modal
@@ -271,5 +271,4 @@ handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
     this.isEditModalOpen = false;
     this.fetchInvoices();
   }
-
 }
