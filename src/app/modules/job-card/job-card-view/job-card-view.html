@@ -159,7 +159,3 @@
 
   </div>
 </div>
-
-<app-job-card-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" (cancel)="closeModal()" [jobCardData]="jobCard" [isViewModalOpen]="isViewModalOpen" [isEditModalOpen]="isEditModalOpen"></app-job-card-view-and-edit>
-
-<app-print-preview *ngIf="showPrintModal" [pdfUrl]="jobCardPdfUrl" [pdfName]="'Job Card Print Preview'" (close)="closePrintPreview()"></app-print-preview>

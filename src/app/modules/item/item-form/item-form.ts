@@ -1,17 +1,21 @@
-import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {NgForOf, NgIf} from '@angular/common';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {finalize} from 'rxjs';
+
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
-import {finalize} from 'rxjs';
+
 import {
   MultiSelectDropdown
 } from '../../../shared/components/multi-select-search-dropdown/multi-select-search-dropdown';
 
 @Component({
   selector: 'app-item-form',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     NgIf,
@@ -19,15 +23,14 @@ import {
     MultiSelectDropdown
   ],
   templateUrl: './item-form.html',
-  styleUrl: './item-form.css',
-  standalone: true
+  styleUrl: './item-form.css'
 })
 export class ItemForm implements OnInit {
 
-  @Output() cancel = new EventEmitter<void>();
-
   itemForm!: FormGroup;
+
   laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
+
   unitTypesList = Object.keys(MeasuringUnitType);
 
   isSubmitting = false;
@@ -44,9 +47,9 @@ export class ItemForm implements OnInit {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
-    private readonly cdr: ChangeDetectorRef
-  ) {
-  }
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
@@ -59,17 +62,28 @@ export class ItemForm implements OnInit {
       balanceQty: [0, [Validators.required, Validators.min(0)]],
       supplierPrice: [0, [Validators.required, Validators.min(0)]],
       sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      measuringUnitType: ['', Validators.required],// e.g., 'PIECES', 'LITERS'
+      measuringUnitType: ['', Validators.required],
       laborActivitiesSelected: [[], Validators.required]
     });
   }
 
   loadItemNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameResponseProjection[]) => {
-        this.laborActivityNameProjection = res;
+      next: (res: any) => {
+        const data = res?.data || res;
+
+        this.laborActivityNameProjection = Array.isArray(data)
+          ? data
+          : [];
+
+        this.cdr.markForCheck();
       },
-      error: (err: any) => console.error('Failed to load names', err)
+
+      error: (err: any) => {
+        console.error('Failed to load labor activity names:', err);
+        this.laborActivityNameProjection = [];
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -80,11 +94,17 @@ export class ItemForm implements OnInit {
 
     if (this.itemForm.invalid) {
       this.itemForm.markAllAsTouched();
-      this.notificationService.show('Please fill out all required fields correctly.', 'error');
+
+      this.notificationService.show(
+        'Please fill out all required fields correctly.',
+        'error'
+      );
+
       return;
     }
 
     this.isSubmitting = true;
+    this.cdr.markForCheck();
 
     const formValue = this.itemForm.value;
 
@@ -94,39 +114,60 @@ export class ItemForm implements OnInit {
       supplierPrice: formValue.supplierPrice,
       sellingPrice: formValue.sellingPrice,
       measuringUnitType: formValue.measuringUnitType,
-      laborActivitiesSelected: formValue.laborActivitiesSelected || [],
+      laborActivitiesSelected: formValue.laborActivitiesSelected || []
     };
 
-    this.adminService.saveItem(backendPayload).pipe(
-      // Always reset submit loader
-      // success OR error
-      finalize(() => {
-        this.isSubmitting = false;
-      })).subscribe({
-      next: (res: any) => {
-        this.notificationService.show('Item saved successfully!', 'success');
-        this.cancel.emit();
-      },
-      error: (err) => {
-        console.error('Error saving Item:', err);
-        const serverErrorMessage =
-          err.error?.response || 'Failed to save Item.';
-        this.notificationService.show(serverErrorMessage, 'error');
-        this.cdr.markForCheck();
-      },
-    });
+    this.adminService
+      .saveItem(backendPayload)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.show(
+            'Item saved successfully!',
+            'success'
+          );
+
+          this.router.navigate(['/dashboard/items']);
+        },
+
+        error: (err: any) => {
+          console.error('Error saving Item:', err);
+
+          const serverErrorMessage =
+            err.error?.response || 'Failed to save Item.';
+
+          this.notificationService.show(
+            serverErrorMessage,
+            'error'
+          );
+
+          this.cdr.markForCheck();
+        }
+      });
   }
 
-  onCancel(): void {
-    this.cancel.emit();
+  onBack(): void {
+    this.router.navigate(['/dashboard/items']);
   }
 
   isInvalid(controlName: string): boolean {
     const control = this.itemForm.get(controlName);
-    return !!(control && control.invalid && (control.dirty || control.touched));
+
+    return !!(
+      control &&
+      control.invalid &&
+      (control.dirty || control.touched)
+    );
   }
 
   get repairLaborActivitiesSelectedControl(): FormControl {
-    return (this.itemForm?.get('laborActivitiesSelected') as FormControl) || new FormControl([]);
+    return (
+      this.itemForm?.get('laborActivitiesSelected') as FormControl
+    ) || new FormControl([]);
   }
 }

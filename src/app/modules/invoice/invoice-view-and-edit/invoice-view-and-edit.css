@@ -1,50 +1,11 @@
 /* ==========================================================================
-   1. Window & Overlay Container Layouts (Fully Responsive)
-   ========================================================================== */
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.revhub-builder-card {
-  position: relative; /* Changed from fixed to flow naturally inside flex overlay */
-  top: auto;
-  left: auto;
-  transform: none;
-  z-index: 1000;
-  width: 100%;
-  max-width: 1200px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background-color: #1a1a1a;
-  color: #d1d5db;
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  border-radius: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 0 1px #2d2d2d;
-  box-sizing: border-box;
-}
-
-/* ==========================================================================
-   2. Header & Title Component Subsystems
+   1. Header & Title Component Subsystems
    ========================================================================== */
 
 .form-title-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Ensures close button stays safely separated */
+  justify-content: space-between;
   position: relative;
   gap: 15px;
   border-bottom: 1px solid #2d2d2d;
@@ -53,32 +14,13 @@
 }
 
 .form-title-bar h2 {
-  font-size: clamp(1rem, 2.5vw, 1.2rem); /* Scales fluidly down on smaller screens */
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   color: #ffffff;
   margin: 0;
 }
 
-.actor-tag {
-  background-color: #374151;
-  font-size: 0.75rem;
-  padding: 2px 10px;
-  border-radius: 4px;
-}
-/* Fixed close button alignment logic safely tied to the header */
-.close-btn {
-  background: none;
-  border: none;
-  color: #666666;
-  font-size: 30pt;
-  cursor: pointer;
-  /* --- UPDATED: Pin to top-left --- */
-  position: absolute;
-  left: 95%; /* Changed from 'right' to 'left' */
-  top: 1pt;
-}
-
 /* ==========================================================================
-   3. Workspace Panel Columns Structure (Responsive Stack on Mobile)
+   2. Workspace Panel Columns Structure
    ========================================================================== */
 
 .split-workspace {
@@ -108,7 +50,7 @@
 }
 
 /* ==========================================================================
-   4. Sidebar List Components & Search Box
+   3. Sidebar List Components & Search Box
    ========================================================================== */
 
 .search-box {
@@ -218,7 +160,7 @@
 }
 
 /* ==========================================================================
-   5. Active Data Workspace Configurations
+   4. Active Data Workspace Configurations
    ========================================================================== */
 
 .active-workspace-header {
@@ -233,14 +175,16 @@
   gap: 12px;
 }
 
-.task-field, .fee-field {
+.task-field,
+.fee-field {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.task-field label, .fee-field label {
+.task-field label,
+.fee-field label {
   font-size: 0.85rem;
   color: #9ca3af;
 }
@@ -251,7 +195,8 @@
   font-size: 0.95rem;
 }
 
-.dark-dropdown, .dark-input {
+.dark-dropdown,
+.dark-input {
   background-color: #222222;
   border: 1px solid #333333;
   color: #ffffff;
@@ -373,7 +318,7 @@
 }
 
 /* ==========================================================================
-   6. Tabular Dynamic Matrix Configuration & Horizontal Scrolling for Mobile
+   5. Tabular Dynamic Matrix Configuration
    ========================================================================== */
 
 .parts-container {
@@ -383,7 +328,7 @@
 .matrix-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px; /* Prevents cell crunching */
+  min-width: 600px;
 }
 
 .matrix-table th {
@@ -469,12 +414,12 @@
 }
 
 /* ==========================================================================
-   7. Payment Interface Layout Components
+   6. Payment Interface Layout Components
    ========================================================================== */
 
 .payment-selection-container {
   background-color: #111111;
-  padding: 15px;
+  padding: 10px;
   border-radius: 4px;
   margin-bottom: 15px;
   border: 1px solid #222222;
@@ -491,7 +436,7 @@
 .payment-options {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap; /* Wraps tiles down nicely on compact viewports */
+  flex-wrap: wrap;
 }
 
 .payment-radio-tile {
@@ -536,12 +481,12 @@
 }
 
 /* ==========================================================================
-   8. System Summary Calculation Footer Components
+   7. System Summary Calculation Footer Components
    ========================================================================== */
 
 .summary-footer-bar {
   border-top: 1px solid #2d2d2d;
-  padding-top: 15px;
+  padding-top: 5px;
 }
 
 .summary-grid {
@@ -601,7 +546,9 @@
   flex-wrap: wrap;
 }
 
-.btn-cancel, .btn-submit, .btn-search-action {
+.btn-cancel,
+.btn-submit,
+.btn-search-action {
   padding: 8px 16px;
   border-radius: 4px;
   font-weight: bold;
@@ -615,7 +562,8 @@
   color: #9ca3af;
 }
 
-.btn-submit, .btn-search-action {
+.btn-submit,
+.btn-search-action {
   background-color: #b91c1c;
   border: none;
   color: #ffffff;
@@ -625,17 +573,17 @@
 }
 
 /* ==========================================================================
-   9. Media Queries (Responsive Breakpoints)
+   8. Media Queries
    ========================================================================== */
 
-/* Tablet & Smaller Laptops */
 @media screen and (max-width: 992px) {
   .split-workspace {
     grid-template-columns: 1fr;
     height: auto;
   }
 
-  .left-panel, .right-panel {
+  .left-panel,
+  .right-panel {
     max-height: 300px;
   }
 
@@ -644,13 +592,7 @@
   }
 }
 
-/* Mobile Viewports */
 @media screen and (max-width: 600px) {
-  .revhub-builder-card {
-    padding: 12px;
-    max-height: 95vh;
-  }
-
   .summary-grid {
     grid-template-columns: 1fr;
   }
@@ -668,7 +610,8 @@
     flex-direction: column;
   }
 
-  .btn-cancel, .btn-submit {
+  .btn-cancel,
+  .btn-submit {
     width: 100%;
     justify-content: center;
   }

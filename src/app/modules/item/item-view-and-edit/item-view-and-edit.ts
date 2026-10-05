@@ -1,25 +1,15 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges
-} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {finalize} from 'rxjs';
+
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {MeasuringUnitType} from '../../../shared/enums/measuring-unit-type.enum/MeasuringUnitType';
 import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
-import {CommonModule} from '@angular/common';
-import {finalize} from 'rxjs';
-import {
-  MultiSelectDropdown
-} from '../../../shared/components/multi-select-search-dropdown/multi-select-search-dropdown';
+import {MultiSelectDropdown} from '../../../shared/components/multi-select-search-dropdown/multi-select-search-dropdown';
 
 @Component({
   selector: 'app-item-view-and-edit',
@@ -28,16 +18,14 @@ import {
   styleUrl: './item-view-and-edit.css',
   standalone: true
 })
-export class ItemViewAndEdit implements OnInit, AfterViewInit, OnChanges {
-
-  @Input() item: ItemTableViewResponseProjection | undefined;
-  @Input() isEditModalOpen: boolean = false;
-  @Output() cancel = new EventEmitter<void>();
+export class ItemViewAndEdit implements OnInit {
 
   itemForm!: FormGroup;
+  item?: ItemTableViewResponseProjection;
+  itemId!: number;
   laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
   unitTypesList = Object.keys(MeasuringUnitType);
-
+  isEditMode = false;
   isSubmitting = false;
 
   unitDisplayMap: Record<string, string> = {
@@ -52,24 +40,25 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit, OnChanges {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
-    private readonly cdr: ChangeDetectorRef
-  ) {
-  }
+    private readonly cdr: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
+    this.isEditMode = this.router.url.includes('/items/edit/');
+
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.router.navigate(['/dashboard/items']);
+      return;
+    }
+
+    this.itemId = Number(id);
     this.initForm();
     this.loadItemNames();
-    console.warn('Item data received in ItemViewAndEdit:', this.item);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isEditModalOpen'] && this.itemForm) {
-      this.updateFormMode();
-    }
-
-    if (changes['item'] && this.item && this.itemForm) {
-      this.patchFormWithData(this.item);
-    }
+    this.loadItem();
   }
 
   initForm(): void {
@@ -82,54 +71,58 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit, OnChanges {
       laborActivitiesSelected: [[], Validators.required]
     });
 
-    this.updateFormMode();
-  }
-
-  ngAfterViewInit(): void {
-    if (this.item) {
-      this.patchFormWithData(this.item);
-    }
-  }
-
-  private updateFormMode(): void {
-    if (!this.itemForm) {
-      return;
-    }
-
-    if (this.isEditModalOpen) {
-      this.itemForm.enable();
-    } else {
+    if (!this.isEditMode) {
       this.itemForm.disable();
     }
-
-    this.cdr.markForCheck();
   }
 
-  private patchFormWithData(data: ItemTableViewResponseProjection): void {
-    this.itemForm.patchValue({
-      itemName: data.itemName,
-      balanceQty: data.balanceQty,
-      supplierPrice: data.supplierPrice,
-      sellingPrice: data.sellingPrice,
-      measuringUnitType: data.measuringUnitType,
-      laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
-    }, {emitEvent: false});
+  private loadItem(): void {
+    this.adminService.getItemById(this.itemId).subscribe({
+      next: (response: any) => {
+        this.item = response?.data || response;
 
-    this.cdr.markForCheck();
+        this.itemForm.patchValue({
+          itemName: this.item?.itemName,
+          balanceQty: this.item?.balanceQty,
+          supplierPrice: this.item?.supplierPrice,
+          sellingPrice: this.item?.sellingPrice,
+          measuringUnitType: this.item?.measuringUnitType,
+          laborActivitiesSelected: this.item?.laborActivities?.map(a => a.laborActivityId) || []
+        }, {emitEvent: false});
+
+        if (this.isEditMode) {
+          this.itemForm.enable();
+        } else {
+          this.itemForm.disable();
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Failed to load item:', err);
+        this.notificationService.show('Failed to load item.', 'error');
+        this.router.navigate(['/dashboard/items']);
+      }
+    });
   }
 
   loadItemNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameResponseProjection[]) => {
-        this.laborActivityNameProjection = res;
+      next: (res: any) => {
+        const data = res?.data || res;
+        this.laborActivityNameProjection = Array.isArray(data) ? data : [];
         this.cdr.markForCheck();
       },
-      error: (err: any) => console.error('Failed to load names', err)
+      error: (err: any) => {
+        console.error('Failed to load names:', err);
+        this.laborActivityNameProjection = [];
+        this.cdr.markForCheck();
+      }
     });
   }
 
   onSubmit(): void {
-    if (this.isSubmitting || !this.isEditModalOpen) {
+    if (this.isSubmitting || !this.isEditMode) {
       return;
     }
 
@@ -140,35 +133,39 @@ export class ItemViewAndEdit implements OnInit, AfterViewInit, OnChanges {
     }
 
     this.isSubmitting = true;
-    const formValue = this.itemForm.value;
+
+    const formValue = this.itemForm.getRawValue();
 
     const backendPayload = {
-      itemId: this.item?.itemId,
+      itemId: this.itemId,
       itemName: formValue.itemName,
       balanceQty: formValue.balanceQty,
       supplierPrice: formValue.supplierPrice,
       sellingPrice: formValue.sellingPrice,
       measuringUnitType: formValue.measuringUnitType,
-      laborActivitiesSelected: formValue.laborActivitiesSelected || [],
+      laborActivitiesSelected: formValue.laborActivitiesSelected || []
     };
 
     this.adminService.modifyItem(backendPayload).pipe(
       finalize(() => {
         this.isSubmitting = false;
-      })).subscribe({
-      next: (res: any) => {
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: () => {
         this.notificationService.show('Item saved successfully!', 'success');
-        this.cancel.emit();
+        this.router.navigate(['/dashboard/items']);
       },
       error: (err: any) => {
         console.error('Error saving Item:', err);
         this.notificationService.show('Failed to save Item.', 'error');
+        this.cdr.markForCheck();
       }
     });
   }
 
-  onCancel(): void {
-    this.cancel.emit();
+  onBack(): void {
+    this.router.navigate(['/dashboard/items']);
   }
 
   isInvalid(controlName: string): boolean {

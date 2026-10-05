@@ -153,17 +153,3 @@
     </div>
   </div>
 </div>
-
-<app-invoice-edit-form
-  *ngIf="isEditModalOpen"
-  [invoiceId]="selectedInvoiceId"
-  (cancel)="closeModal()"
-  (invoiceUpdated)="onInvoiceUpdated($event)">
-</app-invoice-edit-form>
-
-<app-print-preview
-  *ngIf="showPrintModal"
-  [pdfUrl]="invoicePdfUrl"
-  [pdfName]="'Invoice Print Preview'"
-  (close)="closePrintPreview()">
-</app-print-preview>

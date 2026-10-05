@@ -1,19 +1,22 @@
-<div class="modal-overlay">
-  <div class="revhub-builder-card">
-    <button class="close-btn" (click)="onCancel()">&times;</button>
+<div class="page-header">
+  <div class="card-container revhub-builder-card">
     <div class="form-title-bar">
       <h2>EDIT INVOICE</h2>
+      <button
+        type="button"
+        class="btn-filter-reset"
+        (click)="onBack()">
+        ← BACK
+      </button>
     </div>
 
-    <!-- Loading Spinner View for Fetching Existing Data -->
     <div *ngIf="isLoadingData" class="loading-container" style="display: flex; justify-content: center; align-items: center; padding: 60px; color: #fff;">
       <span class="buttonSpinner" style="width: 40px; height: 40px; border-width: 4px;"></span>
       <span style="margin-left: 15px; font-size: 16px;">Loading Invoice Data...</span>
     </div>
 
-    <form [formGroup]="invoiceForm" *ngIf="!isLoadingData">
+    <form [formGroup]="invoiceForm" *ngIf="!isLoadingData" (ngSubmit)="onSubmit()">
       <div class="split-workspace">
-
         <div class="left-panel">
           <div class="sidebar-list" formArrayName="laborActivities">
             <div *ngFor="let labor of laborActivities.controls; let i = index"
@@ -30,19 +33,13 @@
                 </span>
               </div>
               <div class="task-actions">
-                <button type="button"
-                        class="task-delete-btn"
-                        title="Delete Task"
-                        (click)="removeLaborActivity(i, $event)">
-                  🗑️
-                </button>
+                <button type="button" class="task-delete-btn" title="Delete Task" (click)="removeLaborActivity(i, $event)">🗑️</button>
               </div>
             </div>
           </div>
+
           <ng-template [ngIf]="laborActivityAvailable">
-            <button type="button" class="add-labor-btn" (click)="addLaborActivity('', false, 0)">
-              ➕ ADD ADDITIONAL LABOR
-            </button>
+            <button type="button" class="add-labor-btn" (click)="addLaborActivity('', false, 0)">➕ ADD ADDITIONAL LABOR</button>
           </ng-template>
         </div>
 
@@ -50,11 +47,11 @@
           <div class="active-workspace-header">
             <div class="task-field">
               <label>🔧 Active Task:</label>
+
               <ng-container *ngIf="laborActivities.at(selectedLaborIndex).get('isAutoFetched')?.value; else dynamicDropdown">
-                <span class="static-label">
-                  {{ getLaborActivityName(laborActivities.at(selectedLaborIndex)?.get('name')?.value) }}
-                </span>
+                <span class="static-label">{{ getLaborActivityName(laborActivities.at(selectedLaborIndex)?.get('name')?.value) }}</span>
               </ng-container>
+
               <ng-template #dynamicDropdown>
                 <div class="dropdown-container custom-labor-dropdown">
                   <div class="dropdown-input-wrapper"
@@ -63,19 +60,12 @@
                     <span class="dropdown-selected-value-text">
                       {{ getLaborActivityName(laborActivities.at(selectedLaborIndex)?.get('name')?.value) || 'Select New Labor Activity...' }}
                     </span>
-                    <span class="dropdown-toggle">
-                      {{ isDropdownOpen ? '▲' : '▼' }}
-                    </span>
+                    <span class="dropdown-toggle">{{ isDropdownOpen ? '▲' : '▼' }}</span>
                   </div>
 
                   <div class="dropdown-options-box" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
                     <div class="dropdown-search-wrapper">
-                      <input
-                        type="text"
-                        placeholder="Type to filter tasks... 🔍"
-                        class="dropdown-search-input"
-                        (input)="onSearchLaborDropdown($event)"
-                      />
+                      <input type="text" placeholder="Type to filter tasks... 🔍" class="dropdown-search-input" (input)="onSearchLaborDropdown($event)" />
                     </div>
 
                     <ul class="dropdown-results-list">
@@ -84,9 +74,7 @@
                           (click)="selectActivityOption(act.laborActivityId)">
                         {{ act.activityName }}
                       </li>
-                      <li *ngIf="filteredLaborActivities.length === 0" class="no-results">
-                        No matching items found
-                      </li>
+                      <li *ngIf="filteredLaborActivities.length === 0" class="no-results">No matching items found</li>
                     </ul>
                   </div>
                 </div>
@@ -112,71 +100,54 @@
                 <th width="60">Actions</th>
               </tr>
               </thead>
+
               <tbody formArrayName="parts">
               <tr *ngFor="let part of getPartControls(selectedLaborIndex); let j = index" [formGroupName]="j">
                 <td>{{ j + 1 }}</td>
+
                 <td>
                   <div class="custom-matrix-dropdown">
                     <div class="dropdown-input-wrapper"
                          [class.invalid-border]="part.get('name')?.invalid && part.get('name')?.touched"
                          (click)="togglePartDropdown($event, j)">
-                      <span class="dropdown-selected-value-text">
-                        {{ part.get('name')?.value || 'Select Item / Part...' }}
-                      </span>
-                      <span class="dropdown-toggle">
-                        {{ partDropdownOpenRowIndex === j ? '▲' : '▼' }}
-                      </span>
+                      <span class="dropdown-selected-value-text">{{ part.get('name')?.value || 'Select Item / Part...' }}</span>
+                      <span class="dropdown-toggle">{{ partDropdownOpenRowIndex === j ? '▲' : '▼' }}</span>
                     </div>
 
                     <div class="dropdown-options-box" *ngIf="partDropdownOpenRowIndex === j" (click)="$event.stopPropagation()">
                       <div class="dropdown-search-wrapper">
-                        <input
-                          type="text"
-                          placeholder="Type to filter parts... 🔍"
-                          class="dropdown-search-input"
-                          (input)="onSearchPartsDropdown($event)"
-                        />
+                        <input type="text" placeholder="Type to filter parts... 🔍" class="dropdown-search-input" (input)="onSearchPartsDropdown($event)" />
                       </div>
 
                       <ul class="dropdown-results-list">
                         <li *ngFor="let p of filteredItemParts"
                             [class.selected]="part.get('name')?.value === p.itemName"
-                            (click)="selectPartOption(j, p)">  {{ p.itemName }}
+                            (click)="selectPartOption(j, p)">
+                          {{ p.itemName }}
                         </li>
                       </ul>
                     </div>
                   </div>
                 </td>
-                <td>
-                  <input type="number" formControlName="qty" class="dark-input cell-input">
-                </td>
-                <td>
-                  <input type="text" [readOnly]="true" formControlName="unitType" class="dark-input cell-input">
-                </td>
-                <td>
-                  <input type="number" [readOnly]="true" formControlName="unitPrice" class="dark-input cell-input">
-                </td>
-                <td class="total-output">
-                  LKR {{ part.get('total')?.value | number : '1.2-2' }}
-                </td>
-                <td>
-                  <button type="button" class="row-delete-btn" (click)="removePart(selectedLaborIndex, j)">🗑️</button>
-                </td>
+
+                <td><input type="number" formControlName="qty" class="dark-input cell-input"></td>
+                <td><input type="text" [readOnly]="true" formControlName="unitType" class="dark-input cell-input"></td>
+                <td><input type="number" [readOnly]="true" formControlName="unitPrice" class="dark-input cell-input"></td>
+                <td class="total-output">LKR {{ part.get('total')?.value | number : '1.2-2' }}</td>
+                <td><button type="button" class="row-delete-btn" (click)="removePart(selectedLaborIndex, j)">🗑️</button></td>
               </tr>
               </tbody>
             </table>
 
-            <button type="button" class="add-part-link" (click)="addPartToLabor(selectedLaborIndex)">
-              ➕ Add Part to this Task
-            </button>
+            <button type="button" class="add-part-link" (click)="addPartToLabor(selectedLaborIndex)">➕ Add Part to this Task</button>
           </div>
         </div>
-
       </div>
 
       <div class="summary-footer-bar">
         <div class="payment-selection-container">
           <label class="section-label">💳 Select Payment Method:</label>
+
           <div class="payment-options">
             <label class="payment-radio-tile">
               <input type="radio" formControlName="paymentMethod" value="Cash">
@@ -203,14 +174,17 @@
             <label>Total Parts:</label>
             <span>LKR {{ totalPartsCost | number : '1.2-2' }}</span>
           </div>
+
           <div class="summary-node">
             <label>Total Labor Fees:</label>
             <span>LKR {{ totalLaborCost | number : '1.2-2' }}</span>
           </div>
+
           <div class="summary-node inline-input-node">
             <label>Additional Fees:</label>
             <input type="number" formControlName="additionalFees" class="dark-input summary-input">
           </div>
+
           <div class="summary-node accent-total">
             <label>Grand Total:</label>
             <span>LKR {{ grandTotal | number : '1.2-2' }}</span>
@@ -218,11 +192,12 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="cancel.emit()">Cancel</button>
-          <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
+          <button type="button" class="btn-cancel" (click)="onBack()">BACK</button>
+
+          <button type="submit" class="btn-submit" [disabled]="isSubmitting">
             <span *ngIf="!isSubmitting" class="icon">💾</span>
             <span *ngIf="isSubmitting" class="buttonSpinner"></span>
-            {{ isSubmitting ? 'UPDATING...' : 'Update Invoice' }}
+            {{ isSubmitting ? 'GENERATING...' : 'GENERATE' }}
           </button>
         </div>
       </div>

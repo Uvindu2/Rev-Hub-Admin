@@ -1,49 +1,106 @@
-/* --- Overlay & Container --- */
-:host {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); z-index: 1000;
-  display: flex; justify-content: center; align-items: center;
+.labor-form-header {
+  margin-bottom: 24px;
 }
 
-.modal-container {
-  background-color: #181818; color: #cccccc; padding: 25px;
-  border-radius: 8px; width: 500px; border: 1px solid #3a3a3a;
+.labor-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+  width: 100%;
 }
 
-/* --- Form Elements --- */
-.modal-body { display: flex; flex-direction: column; gap: 20px; padding: 20px 0; }
-
-.form-group { display: flex; flex-direction: column; }
-label { font-size: 0.85rem; margin-bottom: 8px; }
-
-input[type="text"] {
-  background-color: #2a2a2a; border: 1px solid #3a3a3a;
-  color: white; padding: 10px; border-radius: 4px;
+.labor-form-grid input[type="text"] {
+  width: 100%;
+  background-color: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #ffffff;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
 }
 
-/* --- Custom Radio Group --- */
-.radio-group { display: flex; gap: 20px; padding: 5px 0; }
-.radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.radio-option input[type="radio"] {
-  width: 16px; height: 16px; cursor: pointer; accent-color: #a61c1c;
+.labor-form-grid input[type="text"]:focus {
+  border-color: #dc2626;
 }
 
-/* --- Footer & Buttons --- */
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-.btn-submit { background-color: #a61c1c; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-.btn-cancel { background-color: #2e2e2e; color: white; border: 1px solid #3a3a3a; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 35px;
+}
 
-.error-msg { color: #dc3545; font-size: 0.8rem; margin-top: 4px; }
-.required { color: #dc3545; }
-.close-btn {
-  background: none;
-  border: none;
-  color: #666666;
-  font-size: 38px;
+.radio-option {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  color: #cccccc;
+  font-size: 0.85rem;
   cursor: pointer;
+  margin: 0;
+}
 
-  /* --- UPDATED: Pin to top-left --- */
-  position: absolute;
-  left: 63%; /* Changed from 'right' to 'left' */
-  line-height: 0.5;
+.radio-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #dc2626;
+}
+
+.radio-option span {
+  color: #cccccc;
+}
+
+.labor-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #262626;
+}
+
+.required {
+  color: #dc3545;
+  margin-left: 2px;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #dc3545 !important;
+}
+
+@media screen and (max-width: 767px) {
+  .labor-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .radio-group {
+    gap: 18px;
+  }
+
+  .labor-form-footer {
+    justify-content: stretch;
+  }
+
+  .labor-form-footer button {
+    flex: 1;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .labor-form-header {
+    align-items: flex-start;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }

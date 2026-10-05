@@ -1,51 +1,53 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
-import {ItemForm} from '../item-form/item-form';
-import {ItemViewAndEdit} from '../item-view-and-edit/item-view-and-edit';
+import {Router} from '@angular/router';
 import {debounceTime, distinctUntilChanged, finalize, Subject, takeUntil} from 'rxjs';
+
+import {AdminService} from '../../../services/admin.service';
+import {ItemTableViewResponseProjection} from '../../../dto/response/ItemTableViewResponseProjection';
 import {ItemIdNameResponseDTO} from '../../../dto/response/ItemIdNameResponseDTO';
 import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-item-view',
-  imports: [ItemForm, NgForOf, NgIf, ReactiveFormsModule, ItemViewAndEdit, DatePipe, SearchDropdown],
+  standalone: true,
+  imports: [
+    NgForOf,
+    NgIf,
+    DatePipe,
+    ReactiveFormsModule,
+    SearchDropdown
+  ],
   templateUrl: './item-view.html',
-  styleUrl: './item-view.css',
+  styleUrl: './item-view.css'
 })
 export class ItemView implements OnInit, OnDestroy {
+
   filterForm!: FormGroup;
 
   items: ItemTableViewResponseProjection[] = [];
-  item: ItemTableViewResponseProjection | undefined;
 
-  // Pagination Parameters
   currentPage: number = 1;
   pageSize: number = 5;
   totalElements: number = 0;
   totalPagesCount: number = 0;
   pageSizes: number[] = [5, 10, 20, 50];
 
-  // Sorting Rules configuration
   sortByField: string = 'createdDate';
   sortDirection: string = 'desc';
 
-  isAddModalOpen: boolean = false;
-  isEditModalOpen: boolean = false;
-  isViewModalOpen: boolean = false;
   isLoading: boolean = false;
+
   availableItemNames: ItemIdNameResponseDTO[] = [];
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly notificationService: NotificationService,
+    private readonly router: Router
   ) {
     this.initFilterForm();
   }
@@ -63,16 +65,21 @@ export class ItemView implements OnInit, OnDestroy {
 
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
-      itemName: [null],
+      itemName: [null]
     });
   }
 
   private setupFilterListener(): void {
     this.filterForm
       .get('itemName')
-      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      ?.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
       .subscribe(() => {
-        this.currentPage = 1; // Reset to page 1 on filter change
+        this.currentPage = 1;
         this.fetchItems();
       });
   }
@@ -82,11 +89,9 @@ export class ItemView implements OnInit, OnDestroy {
       next: (response: any) => {
         const itemsNames = response?.data || response;
 
-        if (Array.isArray(itemsNames)) {
-          this.availableItemNames = itemsNames;
-        } else {
-          this.availableItemNames = [];
-        }
+        this.availableItemNames = Array.isArray(itemsNames)
+          ? itemsNames
+          : [];
 
         this.cdr.markForCheck();
       },
@@ -94,7 +99,7 @@ export class ItemView implements OnInit, OnDestroy {
         console.error('Failed to load item names:', err);
         this.availableItemNames = [];
         this.cdr.markForCheck();
-      },
+      }
     });
   }
 
@@ -117,7 +122,7 @@ export class ItemView implements OnInit, OnDestroy {
         finalize(() => {
           this.isLoading = false;
           this.cdr.markForCheck();
-        }),
+        })
       )
       .subscribe({
         next: (response: any) => {
@@ -127,39 +132,61 @@ export class ItemView implements OnInit, OnDestroy {
 
           if (response?.data?.content !== undefined) {
             updatedItems = response.data.content || [];
+
             updatedTotalElements =
               response.data.page?.totalElements === undefined
                 ? response.data.total_elements || 0
                 : response.data.page.totalElements;
+
             updatedTotalPagesCount =
               response.data.page?.totalPages === undefined
                 ? response.data.total_pages || 0
                 : response.data.page.totalPages;
+
           } else if (Array.isArray(response)) {
             updatedItems = response;
             updatedTotalElements = response.length;
-            updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
+            updatedTotalPagesCount =
+              Math.ceil(response.length / this.pageSize) || 1;
           }
 
           this.items = updatedItems;
           this.totalElements = updatedTotalElements;
           this.totalPagesCount = updatedTotalPagesCount;
+
           this.cdr.markForCheck();
         },
+
         error: (err: any) => {
-          console.error('Failed to load item from server:', err);
+          console.error('Failed to load items from server:', err);
+
           this.items = [];
           this.totalElements = 0;
           this.totalPagesCount = 0;
+
           this.cdr.markForCheck();
-        },
+        }
       });
+  }
+
+  onAddItem(): void {
+    this.router.navigate(['/dashboard/items/new']);
+  }
+
+  viewItem(id: number): void {
+    this.router.navigate(['/dashboard/items/view', id]);
+  }
+
+  editItem(id: number): void {
+    this.router.navigate(['/dashboard/items/edit', id]);
   }
 
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
+
     this.pageSize = Number(select.value);
     this.currentPage = 1;
+
     this.fetchItems();
   }
 
@@ -182,60 +209,5 @@ export class ItemView implements OnInit, OnDestroy {
       this.currentPage++;
       this.fetchItems();
     }
-  }
-
-  onAddItem(): void {
-    this.isAddModalOpen = true;
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.cdr.markForCheck();
-  }
-
-  closeModal(): void {
-    this.isAddModalOpen = false;
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.item = undefined;
-    this.cdr.markForCheck();
-  }
-
-  viewItem(id: number): void {
-    this.adminService.getItemById(id).subscribe({
-      next: (response: any) => {
-        this.item = response.data;
-        this.isViewModalOpen = true;
-        this.isEditModalOpen = false;
-        this.isAddModalOpen=false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load item from server:', 'error');
-          this.cdr.detectChanges();
-        }, 0);
-      },
-    });
-  }
-
-  editItem(id: number): void {
-    this.adminService.getItemById(id).subscribe({
-      next: (response: any) => {
-        this.item = response.data;
-        this.isEditModalOpen = true;
-        this.isViewModalOpen=false;
-        this.isAddModalOpen=false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load item from server:', 'error');
-          this.cdr.detectChanges();
-        }, 0);
-      },
-    });
-  }
-
-  deleteItem(id: number): void {
-    console.log('Deleting ID:', id);
   }
 }

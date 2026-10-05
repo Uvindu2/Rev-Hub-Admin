@@ -15,11 +15,15 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/dashboard/dashboard-overview/dashboard-overview').then(m => m.DashboardOverview)
       },
       {
-        path: 'job-cards/new',
-        loadComponent: () => import('./modules/job-card/job-card-form/job-card-form').then(m => m.JobCardForm)
+        path: 'job-cards/new', loadComponent: () => import('./modules/job-card/job-card-form/job-card-form').then(m => m.JobCardForm)
       },
       {
-        path: 'job-cards/new', loadComponent: () => import('./modules/job-card/job-card-form/job-card-form').then(m => m.JobCardForm)
+        path: 'job-cards/print',
+        loadComponent: () => import('./modules/invoice/print-preview/print-preview').then(m => m.PrintPreview)
+      },
+      {
+        path: 'job-cards/edit/:id',
+        loadComponent: () => import('./modules/job-card/job-card-view-and-edit/job-card-view-and-edit').then(m => m.JobCardViewAndEdit)
       },
       {
         path: 'job-cards', loadComponent: () => import('./modules/job-card/job-card-view/job-card-view').then(m => m.JobCardView)
@@ -30,6 +34,14 @@ export const routes: Routes = [
       },
       {
         path: 'invoices/new', loadComponent: () => import('./modules/invoice/invoice-form/invoice-form').then(m => m.InvoiceForm)
+      },
+      {
+        path: 'invoices/edit/:id',
+        loadComponent: () => import('./modules/invoice/invoice-view-and-edit/invoice-view-and-edit').then(m => m.InvoiceViewAndEdit)
+      },
+      {
+        path: 'invoices/print',
+        loadComponent: () => import('./modules/invoice/print-preview/print-preview').then(m => m.PrintPreview)
       },
       {
         path: 'customers',
@@ -44,12 +56,48 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/vehicle/vehicle-view/vehicle-view').then(m => m.VehicleView)
       },
       {
+        path: 'items/new',
+        loadComponent: () => import('./modules/item/item-form/item-form').then(m => m.ItemForm)
+      },
+      {
+        path: 'items/view/:id',
+        loadComponent: () => import('./modules/item/item-view-and-edit/item-view-and-edit').then(m => m.ItemViewAndEdit)
+      },
+      {
+        path: 'items/edit/:id',
+        loadComponent: () => import('./modules/item/item-view-and-edit/item-view-and-edit').then(m => m.ItemViewAndEdit)
+      },
+      {
         path: 'items',
         loadComponent: () => import('./modules/item/item-view/item-view').then(m => m.ItemView)
       },
       {
+        path: 'labor-activities/new',
+        loadComponent: () => import('./modules/labor-activity/labor-activity-form/labor-activity-form').then(m => m.LaborActivityForm)
+      },
+      {
+        path: 'labor-activities/view/:id',
+        loadComponent: () => import('./modules/labor-activity/labor-activity-view-and-edit/labor-activity-view-and-edit').then(m => m.LaborActivityViewAndEdit)
+      },
+      {
+        path: 'labor-activities/edit/:id',
+        loadComponent: () => import('./modules/labor-activity/labor-activity-view-and-edit/labor-activity-view-and-edit').then(m => m.LaborActivityViewAndEdit)
+      },
+      {
         path: 'labor-activities',
         loadComponent: () => import('./modules/labor-activity/labor-activity-view/labor-activity-view').then(m => m.LaborActivityView)
+      },
+      {
+        path: 'users/new',
+        loadComponent: () => import('./modules/user/user-form/user-form').then(m => m.UserForm)
+      },
+      {
+        path: 'users/view/:id',
+        loadComponent: () => import('./modules/user/user-view-and-edit/user-view-and-edit').then(m => m.UserViewAndEdit)
+      },
+      {
+        path: 'users/edit/:id',
+        loadComponent: () => import('./modules/user/user-view-and-edit/user-view-and-edit').then(m => m.UserViewAndEdit)
       },
       {
         path: 'users',

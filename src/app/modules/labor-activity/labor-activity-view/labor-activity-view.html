@@ -1,13 +1,13 @@
 <div class="page-header">
-  <div class="card-container">
+  <div class="card-container" [formGroup]="filterForm">
 
-    <div class="table-header" [formGroup]="filterForm">
+    <div class="table-header">
       <div class="actions-right">
         <button class="btn-add" type="button" (click)="onAddLaborActivity()">
           <span class="icon-plus" aria-hidden="true">+</span> ADD NEW
         </button>
       </div>
-            <!-- 1. Item SearchDropdown Filter -->
+
       <div class="filter-group">
         <app-search-dropdown
           formControlName="laborActivity"
@@ -19,8 +19,7 @@
           allLabel="All"
           [allValue]="null"
           placeholder="All Labor Activities"
-          errorMessage="Please select an Activity."
-        >
+          errorMessage="Please select an Activity.">
         </app-search-dropdown>
       </div>
     </div>
@@ -36,38 +35,66 @@
           <th class="text-center">Actions</th>
         </tr>
         </thead>
+
         <tbody>
         <tr *ngIf="isLoading">
-          <td colspan="7" class="table-loader-cell">
+          <td colspan="5" class="table-loader-cell">
             <div class="table-loader">
               <span class="spinner"></span>
-              <span>Loading job cards...</span>
+              <span>Loading labor activities...</span>
             </div>
           </td>
         </tr>
 
         <tr *ngIf="!isLoading && (!laborActivities || laborActivities.length === 0)">
-          <td colspan="7" style="text-align: center; padding: 30px; color: #757575; font-style: italic;">
-            No labor Activities found matching current filter parameters.
+          <td colspan="5" class="no-data-cell">
+            No labor activities found matching current filter parameters.
           </td>
         </tr>
-        <tr *ngFor="let laborActivity of laborActivities" [class.loading-hidden]="isLoading">
-          <td class="font-semibold">{{ laborActivity.activityName }}</td>
+
+        <tr
+          *ngFor="let laborActivity of laborActivities"
+          [class.loading-hidden]="isLoading">
+
           <td class="font-semibold">
-              <span class="badge" [ngClass]="{
-                'badge-completed': laborActivity.active,
-                'badge-cancelled': !laborActivity.active,
-              }">
-               {{ setActiveInactive(!!laborActivity.active) }}
+            {{ laborActivity.activityName }}
+          </td>
+
+          <td class="font-semibold">
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-completed': laborActivity.active,
+                  'badge-cancelled': !laborActivity.active
+                }">
+                {{ setActiveInactive(!!laborActivity.active) }}
               </span>
           </td>
-          <td class="font-semibold">{{ laborActivity.lastModifiedDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
-          <td class="font-semibold">{{ laborActivity.lastModifiedUser }}</td>
-          <td class="actions-cell">
-            <button class="btn-table-action view-btn" (click)="viewLaborActivity(laborActivity.laborActivityId)">👁️</button>
-            <button class="btn-table-action edit-btn" (click)="editLaborActivity(laborActivity.laborActivityId)">✏️</button>
-<!--            <button class="btn-table-action delete-btn" (click)="deleteLaborActivity(laborActivity.laborActivityId)">🗑️</button>-->
+
+          <td class="font-semibold">
+            {{ laborActivity.lastModifiedDate | date:'yyyy MMM dd, HH:mm:ss' }}
           </td>
+
+          <td class="font-semibold">
+            {{ laborActivity.lastModifiedUser }}
+          </td>
+
+          <td class="actions-cell">
+            <button
+              class="btn-table-action view-btn"
+              title="View"
+              (click)="viewLaborActivity(laborActivity.laborActivityId)">
+              👁️
+            </button>
+
+            <button
+              class="btn-table-action edit-btn"
+              title="Edit"
+              (click)="editLaborActivity(laborActivity.laborActivityId)">
+              ✏️
+            </button>
+          </td>
+
         </tr>
         </tbody>
       </table>
@@ -76,35 +103,67 @@
     <div class="table-footer-summary custom-footer-layout">
 
       <div class="record-counter left-counter-anchor">
-        Showing {{ laborActivities?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+        Showing {{ laborActivities?.length || 0 }} of
+        <strong>{{ totalElements || 0 }}</strong> total entries
       </div>
 
       <div class="pagination-group-wrapper right-controls-group">
 
         <div class="select-box footer-select">
           <label>Show:</label>
-          <select (change)="onPageSizeChange($event)" [value]="pageSize">
-            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+
+          <select
+            (change)="onPageSizeChange($event)"
+            [value]="pageSize">
+            <option
+              *ngFor="let size of pageSizes"
+              [value]="size">
+              {{ size }} rows
+            </option>
           </select>
         </div>
 
         <div class="pagination">
-          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+
+          <button
+            class="page-nav"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(1)">
+            |&lt;
+          </button>
+
+          <button
+            class="page-nav"
+            [disabled]="currentPage === 1"
+            (click)="prevPage()">
+            &lt;
+          </button>
 
           <span class="page-indicator">
-            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of {{ totalPagesCount }}
+            Page
+            <strong>
+              {{ totalPagesCount === 0 ? 0 : currentPage }}
+            </strong>
+            of {{ totalPagesCount }}
           </span>
 
-          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">></button>
-          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="goToPage(totalPagesCount)">>|</button>
-        </div>
+          <button
+            class="page-nav"
+            [disabled]="currentPage >= totalPagesCount"
+            (click)="nextPage()">
+            &gt;
+          </button>
 
+          <button
+            class="page-nav"
+            [disabled]="currentPage >= totalPagesCount"
+            (click)="goToPage(totalPagesCount)">
+            &gt;|
+          </button>
+
+        </div>
       </div>
     </div>
 
   </div>
 </div>
-<app-labor-activity-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-labor-activity-form>
-
-<app-labor-activity-view-and-edit *ngIf="isEditModalOpen || isViewModalOpen" [isEditModalOpen]="isEditModalOpen" [laborActivity]="laborActivity" (cancel)="closeModal()"></app-labor-activity-view-and-edit>

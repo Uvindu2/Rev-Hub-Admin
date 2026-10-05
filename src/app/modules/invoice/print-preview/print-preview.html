@@ -1,26 +1,19 @@
-<div class="print-preview-backdrop">
-  <div class="custom-preview-card">
+<div class="page-header">
+  <div class="card-container print-preview-page-container">
 
-    <!-- Header -->
     <div class="custom-preview-header">
       <div class="header-title-group">
-        <h2>📑 {{pdfName}}</h2>
-        <span class="sub-title">Generated from System Backend</span>
+        <h2>📑 {{ pdfName }}</h2>
       </div>
-      <button type="button" class="close-btn" (click)="onClose()">&times;</button>
     </div>
 
-    <!-- Body with PDF Iframe -->
     <div class="custom-preview-body">
-      <iframe #pdfIframe [src]="pdfUrl" title="Invoice PDF Preview"></iframe>
+      <iframe [src]="pdfUrl" title="PDF Print Preview"></iframe>
     </div>
 
-    <!-- Footer Actions -->
     <div class="custom-preview-footer">
-      <button type="button" class="btn-cancel-custom" (click)="onClose()">Close</button>
-      <button type="button" class="btn-print-custom" (click)="printPdf()">
-        🖨️ Print PDF
-      </button>
+      <button type="button" class="btn-cancel-custom" (click)="onClose()">BACK</button>
+      <button type="button" class="btn-print-custom" (click)="printPdf()">🖨️ PRINT</button>
     </div>
 
   </div>

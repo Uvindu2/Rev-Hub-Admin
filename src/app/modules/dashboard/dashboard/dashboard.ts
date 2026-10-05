@@ -38,14 +38,14 @@ export class Dashboard implements OnInit, OnDestroy {
 
   pageTitles: Record<string, string> = {
     overview: 'Dashboard',
-    'job-cards': 'Job Cards',
-    invoices: 'Invoices',
-    customers: 'Customers',
-    technicians: 'Technicians',
-    vehicles: 'Vehicles',
-    items: 'Items',
-    users: 'Users',
-    'labor-activities': 'Labor Activities'
+    'job-cards': 'JOB CARDS',
+    invoices: 'INVOICES',
+    customers: 'CUSTOMERS',
+    technicians: 'TECHNICIANS',
+    vehicles: 'VEHICLES',
+    items: 'ITEMS',
+    users: 'USERS',
+    'labor-activities': 'LABOR ACTIVITIES'
   };
 
   constructor(private authService: AuthService, private router: Router) {}
@@ -60,7 +60,56 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private updatePageTitle(url: string): void {
     if (url.includes('/dashboard/job-cards/new')) {
-      this.currentTitle = 'Job Cards';
+      this.currentTitle = 'JOB CARDS';
+      return;
+    }
+
+    if (url.includes('/dashboard/job-cards/edit/')) {
+      this.currentTitle = 'JOB CARDS';
+      return;
+    }
+
+    if (url.includes('/dashboard/items/new')) {
+      this.currentTitle = 'ITEMS';
+      return;
+    }
+
+    if (url.includes('/dashboard/labor-activities/new')) {
+      this.currentTitle = 'LABOR ACTIVITIES';
+      return;
+    }
+
+    if (url.includes('/dashboard/users/new')) {
+      this.currentTitle = 'USERS';
+      return;
+    }
+    if (url.includes('/dashboard/users/view/')) {
+      this.currentTitle = 'USERS';
+      return;
+    }
+
+    if (url.includes('/dashboard/users/edit/')) {
+      this.currentTitle = 'USERS';
+      return;
+    }
+
+    if (url.includes('/dashboard/invoices/new')) {
+      this.currentTitle = 'INVOICES';
+      return;
+    }
+
+    if (url.includes('/dashboard/invoices/edit/')) {
+      this.currentTitle = 'INVOICES';
+      return;
+    }
+
+    if (url.includes('/dashboard/invoices/print')) {
+      this.currentTitle = 'Invoice Print Preview';
+      return;
+    }
+
+    if (url.includes('/dashboard/job-cards/print')) {
+      this.currentTitle = 'Job Card Print Preview';
       return;
     }
 

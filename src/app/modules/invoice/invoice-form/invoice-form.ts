@@ -194,88 +194,89 @@ export class InvoiceForm implements OnInit {
     );
   }
 
-  onSubmit() {
-    // 1. Fetch current logged-in user details from your auth service
+  onSubmit(): void {
     const currentUser = this.authService.getCurrentUser();
     console.log(currentUser);
+
     if (this.laborActivities.length < 1) {
-      this.notificationService.show(
-        'An invoice must contain at least one labor activity.',
-        'error',
-      );
-      return;
-    }
-    if (this.invoiceForm.invalid) {
-      this.markAllAsTouched(this.invoiceForm);
-      this.notificationService.show(
-        'Please resolve all validation errors before proceeding.',
-        'error',
-      );
+      this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
       return;
     }
 
-    if (this.isSubmitting) {
+    if (this.invoiceForm.invalid) {
+      this.markAllAsTouched(this.invoiceForm);
+      this.notificationService.show('Please resolve all validation errors before proceeding.', 'error');
       return;
     }
+
+    if (this.isSubmitting) return;
+
     this.isSubmitting = true;
     this.cdr.markForCheck();
 
     const payload = this.invoiceForm.getRawValue();
 
-    this.adminService
-      .saveInvoice(payload)
-      .pipe(
-        finalize(() => {
-          this.isSubmitting = false;
+    this.adminService.saveInvoice(payload).pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (res: any) => {
+        const dataContainer = res?.data || res;
+
+        if (!dataContainer?.pdfBytes) {
+          this.notificationService.show('Failed to parse invoice transaction or missing PDF data.', 'error');
           this.cdr.markForCheck();
-        }),
-      )
-      .subscribe({
-        next: (res: any) => {
-          const dataContainer = res?.data || res;
+          return;
+        }
 
-          // Check if pdfBytes base64 string exists in backend response
-          if (dataContainer && dataContainer.pdfBytes) {
-            this.notificationService.show(
-              dataContainer.response || 'Invoice generated and posted successfully!',
-              'success',
-            );
+        this.notificationService.show(
+          dataContainer.response || 'Invoice generated and posted successfully!',
+          'success'
+        );
 
-            // Decode the Base64 string into a binary array for the PDF blob
-            const base64String = dataContainer.pdfBytes;
-            const binaryString = window.atob(base64String);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
+        try {
+          const base64String = dataContainer.pdfBytes.replace(/\s/g, '');
+          const binaryString = window.atob(base64String);
+          const bytes = new Uint8Array(binaryString.length);
 
-            const blob = new Blob([bytes], {type: 'application/pdf'});
-            const unsafeUrl = window.URL.createObjectURL(blob);
-
-            // Bypass security to make it safe for iframe binding in the modal
-            const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
-
-            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
-            this.resetFormState();
-            this.invoiceGenerated.emit(safePdfUrl);
-          } else {
-            this.notificationService.show(
-              'Failed to parse invoice transaction or missing PDF data.',
-              'error',
-            );
-            this.cdr.markForCheck();
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
           }
-        },
-        error: (err) => {
-          console.error('Submission crash details:', err);
-          const serverErrorMessage =
-            err.error?.data?.error || 'Database constraint violation encountered.';
 
-          this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-          this.cdr.markForCheck();
-        },
-      });
+          const blob = new Blob([bytes], {type: 'application/pdf'});
+          const pdfUrl = window.URL.createObjectURL(blob);
+
+          this.resetFormState();
+
+          this.router.navigate(['/dashboard/job-cards/print'], {
+            state: {
+              pdfUrl,
+              pdfName: 'Invoice Print Preview',
+              returnUrl: '/dashboard/invoices'
+            }
+          });
+
+        } catch (error) {
+          console.error('Failed to create Invoice PDF:', error);
+          this.notificationService.show('Invoice was saved, but the PDF could not be generated.', 'error');
+        }
+      },
+
+      error: (err: any) => {
+        console.error('Invoice submission error:', err);
+
+        const serverErrorMessage =
+          err?.error?.data?.error ||
+          err?.error?.response ||
+          err?.error?.message ||
+          'Database constraint violation encountered.';
+
+        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   private resetFormState() {
@@ -356,12 +357,16 @@ export class InvoiceForm implements OnInit {
   }
 
   onJobCardSearchClick(): void {
-    const value = this.invoiceForm.get('jobCardSearch')?.value;
-    if (!value) return;
+    // if (!value) return;
     if (!this.invoiceForm.get('jobCardSearch')?.valid) {
-      this.notificationService.show('Please fill out all required job card number field.', 'warning');
+      const jobCardSearch = this.invoiceForm.get('jobCardSearch');
+      jobCardSearch?.markAsTouched();
+      jobCardSearch?.markAsDirty();
+      this.notificationService.show('Please fill out the required job card number field.', 'warning');
       return;
     }
+
+    const value = this.invoiceForm.get('jobCardSearch')?.value;
     this.adminService.getLaborActivitiesByJobId(value).subscribe({
       next: (res: any) => {
         this.laborActivities.clear();

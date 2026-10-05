@@ -1,23 +1,14 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
-import {NgIf} from "@angular/common";
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {NgIf} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {forkJoin, finalize} from 'rxjs';
+
 import {Customer} from '../../../dto/response/customer/Customer';
 import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
-import {finalize} from 'rxjs';
 import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
 import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 
@@ -32,19 +23,15 @@ import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropd
   styleUrl: './job-card-view-and-edit.css',
   standalone: true
 })
-export class JobCardViewAndEdit implements OnInit, AfterViewInit {
-
-  @Input() jobCardData: JobCardResponseDto | undefined;
-  @Input() isViewModalOpen: boolean = true;
-  @Input() isEditModalOpen: boolean = false;
-  @Output() cancel = new EventEmitter<void>();
-  @ViewChild('dropdownWrapper') dropdownWrapper!: ElementRef;
+export class JobCardViewAndEdit implements OnInit {
 
   jobCardForm!: FormGroup;
+  jobCard: JobCardResponseDto | undefined;
+  jobCardId!: number;
 
   customer: Customer | undefined;
 
-  isDropdownOpen = false;
+  isEditMode = false;
   isSubmitting = false;
 
   technicianNameProjection: TechnicianNameResponseProjection[] = [];
@@ -54,46 +41,29 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
   ) {
   }
 
   ngOnInit(): void {
-    this.initForm();
-    this.loadMetadataAndPatch();
-  }
+    this.isEditMode = this.router.url.includes('/job-cards/edit/');
 
-  ngAfterViewInit(): void {
-    // If data already exists, patch it after the view is ready
-    if (this.jobCardData) {
-      this.patchFormWithData(this.jobCardData);
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.router.navigate(['/dashboard/job-cards']);
+      return;
     }
+
+    this.jobCardId = Number(id);
+
+    this.initForm();
+    this.loadJobCard();
   }
 
-  private patchFormWithData(data: JobCardResponseDto): void {
-    // Use patchValue with a complete object map
-    this.jobCardForm.patchValue({
-      vehicleRegNo: data.vehicle?.vehicleRegNo,
-      vehicleVinNo: data.vehicle?.vehicleVinNo,
-      make: data.vehicle?.vehicleMake,
-      model: data.vehicle?.vehicleModel,
-      year: data.vehicle?.vehicleYear,
-      colour: data.vehicle?.colour,
-      otherSpecs: data.vehicle?.otherSpecs,
-      customerName: data.vehicle?.customer?.customerName,
-      contactNumber: data.vehicle?.customer?.contactNumber,
-      email: data.vehicle?.customer?.email,
-      drivingLicenseNumber: data.vehicle?.customer?.drivingLicenseNumber,
-      complaint: data.customerComplaintText,
-      currentMileage: data.currentMileage,
-      laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
-      assignedTechniciansSelected: data.technicians?.map(t => t.technicianId) || []
-    }, {emitEvent: false}); // <--- Crucial: Prevents recursive form loops
-
-    this.cdr.markForCheck();
-  }
-
-  initForm(): void {
+  private initForm(): void {
     this.jobCardForm = this.fb.group({
       vehicleRegNo: ['', Validators.required],
       vehicleVinNo: ['', Validators.required],
@@ -111,130 +81,174 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
       assignedTechniciansSelected: [[], Validators.required],
       currentMileage: ['', Validators.required],
     });
-    // Immediately set the state based on the current mode
-    if (!this.isEditModalOpen) {
-      this.jobCardForm.disable();
-    } else {
-      // 1. Disable the whole form
-      this.jobCardForm.disable();
 
-      // 2. Explicitly enable only the vehicleRegNo and vehicleVinNo
-      this.jobCardForm.get('laborActivitiesSelected')?.enable();
-      this.jobCardForm.get('assignedTechniciansSelected')?.enable();
-      this.jobCardForm.get('currentMileage')?.enable();
-      this.jobCardForm.get('complaint')?.enable();
+    if (!this.isEditMode) {
+      this.jobCardForm.disable();
     }
   }
 
-  loadMetadataAndPatch(): void {
-    // Use forkJoin to wait for both metadata requests to finish
-    import('rxjs').then(({forkJoin}) => {
-      forkJoin({
-        techs: this.adminService.getTechnicianNames(),
-        labor: this.adminService.getLaborActivityNames()
-      }).subscribe(({techs, labor}) => {
-        this.technicianNameProjection = techs;
-        this.laborActivityNameProjection = labor;
+  private loadJobCard(): void {
+    forkJoin({
+      techs: this.adminService.getTechnicianNames(),
+      labor: this.adminService.getLaborActivityNames(),
+      jobCard: this.adminService.getJobCardById(this.jobCardId)
+    }).subscribe({
+      next: ({techs, labor, jobCard}: any) => {
+        this.technicianNameProjection = techs?.data || techs || [];
+        this.laborActivityNameProjection = labor?.data || labor || [];
+        this.jobCard = jobCard?.data || jobCard;
 
-        // NOW we have the options, we can safely patch
-        if (this.jobCardData) {
-          this.patchFormWithData(this.jobCardData);
-        }
-        this.cdr.markForCheck();
-      });
-    });
-  }
-
-  onSubmit(): void {
-    if (this.isSubmitting) {
-      return;
-    }
-    // 1. Trigger validations across ALL controls (including the common dropdown components)
-    if (this.jobCardForm.invalid) {
-      this.jobCardForm.markAllAsTouched();
-      this.notificationService.show('Please fill out all required fields before submitting.', 'error');
-      return; // Block submission execution completely
-    }
-    this.isSubmitting = true;
-    const formValue = this.jobCardForm.value;
-
-    // 2. Safely construct the exact payload contract structure expected by the backend
-    const backendPayload = {
-      jobId: this.jobCardData?.jobId,
-      laborActivitiesSelected: formValue.laborActivitiesSelected || [],
-      assignedTechniciansSelected: formValue.assignedTechniciansSelected || [],
-      customerComplaintText: formValue.complaint || null
-    };
-    // 3. Dispatch the payload request
-    this.adminService.modifyJobCardBlobVariant(backendPayload).pipe(
-      // Always reset submit loader
-      // success OR error
-      finalize(() => {
-        this.isSubmitting = false;
-      })).subscribe({
-      next: (res: any) => {
-        this.notificationService.show('Job Card modified successfully!', 'success');
-
-        if (res && res.data) {
-          try {
-            // Clean up any potential whitespace/newlines from the base64 string
-            const base64Data = res.data.replace(/\s/g, '');
-
-            // Decode the Base64 string into a raw binary string
-            const byteCharacters = atob(base64Data);
-
-            // Allocate an ArrayBuffer matching the exact character length
-            const byteNumbers = new Uint8Array(byteCharacters.length);
-
-            // Populate the typed array with actual numeric character codes
-            for (let i = 0; i < byteCharacters.length; i++) {
-              byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-
-            // Create the Blob explicitly binding the 'application/pdf' MIME type
-            const pdfBlob = new Blob([byteNumbers], {type: 'application/pdf'});
-
-            // Generate the unique internal blob URL
-            const fileURL = window.URL.createObjectURL(pdfBlob);
-
-            // Open a clean view tab
-            const pdfWindow = window.open();
-            if (pdfWindow) {
-              pdfWindow.location.href = fileURL;
-            } else {
-              this.notificationService.show('Popup blocked! Please allow popups for this site.', 'error');
-            }
-
-            // Give the browser ample time to load the tab before destroying the reference object
-            setTimeout(() => window.URL.revokeObjectURL(fileURL), 5000);
-
-          } catch (encodeError) {
-            console.error('Base64 parsing failed:', encodeError);
-            this.notificationService.show('Failed to render PDF layout data.', 'error');
-          }
+        if (!this.jobCard) {
+          this.notificationService.show('Job Card not found.', 'error');
+          this.router.navigate(['/dashboard/job-cards']);
+          return;
         }
 
-        this.cancel.emit();
+        this.patchFormWithData(this.jobCard);
+
+        if (this.isEditMode) {
+          this.jobCardForm.enable();
+
+          this.jobCardForm.get('vehicleRegNo')?.disable();
+          this.jobCardForm.get('vehicleVinNo')?.disable();
+          this.jobCardForm.get('make')?.disable();
+          this.jobCardForm.get('model')?.disable();
+          this.jobCardForm.get('year')?.disable();
+          this.jobCardForm.get('colour')?.disable();
+          this.jobCardForm.get('otherSpecs')?.disable();
+          this.jobCardForm.get('customerName')?.disable();
+          this.jobCardForm.get('contactNumber')?.disable();
+          this.jobCardForm.get('email')?.disable();
+          this.jobCardForm.get('drivingLicenseNumber')?.disable();
+        } else {
+          this.jobCardForm.disable();
+        }
+
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.error('Error saving Job Card:', err);
-        this.notificationService.show('Failed to modified Job Card. Please verify details.', 'error');
+        console.error('Failed to load job card:', err);
+        this.notificationService.show('Failed to load job card details.', 'error');
+        this.router.navigate(['/dashboard/job-cards']);
       }
     });
   }
 
-  onCancel(): void {
-    this.cancel.emit();
+  private patchFormWithData(data: JobCardResponseDto): void {
+    this.jobCardForm.patchValue({
+      vehicleRegNo: data.vehicle?.vehicleRegNo,
+      vehicleVinNo: data.vehicle?.vehicleVinNo,
+      make: data.vehicle?.vehicleMake,
+      model: data.vehicle?.vehicleModel,
+      year: data.vehicle?.vehicleYear,
+      colour: data.vehicle?.colour,
+      otherSpecs: data.vehicle?.otherSpecs,
+      customerName: data.vehicle?.customer?.customerName,
+      contactNumber: data.vehicle?.customer?.contactNumber,
+      email: data.vehicle?.customer?.email,
+      drivingLicenseNumber: data.vehicle?.customer?.drivingLicenseNumber,
+      complaint: data.customerComplaintText,
+      currentMileage: data.currentMileage,
+      laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
+      assignedTechniciansSelected: data.technicians?.map(t => t.technicianId) || []
+    }, {emitEvent: false});
+
+    this.cdr.markForCheck();
   }
 
-  @HostListener('document:click')
-  closeDropdown() {
-    this.isDropdownOpen = false;
+  onSubmit(): void {
+    if (this.isSubmitting || !this.isEditMode) {
+      return;
+    }
+
+    if (this.jobCardForm.invalid) {
+      this.jobCardForm.markAllAsTouched();
+      this.notificationService.show(
+        'Please fill out all required fields before submitting.',
+        'error'
+      );
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const formValue = this.jobCardForm.getRawValue();
+
+    const backendPayload = {
+      jobId: this.jobCardId,
+      laborActivitiesSelected: formValue.laborActivitiesSelected || [],
+      assignedTechniciansSelected: formValue.assignedTechniciansSelected || [],
+      customerComplaintText: formValue.complaint || null
+    };
+
+    this.adminService.modifyJobCardBlobVariant(backendPayload).pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.notificationService.show(
+          'Job Card modified successfully!',
+          'success'
+        );
+
+        if (res?.data) {
+          try {
+            const base64Data = res.data.replace(/\s/g, '');
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+
+            const pdfBlob = new Blob([byteNumbers], {
+              type: 'application/pdf'
+            });
+
+            const fileURL = window.URL.createObjectURL(pdfBlob);
+            const pdfWindow = window.open();
+
+            if (pdfWindow) {
+              pdfWindow.location.href = fileURL;
+            } else {
+              this.notificationService.show(
+                'Popup blocked! Please allow popups for this site.',
+                'error'
+              );
+            }
+
+            setTimeout(() => window.URL.revokeObjectURL(fileURL), 5000);
+          } catch (encodeError) {
+            console.error('Base64 parsing failed:', encodeError);
+            this.notificationService.show(
+              'Failed to render PDF layout data.',
+              'error'
+            );
+          }
+        }
+
+        this.router.navigate(['/dashboard/job-cards']);
+      },
+      error: (err: any) => {
+        console.error('Error saving Job Card:', err);
+        this.notificationService.show(
+          'Failed to modify Job Card. Please verify details.',
+          'error'
+        );
+        this.cdr.markForCheck();
+      }
+    });
   }
 
-  @HostListener('click', ['$event'])
-  onInsideClick(event: Event) {
-    event.stopPropagation();
+  onBack(): void {
+    this.router.navigate(['/dashboard/job-cards']);
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.jobCardForm.get(controlName);
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
   get repairLaborActivitiesSelectedControl(): FormControl {
@@ -243,10 +257,5 @@ export class JobCardViewAndEdit implements OnInit, AfterViewInit {
 
   get assignedTechniciansSelectedControl(): FormControl {
     return (this.jobCardForm?.get('assignedTechniciansSelected') as FormControl) || new FormControl([]);
-  }
-
-  isInvalid(controlName: string): boolean {
-    const control = this.jobCardForm.get(controlName);
-    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 }

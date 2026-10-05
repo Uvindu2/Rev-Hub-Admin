@@ -1,97 +1,100 @@
-<div class="modal-container">
-  <div class="modal-header">
-    <h2>JOB CARD</h2>
-    <button class="close-btn" (click)="onCancel()">&times;</button>
-  </div>
+<div class="page-header">
+  <div class="job-card-page">
+    <div class="job-card-header">
+      <div>
+        <h2>EDIT JOB CARD</h2>
+        <p>Update job card details and assigned work.</p>
+      </div>
+              <button
+                type="button"
+                class="btn-filter-reset"
+                (click)="onBack()">
+                ← BACK
+              </button>
+    </div>
 
-  <form [formGroup]="jobCardForm">
-    <div class="modal-body">
+    <form [formGroup]="jobCardForm" (ngSubmit)="onSubmit()">
+      <div class="form-layout">
+        <div class="form-column">
+          <section class="form-section">
+            <h3>1. VEHICLE SPECS</h3>
 
-      <div class="form-column">
+            <div class="grid-2-col">
+              <div class="form-group">
+                <label>Vehicle Reg No. <span class="required">*</span></label>
+                <input type="text" formControlName="vehicleRegNo" placeholder="CBN-9081">
+                <div *ngIf="isInvalid('vehicleRegNo')" class="error-msg">Vehicle registration number is required.</div>
+              </div>
 
-        <section class="form-section">
-          <h3>1. VEHICLE SPECS</h3>
-          <div class="grid-2-col">
+              <div class="form-group">
+                <label>Vin No. <span class="required">*</span></label>
+                <input type="text" formControlName="vehicleVinNo" placeholder="85685689081" readonly>
+                <div *ngIf="isInvalid('vehicleVinNo')" class="error-msg">Vehicle vin number is required.</div>
+              </div>
 
-            <div class="form-group">
-              <label>Vehicle Reg No. <span class="required">*</span></label>
-              <input type="text" formControlName="vehicleRegNo" placeholder="CBN-9081">
-              <div *ngIf="isInvalid('vehicleRegNo')" class="error-msg">Vehicle registration number is required.</div>
-            </div>
+              <div class="form-group">
+                <label>Make <span class="required">*</span></label>
+                <input type="text" formControlName="make" placeholder="Toyota">
+                <div *ngIf="isInvalid('make')" class="error-msg">Vehicle make is required.</div>
+              </div>
 
-            <div class="form-group">
-              <label>Vin No. <span class="required">*</span></label>
-              <input type="text" formControlName="vehicleVinNo" placeholder="85685689081" readonly>
-              <div *ngIf="isInvalid('vehicleVinNo')" class="error-msg">Vehicle vin number is required.</div>
-            </div>
+              <div class="form-group">
+                <label>Model <span class="required">*</span></label>
+                <input type="text" formControlName="model" placeholder="Premio">
+                <div *ngIf="isInvalid('model')" class="error-msg">Vehicle model is required.</div>
+              </div>
 
-            <div class="form-group">
-              <label>Make <span class="required">*</span></label>
-              <input type="text" formControlName="make" placeholder="Toyota">
-              <div *ngIf="isInvalid('make')" class="error-msg">Vehicle make is required.</div>
-            </div>
+              <div class="form-group">
+                <label>Year <span class="required">*</span></label>
+                <input type="text" formControlName="year" placeholder="2018">
+                <div *ngIf="isInvalid('year')" class="error-msg">
+                  <span *ngIf="jobCardForm.get('year')?.errors?.['required']">Year is required.</span>
+                  <span *ngIf="jobCardForm.get('year')?.errors?.['pattern']">Enter a valid 4-digit year.</span>
+                </div>
+              </div>
 
-            <div class="form-group">
-              <label>Model <span class="required">*</span></label>
-              <input type="text" formControlName="model" placeholder="Premio">
-              <div *ngIf="isInvalid('model')" class="error-msg">Vehicle model is required.</div>
-            </div>
-
-            <div class="form-group">
-              <label>Year <span class="required">*</span></label>
-              <input type="text" formControlName="year" placeholder="2018">
-              <div *ngIf="isInvalid('year')" class="error-msg">
-                <span *ngIf="jobCardForm.get('year')?.errors?.['required']">Year is required.</span>
-                <span *ngIf="jobCardForm.get('year')?.errors?.['pattern']">Enter a valid 4-digit year.</span>
+              <div class="form-group">
+                <label>Color</label>
+                <input type="text" formControlName="colour" placeholder="Silver">
               </div>
             </div>
-          </div>
-
-          <div class="grid-2-col">
-            <div class="form-group">
-              <label>Color</label>
-              <input type="text" formControlName="colour" placeholder="Silver">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Other Specs</label>
-            <input type="text" formControlName="otherSpecs" placeholder="1.5L Engine, AWC">
-          </div>
-        </section>
-
-        <section class="form-section">
-          <h3>3. JOB DETAILS & CHECKLIST</h3>
-
-          <div class="form-group-stack">
-
-            <app-multi-select-dropdown
-              label="Select Repair Items:"
-              [formControl]="repairLaborActivitiesSelectedControl"
-              [data]="laborActivityNameProjection"
-              bindLabel="activityName"
-              bindValue="laborActivityId"
-              errorMessage="Please select at least one repair activity.">
-            </app-multi-select-dropdown>
 
             <div class="form-group">
-              <label>Current Mileage: <span class="required">*</span></label>
-              <input type="text" formControlName="currentMileage">
-              <div *ngIf="isInvalid('currentMileage')" class="error-msg">Current mileage is required.</div>
+              <label>Other Specs</label>
+              <input type="text" formControlName="otherSpecs" placeholder="1.5L Engine, AWC">
             </div>
+          </section>
 
-            <app-multi-select-dropdown
-              label="Assigned Technician:"
-              [formControl]="assignedTechniciansSelectedControl"
-              [data]="technicianNameProjection"
-              bindLabel="technicianName"
-              bindValue="technicianId"
-              errorMessage="Please select at least one technician.">
-            </app-multi-select-dropdown>
+          <section class="form-section">
+            <h3>3. JOB DETAILS & CHECKLIST</h3>
 
-          </div>
-        </section>
-      </div>
+            <div class="form-group-stack">
+              <app-multi-select-dropdown
+                label="Select Repair Items:"
+                [formControl]="repairLaborActivitiesSelectedControl"
+                [data]="laborActivityNameProjection"
+                bindLabel="activityName"
+                bindValue="laborActivityId"
+                errorMessage="Please select at least one repair activity.">
+              </app-multi-select-dropdown>
+
+              <div class="form-group">
+                <label>Current Mileage: <span class="required">*</span></label>
+                <input type="text" formControlName="currentMileage">
+                <div *ngIf="isInvalid('currentMileage')" class="error-msg">Current mileage is required.</div>
+              </div>
+
+              <app-multi-select-dropdown
+                label="Assigned Technician:"
+                [formControl]="assignedTechniciansSelectedControl"
+                [data]="technicianNameProjection"
+                bindLabel="technicianName"
+                bindValue="technicianId"
+                errorMessage="Please select at least one technician.">
+              </app-multi-select-dropdown>
+            </div>
+          </section>
+        </div>
 
         <div class="form-column">
           <section class="form-section">
@@ -126,28 +129,23 @@
               </div>
             </div>
 
-            <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group">
               <label>Customer Complaint/Issue <span class="required">*</span></label>
               <textarea formControlName="complaint" rows="3" placeholder="Describe issue here..."></textarea>
               <div *ngIf="isInvalid('complaint')" class="error-msg">Please specify the customer complaint.</div>
             </div>
           </section>
+        </div>
       </div>
 
-    </div>
+      <div class="form-footer">
+        <button type="button" class="btn-cancel" (click)="onBack()">BACK</button>
 
-    <ng-template [ngIf]="isEditModalOpen">
-    <div class="modal-footer">
-      <button type="submit" class="btn-submit"  (click)="onSubmit()" [disabled]="isSubmitting">
-        <span *ngIf="!isSubmitting" class="icon">+</span>
-        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
-
-        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT JOB CARD' }}
-      </button>
-      <button type="button" class="btn-cancel" (click)="$event.preventDefault(); onCancel()">
-        CANCEL
-      </button>
-    </div>
-    </ng-template>
-  </form>
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+          {{ isSubmitting ? 'GENERATING...' : 'GENERATE' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

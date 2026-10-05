@@ -14,7 +14,7 @@ import {Router} from '@angular/router';
 @Component({
   selector: 'app-invoice-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PrintPreview, InvoiceViewAndEdit],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './invoice-view.html',
   styleUrl: './invoice-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -177,51 +177,46 @@ export class InvoiceView implements OnInit {
     this.router.navigate(['/dashboard/invoices/new']);
   }
 
-  closeModal(): void {
-    this.isEditModalOpen = false;
-    this.cdr.markForCheck();
+  editInvoice(invoiceId: number): void {
+    this.router.navigate(['/dashboard/invoices/edit', invoiceId]);
   }
 
   viewInvoice(invoiceId: number): void {
     this.adminService.viewInvoice(invoiceId).subscribe({
       next: (res: any) => {
         try {
-          if (res?.data) {
-            const base64String = res.data.replace(/\s/g, '');
-            const binaryString = window.atob(base64String);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-
-            const blob = new Blob([bytes], {type: 'application/pdf'});
-            const unsafeUrl = window.URL.createObjectURL(blob);
-
-            // Bypass security to make it safe for iframe binding in the modal
-            const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
-
-            // Reset form state & emit URL to parent (InvoiceView) to close form & open custom print modal
-            // this.resetFormState();
-            this.handleInvoiceGenerated(safePdfUrl);
-          } else {
+          if (!res?.data) {
             this.notificationService.show('Error: Unable to load the PDF.', 'error');
-            this.cdr.markForCheck();
+            return;
           }
+
+          const base64String = res.data.replace(/\s/g, '');
+          const binaryString = window.atob(base64String);
+          const bytes = new Uint8Array(binaryString.length);
+
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
+          const blob = new Blob([bytes], {type: 'application/pdf'});
+          const unsafeUrl = window.URL.createObjectURL(blob);
+
+          this.router.navigate(['/dashboard/invoices/print'], {
+            state: {
+              pdfUrl: unsafeUrl,
+              pdfName: 'Invoice Print Preview',
+              returnUrl: '/dashboard/invoices'
+            }
+          });
         } catch (decodeError) {
-          console.error('PDF parsing or decoding failed:', decodeError);
-          this.notificationService.show('Error: Failed to process the PDF document stream.', 'error');
-          this.cdr.markForCheck();
+          console.error('PDF decode error:', decodeError);
+          this.notificationService.show('Error: Unable to load the PDF.', 'error');
         }
       },
       error: (err) => {
-        console.error('Pdf Fetch crash details:', err);
-        const serverErrorMessage =
-          err.error?.data?.error || err.message || 'Database constraint violation encountered.';
-
-        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-        this.cdr.markForCheck();
-      },
+        console.error('Invoice PDF loading error:', err);
+        this.notificationService.show('Failed to load invoice PDF.', 'error');
+      }
     });
   }
 
@@ -253,22 +248,5 @@ export class InvoiceView implements OnInit {
     this.invoicePdfUrl = pdfUrl;     // Assign to invoicePdfUrl for the print preview modal
     this.showPrintModal = true;      // Open the print preview modal
     this.cdr.markForCheck();
-  }
-
-  // Triggered when the user clicks 'Close' inside the print preview modal
-  closePrintPreview() {
-    this.showPrintModal = false;
-    this.invoicePdfUrl = null;
-  }
-
-  editInvoice(invoiceId: number) {
-    this.selectedInvoiceId = invoiceId;
-    this.isEditModalOpen = true;
-    this.cdr.markForCheck();
-  }
-
-  onInvoiceUpdated(pdfUrl: SafeResourceUrl): void {
-    this.isEditModalOpen = false;
-    this.fetchInvoices();
   }
 }

@@ -1,62 +1,54 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
+import {debounceTime, distinctUntilChanged, finalize, Subject, takeUntil} from 'rxjs';
+
 import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {LaborActivityForm} from '../labor-activity-form/labor-activity-form';
 import {LaborActivityTableViewResponseProjection} from '../../../dto/response/LaborActivityTableViewResponseProjection';
-import {LaborActivityViewAndEdit} from "../labor-activity-view-and-edit/labor-activity-view-and-edit";
-import {debounceTime, distinctUntilChanged, finalize, takeUntil} from 'rxjs/operators';
-import {Subject} from 'rxjs';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+
 import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-labor-activity-view',
+  standalone: true,
   imports: [
     NgForOf,
     NgIf,
-    ReactiveFormsModule,
-    LaborActivityForm,
-    LaborActivityViewAndEdit,
     NgClass,
     DatePipe,
+    ReactiveFormsModule,
     SearchDropdown
   ],
   templateUrl: './labor-activity-view.html',
-  styleUrl: './labor-activity-view.css',
+  styleUrl: './labor-activity-view.css'
 })
 export class LaborActivityView implements OnInit, OnDestroy {
 
   filterForm!: FormGroup;
 
   laborActivities: LaborActivityTableViewResponseProjection[] = [];
-  laborActivity: LaborActivityTableViewResponseProjection | undefined;
   laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
 
-  // Pagination Parameters
   currentPage: number = 1;
   pageSize: number = 5;
   totalElements: number = 0;
   totalPagesCount: number = 0;
   pageSizes: number[] = [5, 10, 20, 50];
 
-  // Sorting Rules configuration
   sortByField: string = 'createdDate';
   sortDirection: string = 'desc';
 
-  isAddModalOpen: boolean = false;
-  isEditModalOpen: boolean = false;
-  isViewModalOpen: boolean = false;
   isLoading: boolean = false;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
-    private readonly cdr: ChangeDetectorRef, // Injecting manual render utility
-    private readonly notificationService: NotificationService
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router
   ) {
     this.initFilterForm();
   }
@@ -74,92 +66,141 @@ export class LaborActivityView implements OnInit, OnDestroy {
 
   fetchLaborActivityNames(): void {
     this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameResponseProjection[]) => {
-        this.laborActivityNameProjection = res;
-      },
-      error: (err: any) => console.error('Failed to load names', err),
-    });
-  }
+      next: (res: any) => {
+        const data = res?.data || res;
 
-  private initFilterForm(): void {
-    this.filterForm = this.fb.group({
-      laborActivity: [null],
-    });
-  }
+        this.laborActivityNameProjection =
+          Array.isArray(data) ? data : [];
 
-  private setupFilterListener(): void {
-    this.filterForm.get('laborActivity')?.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe((selectedId) => {
-      this.currentPage = 1; // Reset to page 1 on filter change
-      this.fetchLaborActivities();
-    });
-  }
-
-  fetchLaborActivities(): void {
-
-    // Start loader
-    this.isLoading = true;
-    this.cdr.markForCheck();
-
-    const backendPage = this.currentPage - 1;
-    const rawActivityId = this.filterForm?.get('laborActivity')?.value;
-    const selectedActivityId = (rawActivityId === '' || rawActivityId === undefined) ? null : rawActivityId;
-
-    this.adminService.getLaborActivitiesPaginated(
-      backendPage,
-      this.pageSize,
-      this.sortByField,
-      this.sortDirection,
-      selectedActivityId
-    ).pipe(
-      finalize(() => {
-        // Stop loader for both success and error
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (response: any) => {
-        // Stage updates in local variables first to prevent layout thrashing
-        let updatedLaborActivities: LaborActivityTableViewResponseProjection[] = [];
-        let updatedTotalElements = 0;
-        let updatedTotalPagesCount = 0;
-
-        if (response?.data.content !== undefined) {
-          updatedLaborActivities = response.data.content || [];
-          updatedTotalElements = response.data.page?.totalElements === undefined ? (response.data.total_elements || 0) : response.data.page.totalElements;
-          updatedTotalPagesCount = response.data.page?.totalPages === undefined ? (response.data.total_pages || 0) : response.data.page.totalPages;
-        } else if (Array.isArray(response)) {
-          updatedLaborActivities = response;
-          updatedTotalElements = response.length;
-          updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
-        }
-
-        // Apply properties all at once
-        this.laborActivities = updatedLaborActivities;
-        this.totalElements = updatedTotalElements;
-        this.totalPagesCount = updatedTotalPagesCount;
-
-        // Notify Angular to redraw on the next frame paint seamlessly
         this.cdr.markForCheck();
       },
+
       error: (err: any) => {
-        console.error('Failed to load labor Activities from server:', err);
-        this.laborActivities = [];
-        this.totalElements = 0;
-        this.totalPagesCount = 0;
+        console.error('Failed to load labor activity names:', err);
+        this.laborActivityNameProjection = [];
         this.cdr.markForCheck();
       }
     });
   }
 
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      laborActivity: [null]
+    });
+  }
+
+  private setupFilterListener(): void {
+    this.filterForm
+      .get('laborActivity')
+      ?.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.fetchLaborActivities();
+      });
+  }
+
+  fetchLaborActivities(): void {
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    const backendPage = this.currentPage - 1;
+    const rawActivityId =
+      this.filterForm.get('laborActivity')?.value;
+
+    const selectedActivityId =
+      rawActivityId === '' ||
+      rawActivityId === undefined ||
+      rawActivityId === null
+        ? null
+        : rawActivityId;
+
+    this.adminService
+      .getLaborActivitiesPaginated(
+        backendPage,
+        this.pageSize,
+        this.sortByField,
+        this.sortDirection,
+        selectedActivityId
+      )
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          let updatedLaborActivities: LaborActivityTableViewResponseProjection[] = [];
+          let updatedTotalElements = 0;
+          let updatedTotalPagesCount = 0;
+
+          if (response?.data?.content !== undefined) {
+            updatedLaborActivities =
+              response.data.content || [];
+
+            updatedTotalElements =
+              response.data.page?.totalElements === undefined
+                ? response.data.total_elements || 0
+                : response.data.page.totalElements;
+
+            updatedTotalPagesCount =
+              response.data.page?.totalPages === undefined
+                ? response.data.total_pages || 0
+                : response.data.page.totalPages;
+
+          } else if (Array.isArray(response)) {
+            updatedLaborActivities = response;
+            updatedTotalElements = response.length;
+            updatedTotalPagesCount =
+              Math.ceil(response.length / this.pageSize) || 1;
+          }
+
+          this.laborActivities = updatedLaborActivities;
+          this.totalElements = updatedTotalElements;
+          this.totalPagesCount = updatedTotalPagesCount;
+
+          this.cdr.markForCheck();
+        },
+
+        error: (err: any) => {
+          console.error(
+            'Failed to load labor activities from server:',
+            err
+          );
+
+          this.laborActivities = [];
+          this.totalElements = 0;
+          this.totalPagesCount = 0;
+
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  onAddLaborActivity(): void {
+    this.router.navigate(['/dashboard/labor-activities/new']);
+  }
+
+  viewLaborActivity(id: number): void {
+    this.router.navigate(['/dashboard/labor-activities/view', id]);
+  }
+
+  editLaborActivity(id: number): void {
+    this.router.navigate(['/dashboard/labor-activities/edit', id]);
+  }
+
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
+
     this.pageSize = Number(select.value);
     this.currentPage = 1;
-    this.fetchLaborActivities(); // fetchLaborActivities will run cdr.markForCheck() when done
+
+    this.fetchLaborActivities();
   }
 
   goToPage(page: number): void {
@@ -183,72 +224,7 @@ export class LaborActivityView implements OnInit, OnDestroy {
     }
   }
 
-  // Local action triggers require instant local checks
-  onAddLaborActivity(): void {
-    this.isAddModalOpen = true;
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.cdr.markForCheck();
-  }
-
-  closeModal(): void {
-    this.isAddModalOpen = false;
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.laborActivity = undefined;
-    this.cdr.markForCheck();
-  }
-
-  onSearch(event: Event): void {
-    console.log('Searching...');
-  }
-
-  viewLaborActivity(id: number): void {
-    console.log('Viewing ID:', id);
-
-    this.adminService.getLaborActivityById(id).subscribe({
-      next: (response: any) => {
-        this.laborActivity = response.data;
-        this.isViewModalOpen = true;
-        this.isEditModalOpen = false;
-        this.isAddModalOpen = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load labor activities from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
-      }
-    });
-  }
-
-  editLaborActivity(id: number): void {
-    this.adminService.getLaborActivityById(id).subscribe({
-      next: (response: any) => {
-        this.laborActivity = response.data;
-        this.isEditModalOpen = true;
-        this.isAddModalOpen = false;
-        this.isViewModalOpen = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load labor activities from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
-      }
-    });
-  }
-
-  deleteLaborActivity(id: number): void {
-    console.log('Deleting ID:', id);
-  }
-
   setActiveInactive(status: boolean): string {
-    if (status) {
-      return 'Active';
-    }
-    return 'Inactive';
+    return status ? 'Active' : 'Inactive';
   }
 }

@@ -1,15 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
@@ -25,24 +17,19 @@ import {finalize} from 'rxjs';
   styleUrl: './invoice-view-and-edit.css',
 })
 export class InvoiceViewAndEdit implements OnInit {
-  @Input() invoiceId!: number | string;
-  @Output() cancel = new EventEmitter<void>();
-  @Output() invoiceUpdated = new EventEmitter<SafeResourceUrl>();
-
   invoiceForm!: FormGroup;
+  invoiceId!: number | string;
   selectedLaborIndex: number = 0;
 
   protected availableLaborActivities: LaborActivityNameResponseProjection[] = [];
   protected filteredLaborActivities: LaborActivityNameResponseProjection[] = [];
   protected availableItemParts: InvoiceItemsResponseDTO[] = [];
 
-  // State management properties for the tabular parts searchable dropdown matrix
   protected partDropdownOpenRowIndex: number | null = null;
   protected filteredItemParts: InvoiceItemsResponseDTO[] = [];
   protected isDropdownOpen: boolean = false;
   protected laborActivityAvailable = true;
 
-  // Submission & Print Preview Modal states
   protected isSubmitting: boolean = false;
   protected isLoadingData: boolean = true;
   protected isSearching: boolean = false;
@@ -52,16 +39,26 @@ export class InvoiceViewAndEdit implements OnInit {
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly sanitizer: DomSanitizer,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) {}
 
   ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.router.navigate(['/dashboard/invoices']);
+      return;
+    }
+
+    this.invoiceId = Number(id);
+
     this.initForm();
     this.loadItemNames();
     this.loadItemParts();
   }
 
-  initForm() {
+  initForm(): void {
     this.invoiceForm = this.fb.group({
       invoiceId: [this.invoiceId],
       laborActivities: this.fb.array([]),
@@ -78,9 +75,11 @@ export class InvoiceViewAndEdit implements OnInit {
 
   loadExistingInvoiceData(): void {
     this.isLoadingData = true;
+
     this.adminService.getInvoiceById(this.invoiceId).subscribe({
       next: (res: any) => {
         const data = res?.data || res;
+
         if (data) {
           this.invoiceForm.patchValue({
             invoiceId: data.invoiceId || this.invoiceId,
@@ -99,6 +98,7 @@ export class InvoiceViewAndEdit implements OnInit {
               );
 
               const currentLaborIndex = this.laborActivities.length - 1;
+
               if (act.parts && Array.isArray(act.parts)) {
                 act.parts.forEach((p: any) => {
                   this.addPartToLabor(
@@ -114,6 +114,7 @@ export class InvoiceViewAndEdit implements OnInit {
             });
           }
         }
+
         this.isLoadingData = false;
         this.cdr.markForCheck();
       },
@@ -139,7 +140,7 @@ export class InvoiceViewAndEdit implements OnInit {
     return partsArray ? partsArray.controls : [];
   }
 
-  addLaborActivity(nameOrId: string | number = '', isAuto: boolean = false, fee: number = 0) {
+  addLaborActivity(nameOrId: string | number = '', isAuto: boolean = false, fee: number = 0): void {
     const isNumeric = !isNaN(Number(nameOrId)) && nameOrId !== '';
     const activityId = isNumeric ? Number(nameOrId) : 0;
     const displayTitle = isNumeric ? this.getLaborActivityName(activityId) : nameOrId;
@@ -158,9 +159,11 @@ export class InvoiceViewAndEdit implements OnInit {
 
   getLaborActivityName(id: string | number | null | undefined): string {
     if (id === null || id === undefined || id === '') return '';
+
     const activity = this.availableLaborActivities?.find(
-      (act) => act.laborActivityId?.toString() === id.toString(),
+      (act) => act.laborActivityId?.toString() === id.toString()
     );
+
     return activity ? activity.activityName : id.toString();
   }
 
@@ -170,28 +173,33 @@ export class InvoiceViewAndEdit implements OnInit {
     qty: number = 1,
     unitType: string = 'N/A',
     unitPrice: number = 0,
-    itemId: number | null = null,
-  ) {
+    itemId: number | null = null
+  ): void {
     const partGroup = this.fb.group({
       itemId: [itemId, Validators.required],
       name: [name, Validators.required],
       qty: [qty, [Validators.required, Validators.min(1)]],
       unitType: [unitType],
       unitPrice: [unitPrice, [Validators.required, Validators.min(0)]],
-      total: [{ value: qty * unitPrice, disabled: true }],
+      total: [{value: qty * unitPrice, disabled: true}],
     });
 
     partGroup.valueChanges.subscribe(() => {
       const currentQty = partGroup.get('qty')?.value || 0;
       const currentPrice = partGroup.get('unitPrice')?.value || 0;
-      partGroup.get('total')?.setValue(currentQty * currentPrice, { emitEvent: false });
+
+      partGroup.get('total')?.setValue(
+        currentQty * currentPrice,
+        {emitEvent: false}
+      );
     });
 
     this.getParts(laborIndex).push(partGroup);
   }
 
-  removePart(laborIndex: number, partIndex: number) {
+  removePart(laborIndex: number, partIndex: number): void {
     this.getParts(laborIndex).removeAt(partIndex);
+
     if (this.partDropdownOpenRowIndex === partIndex) {
       this.partDropdownOpenRowIndex = null;
     }
@@ -209,50 +217,49 @@ export class InvoiceViewAndEdit implements OnInit {
         unitPrice: item.unitPrice || item.sellingPrice || 0,
       });
 
-      // Force Angular change detection to immediately push value to read-only inputs
-      currentRow.get('unitType')?.updateValueAndValidity({ emitEvent: false });
+      currentRow.get('unitType')?.updateValueAndValidity({emitEvent: false});
     }
 
     this.partDropdownOpenRowIndex = null;
     this.cdr.markForCheck();
-    this.cdr.detectChanges(); // Use detectChanges() for instant template rendering
+    this.cdr.detectChanges();
   }
 
-  selectLaborTask(index: number) {
+  selectLaborTask(index: number): void {
     this.selectedLaborIndex = index;
     this.partDropdownOpenRowIndex = null;
   }
 
   get totalPartsCost(): number {
     let sum = 0;
+
     this.laborActivities.controls.forEach((_, lIdx) => {
       this.getParts(lIdx).controls.forEach((p) => {
         sum += (p.get('qty')?.value || 0) * (p.get('unitPrice')?.value || 0);
       });
     });
+
     return sum;
   }
 
   get totalLaborCost(): number {
     return this.laborActivities.controls.reduce(
       (acc, curr) => acc + (curr.get('laborFee')?.value || 0),
-      0,
+      0
     );
   }
 
   get grandTotal(): number {
-    return (
-      this.totalPartsCost +
+    return this.totalPartsCost +
       this.totalLaborCost +
-      (this.invoiceForm.get('additionalFees')?.value || 0)
-    );
+      (this.invoiceForm.get('additionalFees')?.value || 0);
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.laborActivities.length < 1) {
       this.notificationService.show(
         'An invoice must contain at least one labor activity.',
-        'error',
+        'error'
       );
       return;
     }
@@ -261,69 +268,79 @@ export class InvoiceViewAndEdit implements OnInit {
       this.markAllAsTouched(this.invoiceForm);
       this.notificationService.show(
         'Please resolve all validation errors before proceeding.',
-        'error',
+        'error'
       );
       return;
     }
 
-    if (this.isSubmitting) {
-      return;
-    }
+    if (this.isSubmitting) return;
+
     this.isSubmitting = true;
     this.cdr.markForCheck();
 
     const payload = this.invoiceForm.getRawValue();
 
-    this.adminService
-      .updateInvoice(payload)
-      .pipe(
-        finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.markForCheck();
-        }),
-      )
-      .subscribe({
-        next: (res: any) => {
-          const dataContainer = res?.data || res;
+    this.adminService.updateInvoice(payload).pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (res: any) => {
+        const dataContainer = res?.data || res;
 
-          if (dataContainer && dataContainer.pdfBytes) {
-            this.notificationService.show(
-              dataContainer.response || 'Invoice updated successfully!',
-              'success',
-            );
+        if (dataContainer && dataContainer.pdfBytes) {
+          this.notificationService.show(
+            dataContainer.response || 'Invoice updated successfully!',
+            'success'
+          );
 
-            const base64String = dataContainer.pdfBytes;
-            const binaryString = window.atob(base64String);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
+          const base64String = dataContainer.pdfBytes.replace(/\s/g, '');
+          const binaryString = window.atob(base64String);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
 
-            const blob = new Blob([bytes], { type: 'application/pdf' });
-            const unsafeUrl = window.URL.createObjectURL(blob);
-            const safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
-
-            this.invoiceUpdated.emit(safePdfUrl);
-          } else {
-            this.notificationService.show(
-              'Invoice updated successfully, but missing PDF return data.',
-              'success',
-            );
-            this.cancel.emit();
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
           }
-        },
-        error: (err) => {
-          console.error('Update submission error:', err);
-          const serverErrorMessage =
-            err.error?.data?.error || 'Database constraint violation encountered.';
-          this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-          this.cdr.markForCheck();
-        },
-      });
+
+          const blob = new Blob([bytes], {type: 'application/pdf'});
+          const unsafeUrl = window.URL.createObjectURL(blob);
+
+          this.router.navigate(['/dashboard/invoices/print'], {
+            state: {
+              pdfUrl: unsafeUrl,
+              pdfName: 'Invoice Print Preview',
+              returnUrl: '/dashboard/invoices'
+            }
+          });
+        } else {
+          this.notificationService.show(
+            'Invoice updated successfully.',
+            'success'
+          );
+
+          this.router.navigate(['/dashboard/invoices']);
+        }
+      },
+      error: (err) => {
+        console.error('Update submission error:', err);
+
+        const serverErrorMessage =
+          err.error?.data?.error ||
+          'Database constraint violation encountered.';
+
+        this.notificationService.show(
+          'Error: ' + serverErrorMessage,
+          'error'
+        );
+
+        this.cdr.markForCheck();
+      },
+    });
   }
 
-  private markAllAsTouched(formGroup: FormGroup | FormArray) {
+  private markAllAsTouched(formGroup: FormGroup | FormArray): void {
     Object.values(formGroup.controls).forEach((control) => {
       if (control instanceof FormGroup || control instanceof FormArray) {
         this.markAllAsTouched(control);
@@ -333,12 +350,13 @@ export class InvoiceViewAndEdit implements OnInit {
     });
   }
 
-  removeLaborActivity(index: number, event: Event) {
+  removeLaborActivity(index: number, event: Event): void {
     event.stopPropagation();
+
     if (this.laborActivities.length <= 1) {
       this.notificationService.show(
         'An invoice must contain at least one labor activity.',
-        'error',
+        'error'
       );
       return;
     }
@@ -357,8 +375,10 @@ export class InvoiceViewAndEdit implements OnInit {
     this.adminService.getLaborActivityNames().subscribe({
       next: (res: any) => {
         const dataPayload = res?.data ? res.data : res;
+
         this.availableLaborActivities = dataPayload || [];
         this.filteredLaborActivities = [...this.availableLaborActivities];
+
         this.cdr.markForCheck();
       },
       error: (err: any) => console.error('Failed to load names', err),
@@ -370,6 +390,7 @@ export class InvoiceViewAndEdit implements OnInit {
       next: (res: any) => {
         this.availableItemParts = res?.data || [];
         this.filteredItemParts = [...this.availableItemParts];
+
         this.cdr.markForCheck();
       },
       error: (err: any) => console.error('Failed to load item parts', err),
@@ -378,20 +399,25 @@ export class InvoiceViewAndEdit implements OnInit {
 
   onSearchLaborDropdown(event: Event): void {
     const query = (event.target as HTMLInputElement).value.toLowerCase().trim();
+
     if (!query) {
       this.filteredLaborActivities = [...this.availableLaborActivities];
       return;
     }
-    this.filteredLaborActivities = this.availableLaborActivities.filter((act) =>
-      act.activityName?.toLowerCase().includes(query),
-    );
+
+    this.filteredLaborActivities =
+      this.availableLaborActivities.filter(
+        (act) => act.activityName?.toLowerCase().includes(query)
+      );
   }
 
   onJobCardSearchClick(): void {
     const value = this.invoiceForm.get('jobCardSearch')?.value;
+
     if (!value) return;
 
     this.isSearching = true;
+
     this.adminService.getLaborActivitiesByJobId(value).pipe(
       finalize(() => {
         this.isSearching = false;
@@ -400,8 +426,12 @@ export class InvoiceViewAndEdit implements OnInit {
     ).subscribe({
       next: (res: any) => {
         const incomingActivities = res?.data || [];
+
         if (incomingActivities.length === 0) {
-          this.notificationService.show('No Job Card found with that Job Id.', 'error');
+          this.notificationService.show(
+            'No Job Card found with that Job Id.',
+            'error'
+          );
           return;
         }
 
@@ -409,20 +439,30 @@ export class InvoiceViewAndEdit implements OnInit {
         this.partDropdownOpenRowIndex = null;
         this.laborActivityAvailable = true;
 
-        incomingActivities.forEach((activity: any) => {
-          this.addLaborActivity(activity.laborActivityId, true, 0);
-        });
+        incomingActivities.forEach((activity: any) =>
+          this.addLaborActivity(
+            activity.laborActivityId,
+            true,
+            0
+          )
+        );
       },
       error: (err: any) => {
         console.error(err);
-        this.notificationService.show('Please try again later. If not, please contact System Administrator', 'error');
+
+        this.notificationService.show(
+          'Please try again later. If not, please contact System Administrator',
+          'error'
+        );
       },
     });
   }
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();
+
     this.isDropdownOpen = !this.isDropdownOpen;
+
     if (this.isDropdownOpen) {
       this.filteredLaborActivities = [...this.availableLaborActivities];
     }
@@ -435,7 +475,7 @@ export class InvoiceViewAndEdit implements OnInit {
     if (activeGroup) {
       activeGroup.patchValue({
         id: Number(activityId),
-        name: resolvedName,
+        name: resolvedName
       });
     }
 
@@ -445,7 +485,12 @@ export class InvoiceViewAndEdit implements OnInit {
 
   togglePartDropdown(event: Event, rowIndex: number): void {
     event.stopPropagation();
-    this.partDropdownOpenRowIndex = this.partDropdownOpenRowIndex === rowIndex ? null : rowIndex;
+
+    this.partDropdownOpenRowIndex =
+      this.partDropdownOpenRowIndex === rowIndex
+        ? null
+        : rowIndex;
+
     if (this.partDropdownOpenRowIndex !== null) {
       this.filteredItemParts = [...this.availableItemParts];
     }
@@ -453,16 +498,19 @@ export class InvoiceViewAndEdit implements OnInit {
 
   onSearchPartsDropdown(event: Event): void {
     const query = (event.target as HTMLInputElement).value.toLowerCase().trim();
+
     if (!query) {
       this.filteredItemParts = [...this.availableItemParts];
       return;
     }
-    this.filteredItemParts = this.availableItemParts.filter((p) =>
-      p.itemName?.toLowerCase().includes(query),
-    );
+
+    this.filteredItemParts =
+      this.availableItemParts.filter(
+        (p) => p.itemName?.toLowerCase().includes(query)
+      );
   }
 
-  onCancel() {
-    this.cancel.emit();
+  onBack(): void {
+    this.router.navigate(['/dashboard/invoices']);
   }
 }

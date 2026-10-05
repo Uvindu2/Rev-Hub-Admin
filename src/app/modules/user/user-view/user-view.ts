@@ -1,47 +1,49 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { UserForm } from '../user-form/user-form';
-import { UserViewAndEdit } from '../user-view-and-edit/user-view-and-edit';
-import { UserTableViewResponseDTO } from '../../../dto/response/UserTableViewResponseDTO';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { AdminService } from '../../../services/admin.service';
+import { UserTableViewResponseDTO } from '../../../dto/response/UserTableViewResponseDTO';
 import { UserIdNameResponseDto } from '../../../dto/response/UserIdNameResponseDto';
-import {Dropdown} from '../../../shared/components/dropdown/dropdown';
+import { Dropdown } from '../../../shared/components/dropdown/dropdown';
 
 @Component({
   selector: 'app-user-view',
-  imports: [NgForOf, NgIf, ReactiveFormsModule, UserForm, UserViewAndEdit, FormsModule, NgClass, Dropdown],
+  imports: [
+    NgForOf,
+    NgIf,
+    ReactiveFormsModule,
+    FormsModule,
+    NgClass,
+    Dropdown
+  ],
   templateUrl: './user-view.html',
   styleUrl: './user-view.css',
 })
 export class UserView implements OnInit {
+
   users: UserTableViewResponseDTO[] = [];
-  user: UserTableViewResponseDTO | undefined;
+
   userIdNameDtos: UserIdNameResponseDto[] = [];
   userRoleNameAndIds: string[] = [];
 
   filterForm!: FormGroup;
 
-  // Pagination Parameters
-  currentPage: number = 1;
-  pageSize: number = 5;
-  totalElements: number = 0;
-  totalPagesCount: number = 0;
-  pageSizes: number[] = [5, 10, 20, 50];
+  currentPage = 1;
+  pageSize = 5;
+  totalElements = 0;
+  totalPagesCount = 0;
+  pageSizes = [5, 10, 20, 50];
 
-  isAddModalOpen: boolean = false;
-  isEditModalOpen: boolean = false;
-  isViewModalOpen: boolean = false;
-  isLoading: boolean = false;
-  isSearch: boolean = false;
+  isLoading = false;
+  isSearch = false;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly notificationService: NotificationService,
+    private readonly router: Router
   ) {
     this.initFilterForm();
   }
@@ -52,15 +54,23 @@ export class UserView implements OnInit {
     this.fetchUsers();
   }
 
+  private initFilterForm(): void {
+    this.filterForm = this.fb.group({
+      userId: [''],
+      activeStatus: [''],
+      roleId: [''],
+    });
+  }
+
   private fetchUserNames(): void {
     this.adminService.getAllUserNames().subscribe({
       next: (response: any) => {
-        const UserIdNameDtos = response?.data || response;
-        if (Array.isArray(UserIdNameDtos)) {
-          this.userIdNameDtos = UserIdNameDtos;
-        } else {
-          this.userIdNameDtos = [];
-        }
+        const userIdNameDtos = response?.data || response;
+
+        this.userIdNameDtos = Array.isArray(userIdNameDtos)
+          ? userIdNameDtos
+          : [];
+
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -74,12 +84,12 @@ export class UserView implements OnInit {
   private fetchUserRoles(): void {
     this.adminService.getAllUserRoles().subscribe({
       next: (response: any) => {
-        const UserRoles = response?.data || response;
-        if (Array.isArray(UserRoles)) {
-          this.userRoleNameAndIds = UserRoles;
-        } else {
-          this.userRoleNameAndIds = [];
-        }
+        const userRoles = response?.data || response;
+
+        this.userRoleNameAndIds = Array.isArray(userRoles)
+          ? userRoles
+          : [];
+
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -90,109 +100,122 @@ export class UserView implements OnInit {
     });
   }
 
-  // Initialize form controls matching your backend search request DTO
-  private initFilterForm(): void {
-    this.filterForm = this.fb.group({
-      userId: [''],
-      activeStatus: [''],
-      roleId: [''],
-    });
-  }
-
   fetchUsers(): void {
-    // Start loader
     this.isLoading = true;
     this.cdr.markForCheck();
 
     const backendPage = this.currentPage - 1;
-
-    // Extract values directly from the form group
     const formValues = this.filterForm.value;
 
-    // Send POST request with body parameters and query parameters for pagination
     this.adminService
-      .searchUsers(formValues, backendPage, this.pageSize, 'userId', 'desc')
+      .searchUsers(
+        formValues,
+        backendPage,
+        this.pageSize,
+        'userId',
+        'desc'
+      )
       .pipe(
         finalize(() => {
-          // Stop loader for both success and error
           this.isLoading = false;
           this.cdr.markForCheck();
-        }),
+        })
       )
       .subscribe({
         next: (response: any) => {
-          console.log(response);
 
-          // Extract page data safely from response.data or response fallback
-          let pageData = response?.data || response;
+          const pageData = response?.data || response;
 
-          // Stage updates in local variables first to prevent layout thrashing
           let updatedUsers: UserTableViewResponseDTO[] = [];
           let updatedTotalElements = 0;
           let updatedTotalPagesCount = 0;
 
           if (pageData?.content !== undefined) {
+
             updatedUsers = pageData.content || [];
 
-            // Handle various Spring Data Page or custom wrapper response formats safely
             if (pageData.page) {
+
               updatedTotalElements =
-                pageData.page.totalElements ?? pageData.page.total_elements ?? 0;
-              updatedTotalPagesCount = pageData.page.totalPages ?? pageData.page.total_pages ?? 0;
+                pageData.page.totalElements ??
+                pageData.page.total_elements ??
+                0;
+
+              updatedTotalPagesCount =
+                pageData.page.totalPages ??
+                pageData.page.total_pages ??
+                0;
+
             } else {
-              updatedTotalElements = pageData.totalElements ?? pageData.total_elements ?? 0;
-              updatedTotalPagesCount = pageData.totalPages ?? pageData.total_pages ?? 0;
+
+              updatedTotalElements =
+                pageData.totalElements ??
+                pageData.total_elements ??
+                0;
+
+              updatedTotalPagesCount =
+                pageData.totalPages ??
+                pageData.total_pages ??
+                0;
             }
+
           } else if (Array.isArray(pageData)) {
+
             updatedUsers = pageData;
             updatedTotalElements = pageData.length;
-            updatedTotalPagesCount = Math.ceil(pageData.length / this.pageSize) || 1;
+
+            updatedTotalPagesCount =
+              Math.ceil(pageData.length / this.pageSize) || 1;
           }
 
-          // Apply properties all at once
           this.users = updatedUsers;
           this.totalElements = updatedTotalElements;
           this.totalPagesCount = updatedTotalPagesCount;
 
-          // Notify Angular to redraw on the next frame paint seamlessly
           this.cdr.markForCheck();
         },
+
         error: (err: any) => {
-          console.error('Failed to load user cards from server:', err);
+          console.error('Failed to load users from server:', err);
+
           this.users = [];
           this.totalElements = 0;
           this.totalPagesCount = 0;
+
           this.cdr.markForCheck();
         },
       });
   }
 
   onApplyFilters(): void {
-    this.currentPage = 1; // Reset to page 1 on new filter execution
+    this.currentPage = 1;
     this.fetchUsers();
   }
 
   onResetFilters(): void {
+
     this.filterForm.reset({
-      search: '',
-      vehicle: '',
-      technician: '',
-      status: '',
-      dateFrom: '',
-      dateTo: '',
+      userId: '',
+      activeStatus: '',
+      roleId: '',
     });
+
     this.currentPage = 1;
     this.fetchUsers();
   }
 
   onPageSizeChange(event: Event): void {
+
     const select = event.target as HTMLSelectElement;
+
     this.pageSize = Number(select.value);
     this.currentPage = 1;
+
     this.fetchUsers();
   }
 
   goToPage(page: number): void {
+
     if (page >= 1 && page <= this.totalPagesCount) {
       this.currentPage = page;
       this.fetchUsers();
@@ -200,6 +223,7 @@ export class UserView implements OnInit {
   }
 
   prevPage(): void {
+
     if (this.currentPage > 1) {
       this.currentPage--;
       this.fetchUsers();
@@ -207,77 +231,49 @@ export class UserView implements OnInit {
   }
 
   nextPage(): void {
+
     if (this.currentPage < this.totalPagesCount) {
       this.currentPage++;
       this.fetchUsers();
     }
   }
 
+  // ADD NEW
   onAddUser(): void {
-    this.isAddModalOpen = true;
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.cdr.markForCheck();
+    this.router.navigate(['/dashboard/users/new']);
   }
 
-  closeModal(): void {
-    this.isAddModalOpen = false;
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.user = undefined;
-    this.cdr.markForCheck();
-  }
-
+  // VIEW PAGE
   viewUser(id: number): void {
-    this.adminService.getUserById(id).subscribe({
-      next: (response: any) => {
-        this.user = response.data;
-        this.isViewModalOpen = true;
-        this.isEditModalOpen = false;
-        this.isAddModalOpen = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.notificationService.show('Failed to load user card details', 'error');
-        this.cdr.detectChanges();
-      },
-    });
+    this.router.navigate(['/dashboard/users/view', id]);
   }
 
+  // EDIT PAGE
   editUser(id: number): void {
-    this.adminService.getUserById(id).subscribe({
-      next: (response: any) => {
-        this.user = response.data;
-        this.isEditModalOpen = true;
-        this.isAddModalOpen = false;
-        this.isViewModalOpen = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.notificationService.show('Failed to load user card details', 'error');
-        this.cdr.detectChanges();
-      },
-    });
+    this.router.navigate(['/dashboard/users/edit', id]);
   }
 
   protected roleName(roles: any[]): string {
+
     if (!roles || !Array.isArray(roles)) {
       return '';
     }
-    return roles.map((role) => role.roleName).join(', ');
+
+    return roles
+      .map(role => role.roleName)
+      .join(', ');
   }
 
-  search() {
+  setActiveInactive(status: boolean): string {
+    return status ? 'Active' : 'Inactive';
+  }
+
+  search(): void {
+
     if (this.isSearch) {
       return;
     }
-    this.isSearch = true;
-  }
 
-  setActiveInactive(status: boolean) {
-    if (status) {
-      return 'Active';
-    }
-    return 'Inactive';
+    this.isSearch = true;
   }
 }

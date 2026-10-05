@@ -1,23 +1,27 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
+import {finalize} from 'rxjs';
 
-import { AdminService } from '../../../services/admin.service';
-import { JobCardViewAndEdit } from '../job-card-view-and-edit/job-card-view-and-edit';
-import { NotificationService } from '../../../services/notificationService';
-import { JobCardTableViewResponseDTO } from '../../../dto/response/JobCardTableViewResponseDTO';
-import { TechnicianNameResponseProjection } from '../../../dto/response/TechnicianNameResponseProjection';
-import { PrintPreview } from '../../invoice/print-preview/print-preview';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { JobCardResponseDto } from '../../../dto/response/JobCardResponseDto';
-import { SearchDropdown } from '../../../shared/components/search-dropdown/search-dropdown';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {JobCardTableViewResponseDTO} from '../../../dto/response/JobCardTableViewResponseDTO';
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-job-card-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, JobCardViewAndEdit, PrintPreview, SearchDropdown],
+  imports: [
+    NgForOf,
+    NgIf,
+    NgClass,
+    DatePipe,
+    ReactiveFormsModule,
+    FormsModule,
+    SearchDropdown
+  ],
   templateUrl: './job-card-view.html',
   styleUrl: './job-card-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,7 +29,6 @@ import { SearchDropdown } from '../../../shared/components/search-dropdown/searc
 export class JobCardView implements OnInit {
 
   jobCards: JobCardTableViewResponseDTO[] = [];
-  jobCard: JobCardResponseDto | undefined;
   filterForm!: FormGroup;
 
   availableVehicles: string[] = [];
@@ -37,18 +40,17 @@ export class JobCardView implements OnInit {
   totalPagesCount = 0;
   pageSizes = [5, 10, 20, 50];
 
-  isEditModalOpen = false;
-  isViewModalOpen = false;
   isLoading = false;
 
   technicianNameProjection: TechnicianNameResponseProjection[] = [];
 
-  showPrintModal = false;
-  jobCardPdfUrl: SafeResourceUrl | null = null;
-
-  isDropdownOpen = false;
-
-  constructor(private readonly fb: FormBuilder, private readonly adminService: AdminService, private readonly cdr: ChangeDetectorRef, private readonly notificationService: NotificationService, private readonly sanitizer: DomSanitizer, private readonly router: Router) {
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly adminService: AdminService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notificationService: NotificationService,
+    private readonly router: Router
+  ) {
     this.initFilterForm();
   }
 
@@ -78,7 +80,13 @@ export class JobCardView implements OnInit {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    this.adminService.searchJobCards(formValues, backendPage, this.pageSize, 'jobId', 'desc').pipe(
+    this.adminService.searchJobCards(
+      formValues,
+      backendPage,
+      this.pageSize,
+      'jobId',
+      'desc'
+    ).pipe(
       finalize(() => {
         this.isLoading = false;
         this.cdr.markForCheck();
@@ -178,67 +186,47 @@ export class JobCardView implements OnInit {
     this.router.navigate(['/dashboard/job-cards/new']);
   }
 
-  closeModal(): void {
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.jobCard = undefined;
-    this.cdr.markForCheck();
-  }
-
-  viewJob(id: number): void {
-    this.adminService.getJobCardPdfById(id).subscribe({
+  viewJob(jobCardId: number): void {
+    this.adminService.getJobCardPdfById(jobCardId).subscribe({
       next: (res: any) => {
         try {
           if (!res?.data) {
             this.notificationService.show('Error: Unable to load the PDF.', 'error');
-            this.cdr.markForCheck();
             return;
           }
 
           const base64String = res.data.replace(/\s/g, '');
           const binaryString = window.atob(base64String);
-          const len = binaryString.length;
-          const bytes = new Uint8Array(len);
+          const bytes = new Uint8Array(binaryString.length);
 
-          for (let i = 0; i < len; i++) {
+          for (let i = 0; i < binaryString.length; i++) {
             bytes[i] = binaryString.charCodeAt(i);
           }
 
-          const blob = new Blob([bytes], { type: 'application/pdf' });
+          const blob = new Blob([bytes], {type: 'application/pdf'});
           const unsafeUrl = window.URL.createObjectURL(blob);
-          this.jobCardPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
-          this.showPrintModal = true;
 
-          this.cdr.markForCheck();
-        } catch (decodeError) {
-          console.error('PDF parsing or decoding failed:', decodeError);
-          this.notificationService.show('Error: Failed to process the PDF document.', 'error');
-          this.cdr.markForCheck();
+          this.router.navigate(['/dashboard/job-cards/print'], {
+            state: {
+              pdfUrl: unsafeUrl,
+              pdfName: 'Job Card Print Preview',
+              returnUrl: '/dashboard/job-cards'
+            }
+          });
+        } catch (error) {
+          console.error('PDF decode error:', error);
+          this.notificationService.show('Error: Unable to load the PDF.', 'error');
         }
       },
       error: (err) => {
-        console.error('PDF Fetch crash details:', err);
-
-        const serverErrorMessage = err.error?.data?.error || err.message || 'Database constraint violation encountered.';
-        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-        this.cdr.markForCheck();
-      },
+        console.error('Job Card PDF loading error:', err);
+        this.notificationService.show('Failed to load Job Card PDF.', 'error');
+      }
     });
   }
 
   editJob(id: number): void {
-    this.adminService.getJobCardById(id).subscribe({
-      next: (response: any) => {
-        this.jobCard = response.data;
-        this.isEditModalOpen = true;
-        this.isViewModalOpen = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.notificationService.show('Failed to load job card details', 'error');
-        this.cdr.detectChanges();
-      },
-    });
+    this.router.navigate(['/dashboard/job-cards/edit', id]);
   }
 
   private fetchVehicleRegNos(): void {
@@ -279,14 +267,5 @@ export class JobCardView implements OnInit {
       },
       error: (err: any) => console.error(err),
     });
-  }
-
-  closePrintPreview(): void {
-    this.showPrintModal = false;
-    this.jobCardPdfUrl = null;
-  }
-
-  toggleDropdown(): void {
-    this.isDropdownOpen = !this.isDropdownOpen;
   }
 }

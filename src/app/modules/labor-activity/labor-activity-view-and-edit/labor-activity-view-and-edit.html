@@ -1,47 +1,94 @@
-<div class="modal-container">
-  <button class="close-btn" (click)="onCancel()">&times;</button>
-  <div class="modal-header">
-    <h2>CREATE NEW LABOR ACTIVITY</h2>
+<div class="page-header">
+  <div class="card-container labor-form-container">
+    <div class="filter-card-header labor-form-header">
+      <div class="filter-title-wrapper">
+        <span class="filter-title-icon">🔧</span>
+        <h3>{{ isEditMode ? 'EDIT LABOR ACTIVITY' : 'VIEW LABOR ACTIVITY' }}</h3>
+      </div>
+    </div>
+
+    <form [formGroup]="laborActivityForm" (ngSubmit)="onSubmit()">
+
+      <div class="labor-form-grid">
+
+        <div class="filter-group">
+          <label>
+            Labor Activity Name <span class="required">*</span>
+          </label>
+
+          <input
+            type="text"
+            formControlName="laborActivityName"
+            placeholder="e.g. Brake Pad Replacement">
+
+          <div
+            *ngIf="isInvalid('laborActivityName')"
+            class="error-msg">
+            Name is required.
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>
+            Status <span class="required">*</span>
+          </label>
+
+          <div class="radio-group">
+
+            <label class="labor-radio-option">
+              <input
+                type="radio"
+                formControlName="active"
+                [value]="true">
+              <span>Active</span>
+            </label>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                formControlName="active"
+                [value]="false">
+              <span>Inactive</span>
+            </label>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="labor-form-footer">
+
+        <button
+          type="button"
+          class="btn-filter-reset"
+          (click)="onCancel()">
+          ← BACK
+        </button>
+
+        <button
+          *ngIf="isEditMode"
+          type="submit"
+          class="btn-add"
+          [disabled]="isSubmitting">
+
+          <span
+            *ngIf="isSubmitting"
+            class="buttonSpinner">
+          </span>
+
+          <span
+            *ngIf="!isSubmitting"
+            class="icon-plus">
+            ✓
+          </span>
+
+          {{ isSubmitting ? 'SUBMITTING...' : 'UPDATE' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
   </div>
-
-  <form [formGroup]="laborActivityForm">
-    <div class="modal-body">
-
-      <div class="form-group">
-        <label>Labor Activity Name <span class="required">*</span></label>
-        <input type="text" formControlName="laborActivityName" placeholder="e.g. Break Pad Replacement">
-        <div *ngIf="isInvalid('laborActivityName')" class="error-msg">Name is required.</div>
-      </div>
-
-      <div class="form-group">
-        <label>Status <span class="required">*</span></label>
-
-        <div *ngIf="isEditModalOpen" class="radio-group">
-          <label class="radio-option">
-            <input type="radio" formControlName="active" [value]="true">
-            <span>Active</span>
-          </label>
-
-          <label class="radio-option">
-            <input type="radio" formControlName="active" [value]="false">
-            <span>Inactive</span>
-          </label>
-        </div>
-
-        <div *ngIf="!isEditModalOpen" class="view-value">
-          {{ laborActivity?.active ? 'Active' : 'Inactive' }}
-        </div>
-      </div>
-
-    </div>
-
-    <div *ngIf="isEditModalOpen" class="modal-footer">
-      <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
-        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
-
-        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
-      </button>
-      <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
-    </div>
-  </form>
 </div>

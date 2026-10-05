@@ -216,13 +216,14 @@ export class JobCardForm implements OnInit {
     const formValue = this.jobCardForm.value;
 
     const vehicleMake = this.makeList.find(x => x.makeId === Number(formValue.make));
-    const vehicleModel = this.modelList.find(x => x.id === Number(formValue.model));
 
     if (!vehicleMake) {
       this.notificationService.show('Please select a valid vehicle make.', 'warning');
       this.isSubmitting = false;
       return;
     }
+
+    const vehicleModel = this.modelList.find(x => x.id === Number(formValue.model));
 
     if (!vehicleModel) {
       this.notificationService.show('Please select a valid vehicle model.', 'warning');
@@ -242,7 +243,7 @@ export class JobCardForm implements OnInit {
         customerName: formValue.customerName,
         email: formValue.email,
         drivingLicenseNumber: formValue.drivingLicenseNumber,
-        contactNumber: formValue.contactNumber,
+        contactNumber: formValue.contactNumber
       },
 
       vehicleSaveRequestDTO: {
@@ -252,11 +253,11 @@ export class JobCardForm implements OnInit {
         vehicleModel: vehicleModel.name,
         vehicleYear: formValue.year,
         colour: formValue.colour,
-        otherSpecs: formValue.otherSpecs,
+        otherSpecs: formValue.otherSpecs
       },
 
       laborActivitiesSelected: formValue.laborActivitiesSelected || [],
-      assignedTechniciansSelected: formValue.assignedTechniciansSelected || [],
+      assignedTechniciansSelected: formValue.assignedTechniciansSelected || []
     };
 
     this.adminService.saveJobCardBlobVariant(backendPayload).pipe(
@@ -268,38 +269,45 @@ export class JobCardForm implements OnInit {
       next: (res: any) => {
         this.notificationService.show('Job Card saved successfully!', 'success');
 
-        if (res?.data) {
-          this.notificationService.show('Invoice generated and posted successfully!', 'success');
+        if (!res?.data) {
+          this.notificationService.show('Job card was saved, but PDF data was not returned.', 'error');
+          return;
+        }
 
+        try {
           const base64String = res.data.replace(/\s/g, '');
           const binaryString = window.atob(base64String);
-          const len = binaryString.length;
-          const bytes = new Uint8Array(len);
+          const bytes = new Uint8Array(binaryString.length);
 
-          for (let i = 0; i < len; i++) {
+          for (let i = 0; i < binaryString.length; i++) {
             bytes[i] = binaryString.charCodeAt(i);
           }
 
           const blob = new Blob([bytes], { type: 'application/pdf' });
           const pdfUrl = window.URL.createObjectURL(blob);
 
-          window.open(pdfUrl, '_blank');
+          this.router.navigate(['/dashboard/job-cards/print'], {
+            state: {
+              pdfUrl,
+              pdfName: 'Job Card Print Preview',
+              returnUrl: '/dashboard/job-cards'
+            }
+          });
 
-          this.router.navigate(['/dashboard/job-cards']);
-        } else {
-          this.notificationService.show('Failed to parse job card data or missing PDF data.', 'error');
+        } catch (error) {
+          console.error('Failed to create Job Card PDF:', error);
+          this.notificationService.show('Job card was saved, but the PDF could not be generated.', 'error');
         }
-
-        this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Submission crash details:', err);
 
-        const serverErrorMessage = err.error?.response || 'Database constraint violation encountered.';
+      error: (err: any) => {
+        console.error('Job Card submission error:', err);
+
+        const serverErrorMessage = err?.error?.response || err?.error?.message || 'Database constraint violation encountered.';
+
         this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-
         this.cdr.markForCheck();
-      },
+      }
     });
   }
 

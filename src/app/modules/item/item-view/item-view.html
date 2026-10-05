@@ -1,12 +1,13 @@
 <div class="page-header">
   <div class="card-container" [formGroup]="filterForm">
+
     <div class="table-header">
       <div class="actions-right">
         <button class="btn-add" type="button" (click)="onAddItem()">
           <span class="icon-plus" aria-hidden="true">+</span> ADD NEW
         </button>
       </div>
-      <!-- 1. Item SearchDropdown Filter -->
+
       <div class="filter-group">
         <app-search-dropdown
           formControlName="itemName"
@@ -18,8 +19,7 @@
           allLabel="All"
           [allValue]="null"
           placeholder="All Items"
-          errorMessage="Please select an item."
-        >
+          errorMessage="Please select an item.">
         </app-search-dropdown>
       </div>
     </div>
@@ -27,96 +27,119 @@
     <div class="table-responsive">
       <table class="custom-table">
         <thead>
-          <tr>
-            <th>Item Name</th>
-<!--            <th>Balance Qty</th>-->
-            <th>Supplier Price</th>
-            <th>Selling Price</th>
-            <th>Last Modified Date</th>
-            <th>Last Modified User</th>
-            <th class="text-center">Actions</th>
-          </tr>
+        <tr>
+          <th>Item Name</th>
+          <th>Supplier Price</th>
+          <th>Selling Price</th>
+          <th>Last Modified Date</th>
+          <th>Last Modified User</th>
+          <th class="text-center">Actions</th>
+        </tr>
         </thead>
-        <tbody>
-          <tr *ngIf="isLoading">
-            <td colspan="7" class="table-loader-cell">
-              <div class="table-loader">
-                <span class="spinner"></span>
-                <span>Loading job cards...</span>
-              </div>
-            </td>
-          </tr>
 
-          <tr *ngIf="!isLoading && (!items || items.length === 0)">
-            <td
-              colspan="7"
-              style="text-align: center; padding: 30px; color: #757575; font-style: italic"
-            >
-              No item found matching current filter parameters.
-            </td>
-          </tr>
-          <tr *ngFor="let item of items" [class.loading-hidden]="isLoading">
-            <td class="font-semibold">{{ item.itemName }}</td>
-<!--            <td class="font-semibold">{{ item.balanceQty }}</td>-->
-            <td class="font-semibold">{{ item.supplierPrice }}</td>
-            <td class="font-semibold">{{ item.sellingPrice }}</td>
-            <td class="font-semibold">{{ item.lastModifiedDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
-            <td class="font-semibold">{{ item.lastModifiedUser }}</td>
-            <td class="actions-cell">
-              <button class="btn-table-action view-btn" (click)="viewItem(item.itemId)">👁️</button>
-              <button class="btn-table-action edit-btn" (click)="editItem(item.itemId)">✏️</button>
-<!--              <button class="btn-table-action delete-btn" (click)="deleteItem(item.itemId)">-->
-<!--                🗑️-->
-<!--              </button>-->
-            </td>
-          </tr>
+        <tbody>
+        <tr *ngIf="isLoading">
+          <td colspan="6" class="table-loader-cell">
+            <div class="table-loader">
+              <span class="spinner"></span>
+              <span>Loading items...</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!isLoading && (!items || items.length === 0)">
+          <td colspan="6" class="no-data-cell">
+            No items found matching current filter parameters.
+          </td>
+        </tr>
+
+        <tr *ngFor="let item of items" [class.loading-hidden]="isLoading">
+          <td class="font-semibold">{{ item.itemName }}</td>
+          <td class="font-semibold">{{ item.supplierPrice }}</td>
+          <td class="font-semibold">{{ item.sellingPrice }}</td>
+          <td class="font-semibold">
+            {{ item.lastModifiedDate | date:'yyyy MMM dd, HH:mm:ss' }}
+          </td>
+          <td class="font-semibold">{{ item.lastModifiedUser }}</td>
+
+          <td class="actions-cell">
+            <button
+              class="btn-table-action view-btn"
+              title="View"
+              (click)="viewItem(item.itemId)">
+              👁️
+            </button>
+
+            <button
+              class="btn-table-action edit-btn"
+              title="Edit"
+              (click)="editItem(item.itemId)">
+              ✏️
+            </button>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
 
     <div class="table-footer-summary custom-footer-layout">
       <div class="record-counter left-counter-anchor">
-        Showing {{ items?.length || 0 }} of <strong>{{ totalElements || 0 }}</strong> total entries
+        Showing {{ items?.length || 0 }} of
+        <strong>{{ totalElements || 0 }}</strong> total entries
       </div>
 
       <div class="pagination-group-wrapper right-controls-group">
         <div class="select-box footer-select">
           <label>Show:</label>
-          <select (change)="onPageSizeChange($event)" [value]="pageSize">
-            <option *ngFor="let size of pageSizes" [value]="size">{{ size }} rows</option>
+
+          <select
+            (change)="onPageSizeChange($event)"
+            [value]="pageSize">
+            <option *ngFor="let size of pageSizes" [value]="size">
+              {{ size }} rows
+            </option>
           </select>
         </div>
 
         <div class="pagination">
-          <button class="page-nav" [disabled]="currentPage === 1" (click)="goToPage(1)">|<</button>
-          <button class="page-nav" [disabled]="currentPage === 1" (click)="prevPage()"><</button>
+          <button
+            class="page-nav"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(1)">
+            |&lt;
+          </button>
+
+          <button
+            class="page-nav"
+            [disabled]="currentPage === 1"
+            (click)="prevPage()">
+            &lt;
+          </button>
 
           <span class="page-indicator">
-            Page <strong>{{ totalPagesCount === 0 ? 0 : currentPage }}</strong> of
-            {{ totalPagesCount }}
+            Page
+            <strong>
+              {{ totalPagesCount === 0 ? 0 : currentPage }}
+            </strong>
+            of {{ totalPagesCount }}
           </span>
 
-          <button class="page-nav" [disabled]="currentPage >= totalPagesCount" (click)="nextPage()">
-            >
-          </button>
           <button
             class="page-nav"
             [disabled]="currentPage >= totalPagesCount"
-            (click)="goToPage(totalPagesCount)"
-          >
-            >|
+            (click)="nextPage()">
+            &gt;
+          </button>
+
+          <button
+            class="page-nav"
+            [disabled]="currentPage >= totalPagesCount"
+            (click)="goToPage(totalPagesCount)">
+            &gt;|
           </button>
         </div>
       </div>
     </div>
+
   </div>
 </div>
-
-<app-item-form *ngIf="isAddModalOpen" (cancel)="closeModal()"></app-item-form>
-
-<app-item-view-and-edit
-  *ngIf="isEditModalOpen || isViewModalOpen"
-  [isEditModalOpen]="isEditModalOpen"
-  (cancel)="closeModal()"
-  [item]="item"
-></app-item-view-and-edit>
