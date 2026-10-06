@@ -48,12 +48,28 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/customer/customer-view/customer-view').then(m => m.CustomerView)
       },
       {
+        path: 'customers/edit/:id',
+        loadComponent: () => import('./modules/customer/customer-view-and-edit/customer-view-and-edit').then(m => m.CustomerViewAndEdit)
+      },
+      {
+        path: 'customers/view/:id',
+        loadComponent: () => import('./modules/customer/customer-view-and-edit/customer-view-and-edit').then(m => m.CustomerViewAndEdit)
+      },
+      {
         path: 'technicians',
         loadComponent: () => import('./modules/technician/technician-view/technician-view').then(m => m.TechnicianView)
       },
       {
         path: 'vehicles',
         loadComponent: () => import('./modules/vehicle/vehicle-view/vehicle-view').then(m => m.VehicleView)
+      },
+      {
+        path: 'vehicles/view/:id',
+        loadComponent: () => import('./modules/vehicle/vehicle-edit-form/vehicle-edit-form').then(m => m.VehicleEditFormComponent)
+      },
+      {
+        path: 'vehicles/edit/:id',
+        loadComponent: () => import('./modules/vehicle/vehicle-edit-form/vehicle-edit-form').then(m => m.VehicleEditFormComponent)
       },
       {
         path: 'items/new',

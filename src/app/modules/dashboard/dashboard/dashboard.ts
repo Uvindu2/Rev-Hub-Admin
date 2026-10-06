@@ -103,6 +103,16 @@ export class Dashboard implements OnInit, OnDestroy {
       return;
     }
 
+    if (url.includes('/dashboard/customers/edit/')) {
+      this.currentTitle = 'CUSTOMERS';
+      return;
+    }
+
+    if (url.includes('/dashboard/customers/view/')) {
+      this.currentTitle = 'CUSTOMERS';
+      return;
+    }
+
     if (url.includes('/dashboard/invoices/print')) {
       this.currentTitle = 'Invoice Print Preview';
       return;

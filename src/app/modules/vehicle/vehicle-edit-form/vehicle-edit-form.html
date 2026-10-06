@@ -1,16 +1,24 @@
 <div class="modal-overlay">
+
   <div class="modal-card enhanced-wide-modal">
 
     <div class="modal-header">
-      <h3>Edit Vehicle Profile</h3>
-      <button class="close-header-btn" (click)="closeForm()">&times;</button>
+      <h3>{{ isEditMode ? 'Edit Vehicle Profile' : 'Vehicle Profile' }}</h3>
+
+      <button type="button" class="close-header-btn" (click)="onBack()">
+        &times;
+      </button>
     </div>
 
-    <form [formGroup]="vehicleForm">
+    <div *ngIf="isLoading" class="page-loader">
+      <span class="spinner"></span>
+      <span>Loading Vehicle...</span>
+    </div>
+
+    <form *ngIf="!isLoading && vehicle" [formGroup]="vehicleForm" (ngSubmit)="submitForm()">
 
       <div class="modal-body">
 
-        <!-- Standard Inputs -->
         <div class="form-row">
 
           <div class="form-group">
@@ -24,7 +32,6 @@
           </div>
 
         </div>
-
 
         <div class="form-row">
 
@@ -45,8 +52,6 @@
 
         </div>
 
-
-        <!-- Customer Section -->
         <div class="customers-management-section">
 
           <div class="section-control-header">
@@ -57,80 +62,73 @@
               type="button"
               class="btn-add-item"
               (click)="showCustomerPopup = true"
-              *ngIf="!currentCustomer && isEditModalOpen">
-
+              *ngIf="!currentCustomer && isEditMode">
               <span>➕</span> Add Customer
-
             </button>
 
           </div>
 
-
           <table class="modal-embedded-table">
+
             <thead>
             <tr>
               <th>Customer Name</th>
               <th>Email</th>
               <th>Contact Number</th>
-              <th *ngIf="isEditModalOpen">Actions</th>
+              <th *ngIf="isEditMode">Actions</th>
             </tr>
             </thead>
 
             <tbody>
+
             <tr *ngIf="currentCustomer">
+
               <td>{{ currentCustomer.customerName }}</td>
+
               <td>{{ currentCustomer.email }}</td>
+
               <td>{{ currentCustomer.contactNumber }}</td>
-              <td class="text-center" *ngIf="isEditModalOpen">
-                <button type="button" class="btn-inline-delete" (click)="removeCustomer()">🗑️</button>
+
+              <td class="text-center" *ngIf="isEditMode">
+                <button type="button" class="btn-inline-delete" (click)="removeCustomer()">
+                  🗑️
+                </button>
               </td>
+
             </tr>
 
             <tr *ngIf="!currentCustomer">
-              <td [attr.colspan]="isEditModalOpen ? 4 : 3" class="table-empty-state">
+
+              <td [attr.colspan]="isEditMode ? 4 : 3" class="table-empty-state">
                 No customer assigned.
               </td>
+
             </tr>
+
             </tbody>
+
           </table>
 
-          <!-- Validation Message -->
           <div
-            *ngIf="isInvalid('customerId') && isEditModalOpen"
+            *ngIf="isInvalid('customerId') && isEditMode"
             class="error-msg"
             style="color: red; margin-top: 10px;">
-
             * A customer must be assigned to this vehicle to save.
-
           </div>
 
         </div>
 
       </div>
 
+      <div *ngIf="isEditMode" class="modal-footer">
 
-      <!-- Edit buttons only -->
-      <div *ngIf="isEditModalOpen" class="modal-footer">
-
-        <button
-          type="submit"
-          class="btn-primary"
-          (click)="submitForm()"
-          [disabled]="isSubmitting">
-
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting" class="buttonSpinner"></span>
-
           {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
-
         </button>
 
-        <button
-          type="button"
-          class="btn-secondary"
-          (click)="closeForm()">
-
+        <button type="button" class="btn-secondary" (click)="onCancelEdit()">
           CANCEL
-
         </button>
 
       </div>
@@ -138,11 +136,11 @@
     </form>
 
   </div>
+
 </div>
 
-
 <app-add-customer-form
-  *ngIf="showCustomerPopup && isEditModalOpen"
+  *ngIf="showCustomerPopup && isEditMode"
   (close)="showCustomerPopup = false"
   (customerSaved)="onCustomerSaved($event)">
 </app-add-customer-form>

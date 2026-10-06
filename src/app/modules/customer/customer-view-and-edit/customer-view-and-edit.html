@@ -1,46 +1,64 @@
-<div class="modal-container">
-  <div class="modal-header">
-    <h2>CUSTOMER</h2>
-    <button class="close-btn" (click)="onCancel()">&times;</button>
+<div class="page-header">
+  <div class="card-container customer-page-container">
+
+    <div class="form-title-bar">
+      <div class="title-section">
+        <h2>{{ isEditMode ? 'EDIT CUSTOMER' : 'VIEW CUSTOMER' }}</h2>
+        <span *ngIf="customer" class="customer-id">Customer ID: {{ customer.customerId }}</span>
+      </div>
+
+      <button type="button" class="btn-back" (click)="onBack()">← BACK</button>
+    </div>
+
+    <div *ngIf="isLoading" class="page-loader">
+      <span class="spinner"></span>
+      <span>Loading Customer...</span>
+    </div>
+
+    <form *ngIf="!isLoading && customer" [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+
+      <div class="customer-form-grid">
+
+        <div class="form-group">
+          <label>Customer Name <span class="required">*</span></label>
+          <input type="text" formControlName="customerName" placeholder="Customer Name">
+          <div *ngIf="isInvalid('customerName')" class="error-msg">Customer Name is required.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Number <span class="required">*</span></label>
+          <input type="text" formControlName="contactNumber" placeholder="Contact Number">
+          <div *ngIf="isInvalid('contactNumber')" class="error-msg">Contact number is required.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" formControlName="email" placeholder="example@domain.com">
+
+          <div *ngIf="isInvalid('email')" class="error-msg">
+            <span *ngIf="customerForm.get('email')?.hasError('required')">Email is required.</span>
+            <span *ngIf="customerForm.get('email')?.hasError('email')">Please enter a valid email address.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address <span class="required">*</span></label>
+          <input type="text" formControlName="customerAddress" placeholder="Customer Address">
+          <div *ngIf="isInvalid('customerAddress')" class="error-msg">Address is required.</div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <ng-container *ngIf="isEditMode">
+          <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting" class="buttonSpinner"></span>
+            {{ isSubmitting ? 'SAVING...' : 'SAVE CHANGES' }}
+          </button>
+        </ng-container>
+      </div>
+
+    </form>
+
   </div>
-
-  <form [formGroup]="customerForm">
-    <div class="modal-body">
-
-      <div class="form-group">
-        <label>Customer Name <span class="required">*</span></label>
-        <input type="text" formControlName="customerName" [readonly]="!isEditModalOpen" placeholder="e.g. Brake Fluid">
-        <div *ngIf="isInvalid('customerName')" class="error-msg">Customer Name is required.</div>
-      </div>
-
-      <div class="form-group">
-        <label>Contact Number <span class="required">*</span></label>
-        <input type="text" formControlName="contactNumber" placeholder="+1 (555) 000-0000">
-        <div *ngIf="isInvalid('contactNumber')" class="error-msg">Contact number is required.</div>
-      </div>
-
-      <div class="form-group">
-        <label>Email <span class="required">*</span></label>
-        <input type="text" formControlName="email" [readonly]="!isEditModalOpen" placeholder="example@domain.com">
-        <div *ngIf="isInvalid('email')" class="error-msg">Email is required.</div>
-      </div>
-
-      <div class="form-group">
-        <label>Address <span class="required">*</span></label>
-        <input type="text" formControlName="customerAddress" [readonly]="!isEditModalOpen" placeholder="123 Main Street, Apt 4B">
-        <div *ngIf="isInvalid('customerAddress')" class="error-msg">Address is required.</div>
-      </div>
-
-    </div>
-
-    <div *ngIf="isEditModalOpen" class="modal-footer">
-      <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting">
-        <span *ngIf="!isSubmitting" class="icon">+</span>
-        <span *ngIf="isSubmitting" class="buttonSpinner"></span>
-        {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
-      </button>
-
-      <button type="button" class="btn-cancel" (click)="onCancel()">CANCEL</button>
-    </div>
-  </form>
 </div>

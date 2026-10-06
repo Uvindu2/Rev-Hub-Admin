@@ -1,303 +1,591 @@
-/* --- Pop-Up Modal Layout Overlay & Backdrop --- */
+/* =========================================================
+   VEHICLE EDIT / VIEW PAGE
+   ========================================================= */
+
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.65); /* Dark dimming overlay to match dark theme */
-  backdrop-filter: blur(4px); /* Soft blur effect on the parent table beneath */
+  width: 100%;
+  min-height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 1000;
+  box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- Main Form Card Container --- */
+
+/* =========================================================
+   MAIN PAGE CARD
+   ========================================================= */
+
 .modal-card {
-  background-color: #151515; /* Matching parent card background */
-  border: 1px solid #262626; /* Matching parent borders */
+  background-color: #151515;
+  border: 1px solid #262626;
   width: 100%;
-  height: 100%;
   max-width: 1000px;
-  max-height: 650px; /* Slightly increased to comfortably stack vehicle fields + data table */
+  min-height: calc(100vh - 40px);
+  margin: 20px auto;
   border-radius: 8px;
   box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.7);
-  display: flex;          /* Added: flex arrangement locks header/footer in place */
-  flex-direction: column; /* Added: content flows vertically */
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   animation: modalFadeIn 0.2s ease-out;
 }
 
-/* --- Header Section --- */
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #2a2a2a;
-  background-color: #1a1a1a;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background-color: #1b1b1b;
+  border-bottom: 1px solid #292929;
+  min-height: 64px;
+  box-sizing: border-box;
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
   color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .close-header-btn {
-  background: none;
+  width: 34px;
+  height: 34px;
   border: none;
-  font-size: 1.5rem;
+  background: transparent;
+  color: #bdbdbd;
+  font-size: 28px;
+  line-height: 30px;
   cursor: pointer;
-  color: #757575;
-  line-height: 1;
-  padding: 0;
-  transition: color 0.2s;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .close-header-btn:hover {
   color: #ffffff;
+  background-color: #2a2a2a;
 }
 
-/* --- Body & Layout Rows --- */
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
 .modal-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  flex: 1;              /* Added: Fills available space between header and footer */
-  overflow-y: auto;     /* Added: Scrollbar handles long content arrays cleanly */
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
+
+
+/* =========================================================
+   FORM ROW
+   ========================================================= */
 
 .form-row {
   display: flex;
   gap: 14px;
+  width: 100%;
+  margin-bottom: 18px;
 }
 
 .form-row .form-group {
   flex: 1;
+  min-width: 0;
 }
 
-/* --- Form Labels & Inputs --- */
-.form-group label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: #9e9e9e; /* Dimmed secondary labels */
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
+
+.form-group label {
+  color: #d0d0d0;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 7px;
+}
+
+
+/* =========================================================
+   FORM CONTROL
+   ========================================================= */
 
 .form-control {
   width: 100%;
-  padding: 8px 12px;
-  background-color: #1e1e1e; /* Matching search box styling */
-  border: 1px solid #3a3a3a;
-  border-radius: 6px;
-  color: #ffffff;
+  height: 40px;
+  padding: 0 12px;
   box-sizing: border-box;
-  font-size: 0.85rem;
+  background-color: #1f1f1f;
+  border: 1px solid #383838;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-/* Crimson focus element layout edge styling matching parent input rings */
+.form-control::placeholder {
+  color: #777777;
+}
+
 .form-control:focus {
+  border-color: #b01c1c;
+  background-color: #222222;
+}
+
+.form-control:disabled {
+  background-color: #181818;
+  color: #8a8a8a;
+  border-color: #2c2c2c;
+  cursor: not-allowed;
+}
+
+.form-control.read-only {
+  background-color: #181818;
+  color: #8a8a8a;
+  border-color: #2c2c2c;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SELECT FIELD
+   ========================================================= */
+
+.select-field {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background-color: #1f1f1f;
+  border: 1px solid #383838;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.select-field:focus {
   border-color: #b01c1c;
 }
 
-/* Read-Only State for immutable fields like Reg No. */
-.form-control.read-only {
-  background-color: #111111;
-  color: #757575;
-  border-color: #222222;
-  cursor: not-allowed;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-/* SearchDropdown/Select element targeting */
-.select-field {
-  background-color: #1e1e1e;
-  cursor: pointer;
-}
-
 .select-field option {
-  background-color: #1e1e1e;
+  background-color: #1f1f1f;
   color: #ffffff;
 }
 
-/* --- 🌟 NEW: Customers Sub-Table Layout Area --- */
+
+/* =========================================================
+   CUSTOMER MANAGEMENT SECTION
+   ========================================================= */
+
 .customers-management-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-  border-top: 1px solid #2a2a2a;
-  padding-top: 20px;
+  margin-top: 24px;
+  padding: 18px;
+  background-color: #191919;
+  border: 1px solid #2b2b2b;
+  border-radius: 6px;
 }
+
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
 
 .section-control-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .section-control-header h4 {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
   color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-/* Inline Add Button matching layout secondary structures */
+
+/* =========================================================
+   ADD CUSTOMER BUTTON
+   ========================================================= */
+
 .btn-add-item {
-  background-color: #1a1a1a;
-  border: 1px solid #3a3a3a;
-  color: #e0e0e0;
-  padding: 6px 14px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  transition: all 0.2s;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #b01c1c;
+  border-radius: 5px;
+  background-color: #8f1717;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-add-item:hover {
-  background-color: #262626;
-  border-color: #b01c1c; /* Crimson hint highlighting on interactive path */
-  color: #ffffff;
+  background-color: #b01c1c;
+  border-color: #c52a2a;
 }
 
-/* Embedded Table Wrapper Panel */
+
+/* =========================================================
+   TABLE SCROLL
+   ========================================================= */
+
 .table-scroll-container {
-  border: 1px solid #262626;
-  border-radius: 6px;
-  overflow: hidden;
-  background-color: #111111;
+  width: 100%;
+  overflow-x: auto;
 }
+
+
+/* =========================================================
+   CUSTOMER TABLE
+   ========================================================= */
 
 .modal-embedded-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
-  font-size: 0.85rem;
+  table-layout: fixed;
 }
 
 .modal-embedded-table th {
-  background-color: #1a1a1a;
-  color: #9e9e9e;
+  padding: 11px 12px;
+  background-color: #222222;
+  border-bottom: 1px solid #363636;
+  color: #bdbdbd;
+  font-size: 12px;
   font-weight: 600;
-  padding: 10px 14px;
-  border-bottom: 1px solid #2a2a2a;
+  text-align: left;
 }
 
 .modal-embedded-table td {
-  padding: 6px 10px;
-  border-bottom: 1px solid #1a1a1a;
+  padding: 12px;
+  background-color: #1b1b1b;
+  border-bottom: 1px solid #2c2c2c;
+  color: #dddddd;
+  font-size: 13px;
   vertical-align: middle;
 }
 
-/* Compressed inputs sizing down context profiles within cells */
+.modal-embedded-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.modal-embedded-table tbody tr:hover td {
+  background-color: #202020;
+}
+
+
+/* =========================================================
+   TABLE INPUT
+   ========================================================= */
+
 .table-input {
-  padding: 6px 10px !important;
-  background-color: #161616 !important;
-  border-color: #2a2a2a !important;
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  background-color: #202020;
+  border: 1px solid #363636;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
 }
 
 .table-input:focus {
-  border-color: #b01c1c !important;
+  border-color: #b01c1c;
 }
 
-/* Inline Trash Button Styling */
+
+/* =========================================================
+   INLINE DELETE BUTTON
+   ========================================================= */
+
 .btn-inline-delete {
-  background: transparent;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 6px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #4a2525;
   border-radius: 4px;
-  color: #757575;
+  background-color: #2a1818;
+  color: #e45a5a;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-inline-delete:hover {
-  background-color: rgba(176, 28, 28, 0.15); /* Soft crimson highlight hint on destructive target hover */
-  color: #cd2222;
-}
-
-/* Table empty fallback system styles */
-.table-empty-state {
-  text-align: center;
-  color: #616161;
-  padding: 30px !important;
-  font-style: italic;
-  background-color: #151515;
-}
-
-/* --- Footer Action Area --- */
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px;
-  background-color: #1a1a1a;
-  border-top: 1px solid #2a2a2a;
-}
-
-.modal-footer button {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-
-/* Secondary Cancel Button Styles */
-.btn-secondary {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a !important;
-  color: #8e8e8e;
-}
-
-.btn-secondary:hover {
-  background-color: #262626;
+  background-color: #8f1717;
+  border-color: #b01c1c;
   color: #ffffff;
 }
 
-/* Primary Crimson Save Button Styles */
+
+/* =========================================================
+   TABLE EMPTY STATE
+   ========================================================= */
+
+.table-empty-state {
+  text-align: center;
+  padding: 25px !important;
+  color: #757575 !important;
+  font-style: italic;
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
+.error-msg {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  background-color: #191919;
+  border-top: 1px solid #292929;
+  margin-top: auto;
+}
+
+
+/* =========================================================
+   FOOTER BUTTON BASE
+   ========================================================= */
+
+.modal-footer button {
+  min-width: 100px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.btn-secondary {
+  background-color: #292929;
+  border: 1px solid #444444;
+  color: #dddddd;
+}
+
+.btn-secondary:hover {
+  background-color: #353535;
+  border-color: #555555;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
 .btn-primary {
-  background-color: #b01c1c;
+  background-color: #a61919;
+  border: 1px solid #b01c1c;
   color: #ffffff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #cd2222;
+  background-color: #c32121;
+  border-color: #d12a2a;
 }
 
 .btn-primary:disabled {
-  opacity: 0.3;
+  background-color: #4a2020;
+  border-color: #542323;
+  color: #8c6666;
   cursor: not-allowed;
 }
 
-/* Animation entry sequence */
+
+/* =========================================================
+   SUBMIT BUTTON SPINNER
+   ========================================================= */
+
+.buttonSpinner {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+  margin-right: 7px;
+  vertical-align: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+
+/* =========================================================
+   PAGE LOADER
+   ========================================================= */
+
+.page-loader {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #757575;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border: 2px solid #757575;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes modalFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-15px);
+    transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .modal-card {
+    width: 100%;
+    min-height: calc(100vh - 20px);
+    margin: 10px auto;
+    border-radius: 6px;
+  }
+
+  .modal-header {
+    padding: 15px 16px;
+  }
+
+  .modal-body {
+    padding: 18px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .customers-management-section {
+    padding: 14px;
+  }
+
+  .section-control-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .btn-add-item {
+    width: 100%;
+  }
+
+  .modal-embedded-table {
+    min-width: 650px;
+  }
+
+  .modal-embedded-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .modal-footer {
+    padding: 14px 18px;
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .modal-card {
+    min-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .modal-body {
+    padding: 14px;
+  }
+
+  .customers-management-section {
+    margin-top: 18px;
+    padding: 12px;
   }
 }

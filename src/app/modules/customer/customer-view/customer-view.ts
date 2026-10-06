@@ -1,55 +1,48 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {AdminService} from '../../../services/admin.service';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {CustomerViewAndEdit} from '../customer-view-and-edit/customer-view-and-edit';
-import {NotificationService} from '../../../services/notificationService';
+import {Router} from '@angular/router';
 import {finalize} from 'rxjs';
-import {
-  CustomerContactNumberEmailAndIdResponseDTO
-} from '../../../dto/response/CustomerContactNumberEmailAndIdResponseDTO';
-import {CustomerResponseProjection} from '../../../dto/response/CustomerResponseProjection';
+
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {CustomerContactNumberEmailAndIdResponseDTO} from '../../../dto/response/CustomerContactNumberEmailAndIdResponseDTO';
 import {CustomerTableViewResponseProjection} from '../../../dto/response/CustomerTableViewResponseProjection';
 import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-customer-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomerViewAndEdit, ReactiveFormsModule, SearchDropdown],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchDropdown],
   templateUrl: './customer-view.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customer-view.css',
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class CustomerView implements OnInit {
-  // Fixed: Added implements OnInit
 
   filterForm!: FormGroup;
 
   cutromerNameEmailIds: CustomerContactNumberEmailAndIdResponseDTO[] = [];
   allCustomers: CustomerTableViewResponseProjection[] = [];
-  customer: CustomerResponseProjection | undefined;
 
-  // Pagination Parameters
-  currentPage: number = 1;
-  pageSize: number = 5;
-  totalElements: number = 0;
-  totalPagesCount: number = 0;
-  pageSizes: number[] = [5, 10, 20, 50];
+  currentPage = 1;
+  pageSize = 5;
+  totalElements = 0;
+  totalPagesCount = 0;
+  pageSizes = [5, 10, 20, 50];
 
-  // Sorting Rules configuration
-  sortByField: string = 'createdDate';
-  sortDirection: string = 'desc';
+  sortByField = 'createdDate';
+  sortDirection = 'desc';
 
-  isEditModalOpen: boolean = false;
-  isViewModalOpen: boolean = false;
-  isLoading: boolean = false;
-  isSearch: boolean = false;
+  isLoading = false;
+  isSearch = false;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
-    private readonly cdr: ChangeDetectorRef,
     private readonly notificationService: NotificationService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router
   ) {
     this.initFilterForm();
   }
@@ -59,76 +52,50 @@ export class CustomerView implements OnInit {
     this.fetchCustomers();
   }
 
-  // Initialize form controls matching your backend search request DTO
   private initFilterForm(): void {
     this.filterForm = this.fb.group({
       contactNumber: [''],
       email: [''],
-      activeStatus: [''],
+      activeStatus: ['']
     });
   }
 
   private fetchCustomerNameEmailIds(): void {
     this.adminService.getAllCustomerNameEmailIds().subscribe({
       next: (response: any) => {
-        const CustomerNameEmailIds = response?.data || response;
-        if (Array.isArray(CustomerNameEmailIds)) {
-          this.cutromerNameEmailIds = CustomerNameEmailIds;
-        } else {
-          this.cutromerNameEmailIds = [];
-        }
+        const customerNameEmailIds = response?.data || response;
+
+        this.cutromerNameEmailIds =
+          Array.isArray(customerNameEmailIds)
+            ? customerNameEmailIds
+            : [];
+
         this.cdr.markForCheck();
       },
+
       error: (err: any) => {
-        console.error('Failed to load user names:', err);
+        console.error('Failed to load customer names:', err);
+
         this.cutromerNameEmailIds = [];
         this.cdr.markForCheck();
-      },
+      }
     });
-  }
-
-  onSearch(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    console.log('Searching Customers for:', inputElement.value);
   }
 
   viewCustomer(customerId: number): void {
-    console.log('Viewing customer details profile:', customerId);
-    this.adminService.getCustomerById(customerId).subscribe({
-      next: (response: any) => {
-        this.customer = response.data;
-        this.isEditModalOpen = false;
-        this.isViewModalOpen = true;
-        console.log(this.isViewModalOpen);
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        setTimeout(() => {
-          this.notificationService.show('Failed to load job card from server:', 'error');
-          this.cdr.detectChanges(); // Tell Angular: "A message was just added, repaint the UI now!"
-        }, 0);
-      },
-    });
+    this.router.navigate(
+      ['/dashboard/customers/view', customerId],
+      {state: {mode: 'view'}}
+    );
   }
+
   editCustomer(customerId: number): void {
-    this.adminService.getCustomerById(customerId).subscribe({
-      next: (response: any) => {
-        this.customer = response.data;
-        console.log(response);
-        this.isEditModalOpen = true;
-        this.cdr.detectChanges();
-      },
-
-          error: (err) => {
-            console.error('Customer not found or error occurred:', err);
-            const serverErrorMessage =
-              err.error?.data || 'Failed to load job card from server:';
-            this.notificationService.show('Error: ' + serverErrorMessage, 'error');
-          },
-    });
+    this.router.navigate(
+      ['/dashboard/customers/edit', customerId],
+      {state: {mode: 'edit'}}
+    );
   }
 
-  /* Pagination Navigation Controls */
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPagesCount) {
       this.currentPage = page;
@@ -150,86 +117,84 @@ export class CustomerView implements OnInit {
     }
   }
 
-  private fetchCustomers() {
-    // Start loader
+  private fetchCustomers(): void {
     this.isLoading = true;
+
     const backendPage = this.currentPage - 1;
-        // Extract values directly from the form group
     const formValues = this.filterForm.value;
 
-    this.adminService
-      .getCustomersPaginated(formValues, backendPage, this.pageSize, this.sortByField, this.sortDirection)
-      .pipe(
-        finalize(() => {
-          // Stop loader for both success and error
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        }),
-      )
-      .subscribe({
-        next: (response: any) => {
-          // Stage updates in local variables first to prevent layout thrashing
-          let updatedCustomers: CustomerTableViewResponseProjection[] = [];
-          let updatedTotalElements = 0;
-          let updatedTotalPagesCount = 0;
+    this.adminService.getCustomersPaginated(
+      formValues,
+      backendPage,
+      this.pageSize,
+      this.sortByField,
+      this.sortDirection
+    ).pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (response: any) => {
+        let updatedCustomers: CustomerTableViewResponseProjection[] = [];
+        let updatedTotalElements = 0;
+        let updatedTotalPagesCount = 0;
 
-          if (response?.data?.content !== undefined) {
-            updatedCustomers = response.data.content || [];
-            updatedTotalElements =
-              response.data.page.totalElements === undefined
-                ? response.data.total_elements || 0
-                : response.data.page.totalElements;
-            updatedTotalPagesCount =
-              response.data.page.totalPages === undefined
-                ? response.data.total_pages || 0
-                : response.data.page.totalPages;
-          } else if (Array.isArray(response)) {
-            updatedCustomers = response;
-            updatedTotalElements = response.length;
-            updatedTotalPagesCount = Math.ceil(response.length / this.pageSize) || 1;
-          }
+        if (response?.data?.content !== undefined) {
+          updatedCustomers = response.data.content || [];
 
-          // Apply properties all at once
-          this.allCustomers = updatedCustomers;
-          this.totalElements = updatedTotalElements;
-          this.totalPagesCount = updatedTotalPagesCount;
+          updatedTotalElements =
+            response.data.page?.totalElements ??
+            response.data.total_elements ??
+            0;
 
-          // Notify Angular to redraw on the next frame paint seamlessly
-          this.cdr.markForCheck();
-        },
-        error: (err: any) => {
-          console.error('Failed to load job cards from server:', err);
-          this.allCustomers = [];
-          this.totalElements = 0;
-          this.totalPagesCount = 0;
-          this.cdr.markForCheck();
-        },
-      });
+          updatedTotalPagesCount =
+            response.data.page?.totalPages ??
+            response.data.total_pages ??
+            0;
+
+        } else if (Array.isArray(response)) {
+          updatedCustomers = response;
+          updatedTotalElements = response.length;
+          updatedTotalPagesCount =
+            Math.ceil(response.length / this.pageSize) || 1;
+        }
+
+        this.allCustomers = updatedCustomers;
+        this.totalElements = updatedTotalElements;
+        this.totalPagesCount = updatedTotalPagesCount;
+
+        this.cdr.markForCheck();
+      },
+
+      error: (err: any) => {
+        console.error('Failed to load customers:', err);
+
+        this.allCustomers = [];
+        this.totalElements = 0;
+        this.totalPagesCount = 0;
+
+        this.notificationService.show(
+          'Failed to load customers.',
+          'error'
+        );
+
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
+
     this.pageSize = Number(select.value);
     this.currentPage = 1;
-    this.fetchCustomers(); // fetchCustomers will run cdr.markForCheck() when done
-  }
 
-  closeModal(): void {
-    this.isViewModalOpen = false;
-    this.isEditModalOpen = false;
-    this.customer = undefined;
-    this.cdr.markForCheck();
-  }
-
-  search() {
-    if (this.isSearch) {
-      return;
-    }
-    this.isSearch = true;
+    this.fetchCustomers();
   }
 
   onApplyFilters(): void {
-    this.currentPage = 1; // Reset to page 1 on new filter execution
+    this.currentPage = 1;
     this.fetchCustomers();
   }
 
@@ -237,8 +202,21 @@ export class CustomerView implements OnInit {
     this.filterForm.reset({
       contactNumber: '',
       email: '',
+      activeStatus: ''
     });
+
     this.currentPage = 1;
     this.fetchCustomers();
+  }
+
+  search(): void {
+    if (this.isSearch) return;
+
+    this.isSearch = true;
+  }
+
+  onSearch(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    console.log('Searching Customers for:', inputElement.value);
   }
 }
