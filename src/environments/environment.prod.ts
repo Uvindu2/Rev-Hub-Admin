@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://revhubbackends-production.up.railway.app'
+  apiUrl: 'https://revhubbackend-production.up.railway.app'
 };
