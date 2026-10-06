@@ -7,7 +7,7 @@ export const API_ENDPOINTS = {
   GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/labor-activity/get-all-labor-activity-names`,
   GET_VEHICLE_MAKE_LIST: `${API_BASE_URL}/vehicle/get-all-vehicle-makes`,
   GET_VEHICLE_MODEL_LIST: `${API_BASE_URL}/vehicle/get-all-vehicle-models`,
-  GEN: `${API_BASE_URL}/api/vehicle-catalog/sync`,
+  // GEN: `${API_BASE_URL}/api/vehicle-catalog/sync`,
   GET_VEHICLE_MODEL_LIST_BY_MAKE_ID: (makeId: number) =>
     `${API_BASE_URL}/vehicle/get-vehicle-models-by-make-id/${makeId}`,
   GET_INVOICE_ITEMS: `${API_BASE_URL}/item/fetch-all-invoice-items`,

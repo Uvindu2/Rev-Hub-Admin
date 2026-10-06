@@ -1,14 +1,11 @@
-import {ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {InvoiceForm} from '../invoice-form/invoice-form';
 import {InvoiceTableViewResponseProjection} from '../../../dto/response/InvoiceTableViewResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {finalize} from 'rxjs';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import {PrintPreview} from "../print-preview/print-preview";
-import {InvoiceViewAndEdit} from '../invoice-view-and-edit/invoice-view-and-edit';
 import {Router} from '@angular/router';
 
 @Component({
@@ -23,7 +20,6 @@ export class InvoiceView implements OnInit {
 
   invoices: InvoiceTableViewResponseProjection[] = [];
 
-  // BEST PRACTICE: Unified Reactive Form Group for filters
   filterForm!: FormGroup;
 
   // Pagination Parameters
@@ -37,14 +33,7 @@ export class InvoiceView implements OnInit {
   sortByField: string = 'invoiceId';
   sortDirection: string = 'desc';
 
-  isEditModalOpen: boolean = false;
   isLoading: boolean = false;
-
-  showInvoiceForm: boolean = false;
-  showPrintModal: boolean = false;
-  generatedPdfUrl: SafeResourceUrl | null = null;
-  invoicePdfUrl: SafeResourceUrl | null = null;
-  selectedInvoiceId!: number | string;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -243,16 +232,16 @@ export class InvoiceView implements OnInit {
     });
   }
 
-   onGen() {
-     this.adminService.gen().subscribe({
-       next: (res: any) => {
-         console.log(res);
-         this.notificationService.show(res, 'success');
-       },
-       error: (err:any) => {
-         console.error('Invoice PDF loading error:', err);
-         this.notificationService.show('Failed to load invoice PDF.', 'error');
-       }
-     });
-  }
+  // onGen() {
+  //   this.adminService.gen().subscribe({
+  //     next: (res: any) => {
+  //       console.log(res);
+  //       this.notificationService.show(res, 'success');
+  //     },
+  //     error: (err: any) => {
+  //       console.error('Invoice PDF loading error:', err);
+  //       this.notificationService.show('Failed to load invoice PDF.', 'error');
+  //     }
+  //   });
+  // }
 }

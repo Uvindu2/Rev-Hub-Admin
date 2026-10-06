@@ -381,7 +381,7 @@ export class AdminService {
     return this.http.put(API_ENDPOINTS.CHANGE_PASSWORD, backendPayload);
   }
 
-  gen(): Observable<any> {
-    return this.http.post<any>(API_ENDPOINTS.GEN,null);
-  }
+  // gen(): Observable<any> {
+  //   return this.http.post<any>(API_ENDPOINTS.GEN,null);
+  // }
 }
