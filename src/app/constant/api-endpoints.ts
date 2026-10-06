@@ -3,9 +3,11 @@ export const API_BASE_URL = environment.apiUrl;
 export const API_ENDPOINTS = {
   GET_ALL: `${API_BASE_URL}/customer`,
   GET_TECHNICIAN_NAMES: `${API_BASE_URL}/technician/get-all-technician-names`,
+  JOB_CARD_NUMBERS: `${API_BASE_URL}/job-card/pending-job-numbers`,
   GET_LABOR_ACTIVITY_NAMES: `${API_BASE_URL}/labor-activity/get-all-labor-activity-names`,
   GET_VEHICLE_MAKE_LIST: `${API_BASE_URL}/vehicle/get-all-vehicle-makes`,
   GET_VEHICLE_MODEL_LIST: `${API_BASE_URL}/vehicle/get-all-vehicle-models`,
+  GEN: `${API_BASE_URL}/vehicle-catalog/sync`,
   GET_VEHICLE_MODEL_LIST_BY_MAKE_ID: (makeId: number) =>
     `${API_BASE_URL}/vehicle/get-vehicle-models-by-make-id/${makeId}`,
   GET_INVOICE_ITEMS: `${API_BASE_URL}/item/fetch-all-invoice-items`,
@@ -17,7 +19,7 @@ export const API_ENDPOINTS = {
   MODIFY_JOB_CARD: `${API_BASE_URL}/job-card/modify`,
   SAVE_INVOICE: `${API_BASE_URL}/invoice/save`,
   GET_LABOR_ACTIVITIES_BY_JOB_ID: (jobId: number) =>
-    `${API_BASE_URL}/labor-activity/get-labor-activity-by-job-Id/${jobId}`,
+    `${API_BASE_URL}/labor-activity/get-labor-activity-by-job-id/${jobId}`,
   GET_ALL_CUSTOMERS: (page: number, size: number, sortBy: string, sortDir: string) =>
     `${API_BASE_URL}/customer/get-all-customers-summary?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
   GET_ALL_VEHICLE_SUMMARIES: (page: number, size: number, sortBy: string, sortDir: string) =>

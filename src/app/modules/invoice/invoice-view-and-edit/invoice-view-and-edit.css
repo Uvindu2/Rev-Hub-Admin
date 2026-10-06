@@ -25,7 +25,7 @@
 
 .split-workspace {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 250px 1fr;
   gap: 15px;
   min-height: 450px;
   margin-bottom: 20px;

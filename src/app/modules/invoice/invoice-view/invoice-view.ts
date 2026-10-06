@@ -243,10 +243,16 @@ export class InvoiceView implements OnInit {
     });
   }
 
-  handleInvoiceGenerated(pdfUrl: SafeResourceUrl) {
-    this.isEditModalOpen = false;     // Close the invoice form modal
-    this.invoicePdfUrl = pdfUrl;     // Assign to invoicePdfUrl for the print preview modal
-    this.showPrintModal = true;      // Open the print preview modal
-    this.cdr.markForCheck();
+   onGen() {
+     this.adminService.gen().subscribe({
+       next: (res: any) => {
+         console.log(res);
+         this.notificationService.show(res, 'success');
+       },
+       error: (err:any) => {
+         console.error('Invoice PDF loading error:', err);
+         this.notificationService.show('Failed to load invoice PDF.', 'error');
+       }
+     });
   }
 }

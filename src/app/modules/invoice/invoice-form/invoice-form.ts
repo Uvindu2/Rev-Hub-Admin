@@ -10,11 +10,13 @@ import {InvoiceItemsResponseDTO} from '../../../dto/response/InvoiceItemsRespons
 import {finalize} from 'rxjs';
 import {AuthService} from '../../../services/auth.service';
 import {Router} from '@angular/router';
+import {JobCardNumberResponseDTO} from '../../../dto/response/PendingJobNumbersDTO';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({
   selector: 'app-invoice-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SearchDropdown],
   templateUrl: './invoice-form.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './invoice-form.css',
@@ -26,6 +28,7 @@ export class InvoiceForm implements OnInit {
   invoiceForm!: FormGroup;
   selectedLaborIndex: number = 0;
 
+  pendingJobNumbers: JobCardNumberResponseDTO[] = [];
   availableLaborActivities: LaborActivityNameResponseProjection[] = [];
   filteredLaborActivities: LaborActivityNameResponseProjection[] = [];
   availableItemParts: InvoiceItemsResponseDTO[] = [];
@@ -49,13 +52,13 @@ export class InvoiceForm implements OnInit {
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
     private readonly authService: AuthService,
-    private readonly sanitizer: DomSanitizer,
     private readonly router: Router,
   ) {
   }
 
   ngOnInit(): void {
     this.initForm();
+    this.loadPendingJobNumbers();
     this.loadItemNames();
     this.loadItemParts();
   }
@@ -320,6 +323,17 @@ export class InvoiceForm implements OnInit {
     } else if (this.selectedLaborIndex === index) {
       this.selectedLaborIndex = 0;
     }
+  }
+
+  loadPendingJobNumbers(): void {
+    this.adminService.getPendingJobNumbers().subscribe({
+      next: (res: any) => {
+        const dataPayload = res?.data ? res.data : res;
+        this.pendingJobNumbers = dataPayload || [];
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => console.error('Failed to pending job numbers', err),
+    });
   }
 
   loadItemNames(): void {

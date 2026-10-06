@@ -110,14 +110,80 @@
    4. Sidebar List Components & Search Box
    ========================================================================== */
 
+/* CHANGE AREA - JOB NUMBER SEARCH */
+
 .search-box {
   position: relative;
   display: flex;
+  align-items: flex-end;
   gap: 8px;
-  align-items: center;
   width: 100%;
   margin-bottom: 10px;
+  box-sizing: border-box;
 }
+
+.search-box .filter-group {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* SEARCH BUTTON */
+
+.btn-search-action {
+  flex: 0 0 105px;
+  width: 105px;
+  height: 38px;
+  position: relative;
+  top: -15px;
+  padding: 0 12px;
+  border: 1px solid #b91c1c;
+  border-radius: 4px;
+  background-color: #b91c1c;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn-search-action:hover:not(:disabled) {
+  background-color: #c92121;
+  border-color: #c92121;
+}
+
+.btn-search-action:disabled {
+  background-color: #4a2020;
+  border-color: #542323;
+  color: #8c6666;
+  cursor: not-allowed;
+}
+
+/* SEARCH BUTTON SPINNER */
+
+.buttonSpinner {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: searchButtonSpin 0.7s linear infinite;
+}
+
+@keyframes searchButtonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* SEARCH DROPDOWN INPUT */
 
 .search-box input[type="text"] {
   width: 100%;
@@ -232,14 +298,16 @@
   gap: 12px;
 }
 
-.task-field, .fee-field {
+.task-field,
+.fee-field {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.task-field label, .fee-field label {
+.task-field label,
+.fee-field label {
   font-size: 0.85rem;
   color: #9ca3af;
 }
@@ -250,7 +318,8 @@
   font-size: 0.95rem;
 }
 
-.dark-dropdown, .dark-input {
+.dark-dropdown,
+.dark-input {
   background-color: #222222;
   border: 1px solid #333333;
   color: #ffffff;
@@ -620,7 +689,8 @@
   flex-wrap: wrap;
 }
 
-.btn-cancel, .btn-submit, .btn-search-action {
+.btn-cancel,
+.btn-submit {
   padding: 8px 16px;
   border-radius: 4px;
   font-weight: bold;
@@ -634,7 +704,7 @@
   color: #9ca3af;
 }
 
-.btn-submit, .btn-search-action {
+.btn-submit {
   background-color: #b91c1c;
   border: none;
   color: #ffffff;
@@ -648,21 +718,41 @@
    ========================================================================== */
 
 @media screen and (max-width: 992px) {
+
   .split-workspace {
     grid-template-columns: 1fr;
     height: auto;
   }
 
-  .left-panel, .right-panel {
+  .left-panel,
+  .right-panel {
     max-height: 300px;
   }
 
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* CHANGE AREA - TABLET SEARCH */
+
+  .search-box {
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .search-box .filter-group {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .btn-search-action {
+    flex: 0 0 100px;
+    width: 100px;
+  }
 }
 
 @media screen and (max-width: 600px) {
+
   .revhub-builder-card {
     padding: 12px;
   }
@@ -684,8 +774,29 @@
     flex-direction: column;
   }
 
-  .btn-cancel, .btn-submit {
+  .btn-cancel,
+  .btn-submit {
     width: 100%;
     justify-content: center;
+  }
+
+  /* CHANGE AREA - MOBILE SEARCH */
+
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .search-box .filter-group {
+    width: 100%;
+    flex: none;
+  }
+
+  .btn-search-action {
+    width: 100%;
+    height: 40px;
+    flex: 0 0 40px;
+    top: 0;
   }
 }

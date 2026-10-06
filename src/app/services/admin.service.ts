@@ -11,6 +11,7 @@ import { TechnicianNameResponseProjection } from '../dto/response/TechnicianName
 import { VehicleAndCustomerResponseDTO } from '../dto/response/VehicleAndCustomerResponseDTO';
 import { VehicleMakeResponseDTO } from '../dto/response/VehicleMakeResponseDTO';
 import { VehicleModelResponseDTO } from '../dto/response/VehicleModelResponseDTO';
+import {JobCardNumberResponseDTO} from '../dto/response/PendingJobNumbersDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +36,12 @@ export class AdminService {
 
   getTechnicianNames(): Observable<TechnicianNameResponseProjection[]> {
     return this.http.get<TechnicianNameResponseProjection[]>(API_ENDPOINTS.GET_TECHNICIAN_NAMES);
+  }
+
+  getPendingJobNumbers(): Observable<JobCardNumberResponseDTO[]> {
+    return this.http.get<JobCardNumberResponseDTO[]>(
+      API_ENDPOINTS.JOB_CARD_NUMBERS,
+    );
   }
 
   getLaborActivityNames(): Observable<LaborActivityNameResponseProjection[]> {
@@ -372,5 +379,9 @@ export class AdminService {
     newPassword: string;
   }): Observable<any> {
     return this.http.put(API_ENDPOINTS.CHANGE_PASSWORD, backendPayload);
+  }
+
+  gen(): Observable<any> {
+    return this.http.post<any>(API_ENDPOINTS.GEN,null);
   }
 }

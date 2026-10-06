@@ -411,53 +411,6 @@ export class InvoiceViewAndEdit implements OnInit {
       );
   }
 
-  onJobCardSearchClick(): void {
-    const value = this.invoiceForm.get('jobCardSearch')?.value;
-
-    if (!value) return;
-
-    this.isSearching = true;
-
-    this.adminService.getLaborActivitiesByJobId(value).pipe(
-      finalize(() => {
-        this.isSearching = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (res: any) => {
-        const incomingActivities = res?.data || [];
-
-        if (incomingActivities.length === 0) {
-          this.notificationService.show(
-            'No Job Card found with that Job Id.',
-            'error'
-          );
-          return;
-        }
-
-        this.laborActivities.clear();
-        this.partDropdownOpenRowIndex = null;
-        this.laborActivityAvailable = true;
-
-        incomingActivities.forEach((activity: any) =>
-          this.addLaborActivity(
-            activity.laborActivityId,
-            true,
-            0
-          )
-        );
-      },
-      error: (err: any) => {
-        console.error(err);
-
-        this.notificationService.show(
-          'Please try again later. If not, please contact System Administrator',
-          'error'
-        );
-      },
-    });
-  }
-
   toggleDropdown(event: Event): void {
     event.stopPropagation();
 

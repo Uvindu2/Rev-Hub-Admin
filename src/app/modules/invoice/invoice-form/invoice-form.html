@@ -8,46 +8,32 @@
       <div class="split-workspace">
 
         <div class="left-panel">
-          <div class="search-box" style="display: flex; gap: 10px; align-items: flex-start; width: 100%;">
-            <div style="flex: 1;">
-              <input
-                type="text"
-                formControlName="jobCardSearch"
-                placeholder="Search job number..."
-                style="width: 100%;">
-
-              <!-- Inline validation message -->
-              <div
-                *ngIf="invoiceForm.get('jobCardSearch')?.touched &&
-             invoiceForm.get('jobCardSearch')?.invalid"
-                class="error-msg">
-
-      <span *ngIf="invoiceForm.get('jobCardSearch')?.hasError('required')">
-        Job number is required.
-      </span>
-
-                <span *ngIf="invoiceForm.get('jobCardSearch')?.hasError('pattern')">
-        Job number must contain numbers only.
-      </span>
-
+            <!-- JOB NUMBER SEARCH -->
+            <div class="search-box">
+              <div class="filter-group">
+                <app-search-dropdown
+                  formControlName="jobCardSearch"
+                  label="Job Number"
+                  bindLabel="jobNumber"
+                  bindValue="jobId"
+                  [data]="pendingJobNumbers"
+                  [showAllOption]="false"
+                  placeholder="Select Job Number"
+                  errorMessage="Please select a job number.">
+                </app-search-dropdown>
               </div>
+
+              <button
+                type="button"
+                class="btn-search-action"
+                (click)="onJobCardSearchClick()"
+                [disabled]="isSearching || !invoiceForm.get('jobCardSearch')?.value">
+
+                <span *ngIf="isSearching" class="buttonSpinner"></span>
+
+                {{ isSearching ? 'SEARCHING...' : 'SEARCH' }}
+              </button>
             </div>
-
-            <button
-              type="button"
-              class="btn-search-action"
-              (click)="onJobCardSearchClick()"
-              [disabled]="isSearching">
-
-    <span
-      *ngIf="isSearching"
-      class="buttonSpinner">
-    </span>
-
-              {{ isSearching ? 'Searching...' : 'SEARCH' }}
-
-            </button>
-          </div>
 
           <div class="sidebar-list" formArrayName="laborActivities">
             <div *ngFor="let labor of laborActivities.controls; let i = index"
