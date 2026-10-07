@@ -123,6 +123,11 @@ export class Dashboard implements OnInit, OnDestroy {
       return;
     }
 
+    if (url.includes('/dashboard/pdf-preview')) {
+      this.currentTitle = 'Print Preview';
+      return;
+    }
+
     const segments = url.split('/');
     const lastSegment = segments[segments.length - 1];
     this.currentTitle = this.pageTitles[lastSegment] || 'Dashboard';

@@ -2,10 +2,20 @@
 
   <div class="card-container pdf-preview-container">
 
-    <!-- HEADER -->
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
     <div class="pdf-preview-header">
 
+
+      <!-- LEFT -->
+
       <div class="header-left">
+
+
+        <!-- BACK -->
 
         <button
           type="button"
@@ -13,17 +23,29 @@
           (click)="goBack()"
           title="Back">
 
-          <span class="back-icon">←</span>
+          <span class="back-icon">
+            ←
+          </span>
 
-          <span>BACK</span>
+          <span>
+            BACK
+          </span>
 
         </button>
 
+
+        <!-- DIVIDER -->
+
         <div class="header-divider"></div>
+
+
+        <!-- TITLE -->
 
         <div class="title-section">
 
-          <span class="pdf-icon">📄</span>
+          <span class="pdf-icon">
+            📄
+          </span>
 
           <div>
 
@@ -41,10 +63,40 @@
 
       </div>
 
+
+      <!-- RIGHT -->
+
+      <div class="header-actions">
+
+
+        <!-- CUSTOM PRINT BUTTON -->
+
+        <button
+          type="button"
+          class="btn-print"
+          title="Print PDF"
+          (click)="printPdf()"
+          [disabled]="isLoading || !pdfBase64">
+
+          <span class="print-icon">
+            🖨
+          </span>
+
+          <span>
+            PRINT
+          </span>
+
+        </button>
+
+      </div>
+
     </div>
 
 
-    <!-- LOADING -->
+    <!-- =====================================================
+         LOADING
+         ===================================================== -->
+
     <div
       class="pdf-loading"
       *ngIf="isLoading">
@@ -58,7 +110,10 @@
     </div>
 
 
-    <!-- ERROR -->
+    <!-- =====================================================
+         ERROR
+         ===================================================== -->
+
     <div
       class="pdf-error"
       *ngIf="!isLoading && errorMessage">
@@ -87,34 +142,61 @@
     </div>
 
 
-    <!-- PDF VIEWER -->
+    <!-- =====================================================
+         PDF VIEWER
+         ===================================================== -->
+
     <div
       class="pdf-viewer-wrapper"
       *ngIf="!isLoading && pdfBase64">
 
+
       <ngx-extended-pdf-viewer
+
         [base64Src]="pdfBase64"
+
         [height]="'100%'"
-        [zoom]="'page-width'"
+
+        [zoom]="'70%'"
+
         [scrollMode]="0"
+
         [showToolbar]="true"
+
         [showSidebarButton]="true"
+
         [showFindButton]="true"
+
         [showPagingButtons]="'always-visible'"
+
         [showZoomButtons]="'always-visible'"
-        [showPrintButton]="'always-visible'"
+
+        [showPrintButton]="false"
+
         [showDownloadButton]="'always-visible'"
+
         [showOpenFileButton]="false"
+
         [showPresentationModeButton]="true"
+
         [showRotateButton]="true"
+
         [showSecondaryToolbarButton]="true"
+
         [mobileFriendlyZoom]="'150%'"
+
         [showBorders]="true"
+
         [textLayer]="true"
+
+        [enablePrint]="true"
+
         [enablePrintAutoRotate]="true"
+
         [printResolution]="150">
 
       </ngx-extended-pdf-viewer>
+
 
     </div>
 
