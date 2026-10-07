@@ -44,6 +44,10 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/invoice/print-preview/print-preview').then(m => m.PrintPreview)
       },
       {
+        path: 'pdf-preview/:type/:id',
+        loadComponent: () => import('./modules/invoice/pdf-preview/pdf-preview').then(m => m.PdfPreview)
+      },
+      {
         path: 'customers',
         loadComponent: () => import('./modules/customer/customer-view/customer-view').then(m => m.CustomerView)
       },

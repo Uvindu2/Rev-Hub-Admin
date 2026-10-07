@@ -124,8 +124,23 @@
           <td>{{ job.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
 
           <td class="actions-cell">
-            <button class="btn-table-action view-btn" type="button" (click)="viewJob(job.jobId)">👁️</button>
-            <button class="btn-table-action edit-btn" type="button" (click)="editJob(job.jobId)">✏️</button>
+
+            <button
+              class="btn-table-action view-btn"
+              type="button"
+              title="View Job Card"
+              (click)="viewJob(job.jobId)">
+              👁️
+            </button>
+
+            <button
+              class="btn-table-action edit-btn"
+              type="button"
+              title="Edit Job Card"
+              (click)="editJob(job.jobId)">
+              ✏️
+            </button>
+
           </td>
         </tr>
         </tbody>

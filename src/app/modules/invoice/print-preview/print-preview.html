@@ -1,19 +1,80 @@
 <div class="page-header">
   <div class="card-container print-preview-page-container">
 
+    <!-- HEADER -->
     <div class="custom-preview-header">
+
       <div class="header-title-group">
         <h2>📑 {{ pdfName }}</h2>
       </div>
+
+      <button
+        type="button"
+        class="btn-back-mobile"
+        (click)="onClose()">
+        ← BACK
+      </button>
+
     </div>
 
-    <div class="custom-preview-body">
-      <iframe [src]="pdfUrl" title="PDF Print Preview"></iframe>
+
+    <!-- DESKTOP PDF PREVIEW -->
+    <div class="desktop-pdf-preview">
+
+      <iframe
+        *ngIf="pdfUrl"
+        [src]="pdfUrl"
+        title="PDF Print Preview">
+      </iframe>
+
     </div>
 
+
+    <!-- MOBILE / TABLET -->
+    <div class="mobile-pdf-preview">
+
+      <div class="mobile-pdf-icon">
+        📄
+      </div>
+
+      <h3>Job Card PDF Ready</h3>
+
+      <p>
+        Your PDF is ready to view.
+      </p>
+
+      <button
+        type="button"
+        class="btn-open-pdf"
+        (click)="openPdf()">
+        📄 OPEN PDF
+      </button>
+
+      <p class="mobile-pdf-hint">
+        The PDF will open in your device's PDF viewer,
+        where you can scroll, zoom and print.
+      </p>
+
+    </div>
+
+
+    <!-- FOOTER -->
     <div class="custom-preview-footer">
-      <button type="button" class="btn-cancel-custom" (click)="onClose()">BACK</button>
-      <button type="button" class="btn-print-custom" (click)="printPdf()">🖨️ PRINT</button>
+
+      <button
+        type="button"
+        class="btn-cancel-custom"
+        (click)="onClose()">
+        BACK
+      </button>
+
+      <button
+        type="button"
+        class="btn-print-custom"
+        (click)="printPdf()">
+        🖨️ PRINT
+      </button>
+
     </div>
 
   </div>

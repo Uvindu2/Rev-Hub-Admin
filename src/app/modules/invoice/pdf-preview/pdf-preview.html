@@ -1,0 +1,123 @@
+<div class="page-header">
+
+  <div class="card-container pdf-preview-container">
+
+    <!-- HEADER -->
+    <div class="pdf-preview-header">
+
+      <div class="header-left">
+
+        <button
+          type="button"
+          class="btn-back"
+          (click)="goBack()"
+          title="Back">
+
+          <span class="back-icon">←</span>
+
+          <span>BACK</span>
+
+        </button>
+
+        <div class="header-divider"></div>
+
+        <div class="title-section">
+
+          <span class="pdf-icon">📄</span>
+
+          <div>
+
+            <h2>
+              {{ documentTitle }}
+            </h2>
+
+            <span class="subtitle">
+              Generated from RevHub System
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- LOADING -->
+    <div
+      class="pdf-loading"
+      *ngIf="isLoading">
+
+      <div class="loading-spinner"></div>
+
+      <span>
+        Loading PDF...
+      </span>
+
+    </div>
+
+
+    <!-- ERROR -->
+    <div
+      class="pdf-error"
+      *ngIf="!isLoading && errorMessage">
+
+      <div class="error-icon">
+        ⚠️
+      </div>
+
+      <h3>
+        Unable to load PDF
+      </h3>
+
+      <p>
+        {{ errorMessage }}
+      </p>
+
+      <button
+        type="button"
+        class="btn-back-error"
+        (click)="goBack()">
+
+        BACK
+
+      </button>
+
+    </div>
+
+
+    <!-- PDF VIEWER -->
+    <div
+      class="pdf-viewer-wrapper"
+      *ngIf="!isLoading && pdfBase64">
+
+      <ngx-extended-pdf-viewer
+        [base64Src]="pdfBase64"
+        [height]="'100%'"
+        [zoom]="'page-width'"
+        [scrollMode]="0"
+        [showToolbar]="true"
+        [showSidebarButton]="true"
+        [showFindButton]="true"
+        [showPagingButtons]="'always-visible'"
+        [showZoomButtons]="'always-visible'"
+        [showPrintButton]="'always-visible'"
+        [showDownloadButton]="'always-visible'"
+        [showOpenFileButton]="false"
+        [showPresentationModeButton]="true"
+        [showRotateButton]="true"
+        [showSecondaryToolbarButton]="true"
+        [mobileFriendlyZoom]="'150%'"
+        [showBorders]="true"
+        [textLayer]="true"
+        [enablePrintAutoRotate]="true"
+        [printResolution]="150">
+
+      </ngx-extended-pdf-viewer>
+
+    </div>
+
+  </div>
+
+</div>

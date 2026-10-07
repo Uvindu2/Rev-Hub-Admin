@@ -384,4 +384,7 @@ export class AdminService {
   // gen(): Observable<any> {
   //   return this.http.post<any>(API_ENDPOINTS.GEN,null);
   // }
+  getInvoicePdfById(documentId: number) {
+
+  }
 }

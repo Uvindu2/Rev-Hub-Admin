@@ -82,7 +82,7 @@
             </div>
 
             <div class="fee-field">
-              <label>Labor Fee: LKR</label>
+              <label>Labor Fee: AUD</label>
               <input type="number" formControlName="laborFee" class="dark-input" placeholder="Enter fee...">
             </div>
           </div>
@@ -95,7 +95,7 @@
                 <th>Service Item / Part</th>
                 <th width="100">Qty</th>
                 <th width="120">Unit Type</th>
-                <th width="120">Unit Price</th>
+                <th width="120">Unit Price (AUD)</th>
                 <th width="140">Total</th>
                 <th width="60">Actions</th>
               </tr>
@@ -133,7 +133,7 @@
                 <td><input type="number" formControlName="qty" class="dark-input cell-input"></td>
                 <td><input type="text" [readOnly]="true" formControlName="unitType" class="dark-input cell-input"></td>
                 <td><input type="number" [readOnly]="true" formControlName="unitPrice" class="dark-input cell-input"></td>
-                <td class="total-output">LKR {{ part.get('total')?.value | number : '1.2-2' }}</td>
+                <td class="total-output">AUD {{ part.get('total')?.value | number : '1.2-2' }}</td>
                 <td><button type="button" class="row-delete-btn" (click)="removePart(selectedLaborIndex, j)">🗑️</button></td>
               </tr>
               </tbody>
@@ -172,12 +172,12 @@
         <div class="summary-grid">
           <div class="summary-node">
             <label>Total Parts:</label>
-            <span>LKR {{ totalPartsCost | number : '1.2-2' }}</span>
+            <span>AUD {{ totalPartsCost | number : '1.2-2' }}</span>
           </div>
 
           <div class="summary-node">
             <label>Total Labor Fees:</label>
-            <span>LKR {{ totalLaborCost | number : '1.2-2' }}</span>
+            <span>AUD {{ totalLaborCost | number : '1.2-2' }}</span>
           </div>
 
           <div class="summary-node inline-input-node">
@@ -187,7 +187,7 @@
 
           <div class="summary-node accent-total">
             <label>Grand Total:</label>
-            <span>LKR {{ grandTotal | number : '1.2-2' }}</span>
+            <span>AUD {{ grandTotal | number : '1.2-2' }}</span>
           </div>
         </div>
 
