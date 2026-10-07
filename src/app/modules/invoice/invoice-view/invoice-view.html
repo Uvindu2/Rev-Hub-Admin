@@ -114,13 +114,27 @@
           <td>{{ invoice.createdUser || 'N/A' }}</td>
           <td>{{ invoice.createdDate | date:'yyyy MMM dd, HH:mm:ss' }}</td>
           <td class="actions-cell">
-            <button class="btn-action view-btn" title="View" (click)="viewInvoice(invoice.invoiceId)">
+
+            <!-- VIEW / PDF PREVIEW -->
+            <button
+              type="button"
+              class="btn-action view-btn"
+              title="View PDF"
+              (click)="viewInvoice(invoice.invoiceId)"
+            >
               👁️
             </button>
-            <button class="btn-table-action edit-btn" (click)="editInvoice(invoice.invoiceId)">✏️</button>
-            <button class="desktop-only btn-action print-btn" title="Print" (click)="printInvoice(invoice.invoiceId)">
-              🖨️
+
+            <!-- EDIT -->
+            <button
+              type="button"
+              class="btn-table-action edit-btn"
+              title="Edit Invoice"
+              (click)="editInvoice(invoice.invoiceId)"
+            >
+              ✏️
             </button>
+
           </td>
         </tr>
         </tbody>

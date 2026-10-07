@@ -107,7 +107,7 @@ export class PdfPreview implements OnInit {
   private loadInvoicePdf(): void {
 
     this.adminService
-      .getJobCardById(this.documentId)
+      .viewInvoice(this.documentId)
       .pipe(
         finalize(() => {
 

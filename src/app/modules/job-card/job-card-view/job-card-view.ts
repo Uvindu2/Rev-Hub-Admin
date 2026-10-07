@@ -187,46 +187,7 @@ export class JobCardView implements OnInit {
   }
 
   viewJob(jobCardId: number): void {
-    this.router.navigate([
-      '/dashboard/pdf-preview/job-card',
-      jobCardId
-    ]);
-    // this.adminService.getJobCardPdfById(jobCardId).subscribe({
-    //   next: (res: any) => {
-    //     try {
-    //       if (!res?.data) {
-    //         this.notificationService.show('Error: Unable to load the PDF.', 'error');
-    //         return;
-    //       }
-    //
-    //       const base64String = res.data.replace(/\s/g, '');
-    //       const binaryString = window.atob(base64String);
-    //       const bytes = new Uint8Array(binaryString.length);
-    //
-    //       for (let i = 0; i < binaryString.length; i++) {
-    //         bytes[i] = binaryString.charCodeAt(i);
-    //       }
-    //
-    //       const blob = new Blob([bytes], {type: 'application/pdf'});
-    //       const unsafeUrl = window.URL.createObjectURL(blob);
-    //
-    //       this.router.navigate(['/dashboard/job-cards/print'], {
-    //         state: {
-    //           pdfUrl: unsafeUrl,
-    //           pdfName: 'Job Card Print Preview',
-    //           returnUrl: '/dashboard/job-cards'
-    //         }
-    //       });
-    //     } catch (error) {
-    //       console.error('PDF decode error:', error);
-    //       this.notificationService.show('Error: Unable to load the PDF.', 'error');
-    //     }
-    //   },
-    //   error: (err) => {
-    //     console.error('Job Card PDF loading error:', err);
-    //     this.notificationService.show('Failed to load Job Card PDF.', 'error');
-    //   }
-    // });
+    this.router.navigate(['/dashboard/pdf-preview/job-card', jobCardId]);
   }
 
   editJob(id: number): void {

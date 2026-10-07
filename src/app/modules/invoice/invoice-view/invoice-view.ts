@@ -171,65 +171,7 @@ export class InvoiceView implements OnInit {
   }
 
   viewInvoice(invoiceId: number): void {
-    this.adminService.viewInvoice(invoiceId).subscribe({
-      next: (res: any) => {
-        try {
-          if (!res?.data) {
-            this.notificationService.show('Error: Unable to load the PDF.', 'error');
-            return;
-          }
-
-          const base64String = res.data.replace(/\s/g, '');
-          const binaryString = window.atob(base64String);
-          const bytes = new Uint8Array(binaryString.length);
-
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-
-          const blob = new Blob([bytes], {type: 'application/pdf'});
-          const unsafeUrl = window.URL.createObjectURL(blob);
-
-          this.router.navigate(['/dashboard/invoices/print'], {
-            state: {
-              pdfUrl: unsafeUrl,
-              pdfName: 'Invoice Print Preview',
-              returnUrl: '/dashboard/invoices'
-            }
-          });
-        } catch (decodeError) {
-          console.error('PDF decode error:', decodeError);
-          this.notificationService.show('Error: Unable to load the PDF.', 'error');
-        }
-      },
-      error: (err) => {
-        console.error('Invoice PDF loading error:', err);
-        this.notificationService.show('Failed to load invoice PDF.', 'error');
-      }
-    });
-  }
-
-  printInvoice(invoiceId: number): void {
-    this.adminService.printInvoice(invoiceId).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          iframe.contentWindow?.print();
-          setTimeout(() => {
-            document.body.removeChild(iframe);
-            window.URL.revokeObjectURL(url);
-          }, 1000);
-        };
-      },
-      error: () => {
-        this.notificationService.show('Failed to print invoice', 'error');
-      }
-    });
+    this.router.navigate(['/dashboard/pdf-preview/invoice', invoiceId]);
   }
 
   // onGen() {
