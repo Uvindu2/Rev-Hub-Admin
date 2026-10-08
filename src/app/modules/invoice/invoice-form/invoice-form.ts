@@ -1,8 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output,} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {SafeResourceUrl} from '@angular/platform-browser';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
 import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
@@ -12,6 +11,7 @@ import {AuthService} from '../../../services/auth.service';
 import {Router} from '@angular/router';
 import {JobCardNumberResponseDTO} from '../../../dto/response/PendingJobNumbersDTO';
 import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
+import {PdfPreviewResponse} from '../../../dto/response/PdfPreviewResponse';
 
 @Component({
   selector: 'app-invoice-form',
@@ -41,8 +41,6 @@ export class InvoiceForm implements OnInit {
 
   // Submission & Print Preview Modal states
   isSubmitting: boolean = false;
-  showPrintPreviewModal: boolean = false;
-  invoicePdfUrl: SafeResourceUrl | null = null;
 
   isSearching: boolean = false;
 
@@ -197,103 +195,81 @@ export class InvoiceForm implements OnInit {
     );
   }
 
-  onSubmit(): void {
-    const currentUser = this.authService.getCurrentUser();
-    console.log(currentUser);
 
-    if (this.laborActivities.length < 1) {
-      this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
-      return;
-    }
+onSubmit(): void {
+  const currentUser = this.authService.getCurrentUser();
+  console.log(currentUser);
 
-    if (this.invoiceForm.invalid) {
-      this.markAllAsTouched(this.invoiceForm);
-      this.notificationService.show('Please resolve all validation errors before proceeding.', 'error');
-      return;
-    }
+  if (this.laborActivities.length < 1) {
+    this.notificationService.show('An invoice must contain at least one labor activity.', 'error');
+    return;
+  }
 
-    if (this.isSubmitting) return;
+  if (this.invoiceForm.invalid) {
+    this.markAllAsTouched(this.invoiceForm);
+    this.notificationService.show('Please resolve all validation errors before proceeding.', 'error');
+    return;
+  }
 
-    this.isSubmitting = true;
-    this.cdr.markForCheck();
+  if (this.isSubmitting) {
+    return;
+  }
 
-    const payload = this.invoiceForm.getRawValue();
+  this.isSubmitting = true;
+  this.cdr.markForCheck();
 
-    this.adminService.saveInvoice(payload).pipe(
-      finalize(() => {
-        this.isSubmitting = false;
-        this.cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (res: any) => {
-        const dataContainer = res?.data || res;
+  const payload = this.invoiceForm.getRawValue();
 
-        if (!dataContainer?.pdfBytes) {
-          this.notificationService.show('Failed to parse invoice transaction or missing PDF data.', 'error');
-          this.cdr.markForCheck();
-          return;
-        }
+  this.adminService.saveInvoice(payload).pipe(
+    finalize(() => {
+      this.isSubmitting = false;
+      this.cdr.markForCheck();
+    })
+  ).subscribe({
+    next: (res: any) => {
+      console.log('Invoice save response:', res);
 
+      const pdfPreviewResponse: PdfPreviewResponse = res?.data.pdfPreviewResponseDTO || res;
+
+      if (!pdfPreviewResponse?.id) {
         this.notificationService.show(
-          dataContainer.response || 'Invoice generated and posted successfully!',
-          'success'
+          res.response || 'Invoice was saved, but the invoice ID was not returned.',
+          'error'
         );
-
-        try {
-          const base64String = dataContainer.pdfBytes.replace(/\s/g, '');
-          const binaryString = window.atob(base64String);
-          const bytes = new Uint8Array(binaryString.length);
-
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-
-          const blob = new Blob([bytes], {type: 'application/pdf'});
-          const pdfUrl = window.URL.createObjectURL(blob);
-
-          this.resetFormState();
-
-          this.router.navigate(['/dashboard/job-cards/print'], {
-            state: {
-              pdfUrl,
-              pdfName: 'Invoice Print Preview',
-              returnUrl: '/dashboard/invoices'
-            }
-          });
-
-        } catch (error) {
-          console.error('Failed to create Invoice PDF:', error);
-          this.notificationService.show('Invoice was saved, but the PDF could not be generated.', 'error');
-        }
-      },
-
-      error: (err: any) => {
-        console.error('Invoice submission error:', err);
-
-        const serverErrorMessage =
-          err?.error?.data?.error ||
-          err?.error?.response ||
-          err?.error?.message ||
-          'Database constraint violation encountered.';
-
-        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
         this.cdr.markForCheck();
+        return;
       }
-    });
-  }
 
-  private resetFormState() {
-    this.invoiceForm.reset({
-      paymentMethod: 'Cash',
-      jobCardSearch: '',
-      additionalFees: 1500,
-      status: 'PENDING',
-    });
-    this.laborActivities.clear();
-    this.selectedLaborIndex = 0;
-    this.partDropdownOpenRowIndex = null;
-    this.cdr.detectChanges();
-  }
+      this.notificationService.show(
+        res?.response || 'Invoice generated and posted successfully!',
+        'success'
+      );
+
+      this.router.navigate([
+        '/dashboard/pdf-preview',
+        'invoice',
+        pdfPreviewResponse.id
+      ]);
+    },
+
+    error: (err: any) => {
+      console.error('Invoice submission error:', err);
+
+      const serverErrorMessage =
+        err?.error?.data?.error ||
+        err?.error?.response ||
+        err?.error?.message ||
+        'Database constraint violation encountered.';
+
+      this.notificationService.show(
+        'Error: ' + serverErrorMessage,
+        'error'
+      );
+
+      this.cdr.markForCheck();
+    }
+  });
+}
 
   private markAllAsTouched(formGroup: FormGroup | FormArray) {
     Object.values(formGroup.controls).forEach((control) => {

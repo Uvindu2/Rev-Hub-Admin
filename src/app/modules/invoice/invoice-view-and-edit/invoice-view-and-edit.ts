@@ -7,6 +7,7 @@ import {AdminService} from '../../../services/admin.service';
 import {NotificationService} from '../../../services/notificationService';
 import {InvoiceItemsResponseDTO} from '../../../dto/response/InvoiceItemsResponseDTO';
 import {finalize} from 'rxjs';
+import {PdfPreviewResponse} from '../../../dto/response/PdfPreviewResponse';
 
 @Component({
   selector: 'app-invoice-edit-form',
@@ -287,33 +288,14 @@ export class InvoiceViewAndEdit implements OnInit {
       })
     ).subscribe({
       next: (res: any) => {
-        const dataContainer = res?.data || res;
+        const pdfPreviewResponse: PdfPreviewResponse = res?.data.pdfPreviewResponseDTO || res;
 
-        if (dataContainer && dataContainer.pdfBytes) {
+        if (pdfPreviewResponse && pdfPreviewResponse.id) {
           this.notificationService.show(
-            dataContainer.response || 'Invoice updated successfully!',
+            res.response || 'Invoice updated successfully!',
             'success'
           );
-
-          const base64String = dataContainer.pdfBytes.replace(/\s/g, '');
-          const binaryString = window.atob(base64String);
-          const len = binaryString.length;
-          const bytes = new Uint8Array(len);
-
-          for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-
-          const blob = new Blob([bytes], {type: 'application/pdf'});
-          const unsafeUrl = window.URL.createObjectURL(blob);
-
-          this.router.navigate(['/dashboard/invoices/print'], {
-            state: {
-              pdfUrl: unsafeUrl,
-              pdfName: 'Invoice Print Preview',
-              returnUrl: '/dashboard/invoices'
-            }
-          });
+          this.router.navigate(['/dashboard/pdf-preview/invoice', pdfPreviewResponse.id]);
         } else {
           this.notificationService.show(
             'Invoice updated successfully.',

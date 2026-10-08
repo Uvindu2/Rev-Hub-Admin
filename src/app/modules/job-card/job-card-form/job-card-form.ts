@@ -16,6 +16,7 @@ import { VehicleModelResponseDTO } from '../../../dto/response/VehicleModelRespo
 import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
 import { SearchDropdown } from '../../../shared/components/search-dropdown/search-dropdown';
 import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import {PdfPreviewResponse} from '../../../dto/response/PdfPreviewResponse';
 
 @Component({
   selector: 'app-job-card-form',
@@ -275,24 +276,8 @@ export class JobCardForm implements OnInit {
         }
 
         try {
-          const base64String = res.data.replace(/\s/g, '');
-          const binaryString = window.atob(base64String);
-          const bytes = new Uint8Array(binaryString.length);
-
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-
-          const blob = new Blob([bytes], { type: 'application/pdf' });
-          const pdfUrl = window.URL.createObjectURL(blob);
-
-          this.router.navigate(['/dashboard/job-cards/print'], {
-            state: {
-              pdfUrl,
-              pdfName: 'Job Card Print Preview',
-              returnUrl: '/dashboard/job-cards'
-            }
-          });
+          const pdfResponse: PdfPreviewResponse = res.data;
+          this.router.navigate(['/dashboard/pdf-preview/job-card', pdfResponse.id]);
 
         } catch (error) {
           console.error('Failed to create Job Card PDF:', error);

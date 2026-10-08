@@ -1,24 +1,21 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {NgIf} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {forkJoin, finalize} from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { forkJoin, finalize } from 'rxjs';
 
-import {Customer} from '../../../dto/response/customer/Customer';
-import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
-import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
-import {AdminService} from '../../../services/admin.service';
-import {NotificationService} from '../../../services/notificationService';
-import {JobCardResponseDto} from '../../../dto/response/JobCardResponseDto';
-import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
+import { Customer } from '../../../dto/response/customer/Customer';
+import { TechnicianNameResponseProjection } from '../../../dto/response/TechnicianNameResponseProjection';
+import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
+import { AdminService } from '../../../services/admin.service';
+import { NotificationService } from '../../../services/notificationService';
+import { JobCardResponseDto } from '../../../dto/response/JobCardResponseDto';
+import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
+import { PdfPreviewResponse } from '../../../dto/response/PdfPreviewResponse';
 
 @Component({
   selector: 'app-job-card-view-and-edit',
-  imports: [
-    NgIf,
-    ReactiveFormsModule,
-    MultiSelectDropdown
-  ],
+  imports: [NgIf, ReactiveFormsModule, MultiSelectDropdown],
   templateUrl: './job-card-view-and-edit.html',
   styleUrl: './job-card-view-and-edit.css',
   standalone: true
@@ -44,8 +41,7 @@ export class JobCardViewAndEdit implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly route: ActivatedRoute,
     private readonly router: Router
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.isEditMode = this.router.url.includes('/job-cards/edit/');
@@ -79,7 +75,7 @@ export class JobCardViewAndEdit implements OnInit {
       complaint: ['', Validators.required],
       laborActivitiesSelected: [[], Validators.required],
       assignedTechniciansSelected: [[], Validators.required],
-      currentMileage: ['', Validators.required],
+      currentMileage: ['', Validators.required]
     });
 
     if (!this.isEditMode) {
@@ -93,7 +89,7 @@ export class JobCardViewAndEdit implements OnInit {
       labor: this.adminService.getLaborActivityNames(),
       jobCard: this.adminService.getJobCardById(this.jobCardId)
     }).subscribe({
-      next: ({techs, labor, jobCard}: any) => {
+      next: ({ techs, labor, jobCard }: any) => {
         this.technicianNameProjection = techs?.data || techs || [];
         this.laborActivityNameProjection = labor?.data || labor || [];
         this.jobCard = jobCard?.data || jobCard;
@@ -151,7 +147,7 @@ export class JobCardViewAndEdit implements OnInit {
       currentMileage: data.currentMileage,
       laborActivitiesSelected: data.laborActivities?.map(a => a.laborActivityId) || [],
       assignedTechniciansSelected: data.technicians?.map(t => t.technicianId) || []
-    }, {emitEvent: false});
+    }, { emitEvent: false });
 
     this.cdr.markForCheck();
   }
@@ -188,55 +184,43 @@ export class JobCardViewAndEdit implements OnInit {
       })
     ).subscribe({
       next: (res: any) => {
-        this.notificationService.show(
-          'Job Card modified successfully!',
-          'success'
-        );
+        console.log('Modify Job Card response:', res);
 
-        if (res?.data) {
-          try {
-            const base64Data = res.data.replace(/\s/g, '');
-            const byteCharacters = atob(base64Data);
-            const byteNumbers = new Uint8Array(byteCharacters.length);
+        try {
+          const pdfResponse: PdfPreviewResponse = res?.data || res;
 
-            for (let i = 0; i < byteCharacters.length; i++) {
-              byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-
-            const pdfBlob = new Blob([byteNumbers], {
-              type: 'application/pdf'
-            });
-
-            const fileURL = window.URL.createObjectURL(pdfBlob);
-            const pdfWindow = window.open();
-
-            if (pdfWindow) {
-              pdfWindow.location.href = fileURL;
-            } else {
-              this.notificationService.show(
-                'Popup blocked! Please allow popups for this site.',
-                'error'
-              );
-            }
-
-            setTimeout(() => window.URL.revokeObjectURL(fileURL), 5000);
-          } catch (encodeError) {
-            console.error('Base64 parsing failed:', encodeError);
+          if (!pdfResponse?.id) {
             this.notificationService.show(
-              'Failed to render PDF layout data.',
+              'Job Card was modified, but the Job Card ID was not returned.',
               'error'
             );
+            return;
           }
-        }
 
-        this.router.navigate(['/dashboard/job-cards']);
+          this.notificationService.show(
+            'Job Card modified successfully!',
+            'success'
+          );
+
+          this.router.navigate(['/dashboard/pdf-preview', 'job-card', pdfResponse.id]);
+
+        } catch (error) {
+          console.error('Failed to navigate to PDF preview:', error);
+
+          this.notificationService.show(
+            'Job Card was modified, but PDF preview could not be opened.',
+            'error'
+          );
+        }
       },
       error: (err: any) => {
         console.error('Error saving Job Card:', err);
+
         this.notificationService.show(
           'Failed to modify Job Card. Please verify details.',
           'error'
         );
+
         this.cdr.markForCheck();
       }
     });

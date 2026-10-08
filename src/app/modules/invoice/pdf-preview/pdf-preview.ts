@@ -6,8 +6,13 @@ import {
   OnInit
 } from '@angular/core';
 
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
+
 import { NgIf } from '@angular/common';
+
 import { finalize } from 'rxjs';
 
 import {
@@ -17,6 +22,8 @@ import {
 
 import { AdminService } from '../../../services/admin.service';
 import { NotificationService } from '../../../services/notificationService';
+
+import { PdfPreviewResponse } from '../../../dto/response/PdfPreviewResponse';
 
 
 @Component({
@@ -41,6 +48,8 @@ export class PdfPreview implements OnInit, OnDestroy {
   /* =========================================================
      PDF DATA
      ========================================================= */
+
+  pdfPreviewResponse: PdfPreviewResponse | null = null;
 
   pdfBase64: string | null = null;
 
@@ -74,14 +83,6 @@ export class PdfPreview implements OnInit, OnDestroy {
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
     private readonly cdr: ChangeDetectorRef,
-
-    /*
-     * IMPORTANT:
-     *
-     * ngx-extended-pdf-viewer provides this service
-     * specifically for programmatic PDF actions,
-     * including printing.
-     */
     private readonly pdfViewerService: NgxExtendedPdfViewerService
   ) {
   }
@@ -118,7 +119,10 @@ export class PdfPreview implements OnInit, OnDestroy {
         Number(id);
 
 
-      if (!Number.isFinite(this.documentId)) {
+      if (
+        !Number.isFinite(this.documentId) ||
+        this.documentId <= 0
+      ) {
 
         this.handleInvalidDocument();
 
@@ -149,6 +153,8 @@ export class PdfPreview implements OnInit, OnDestroy {
 
     this.pdfBase64 = null;
 
+    this.pdfPreviewResponse = null;
+
     this.clearPdfUrl();
 
     this.setDocumentDetails();
@@ -160,7 +166,9 @@ export class PdfPreview implements OnInit, OnDestroy {
        INVOICE
        ------------------------------------------------------- */
 
-    if (this.documentType === 'invoice') {
+    if (
+      this.documentType === 'invoice'
+    ) {
 
       this.loadInvoicePdf();
 
@@ -172,7 +180,9 @@ export class PdfPreview implements OnInit, OnDestroy {
        JOB CARD
        ------------------------------------------------------- */
 
-    if (this.documentType === 'job-card') {
+    if (
+      this.documentType === 'job-card'
+    ) {
 
       this.loadJobCardPdf();
 
@@ -214,18 +224,22 @@ export class PdfPreview implements OnInit, OnDestroy {
 
         next: (response: any) => {
 
-          const base64 =
+          const data: PdfPreviewResponse =
             response?.data || response;
+
+
+          /* -------------------------------------------------
+             STORE RESPONSE
+             ------------------------------------------------- */
+
+          this.pdfPreviewResponse = data;
 
 
           /* -------------------------------------------------
              VALIDATE RESPONSE
              ------------------------------------------------- */
 
-          if (
-            !base64 ||
-            typeof base64 !== 'string'
-          ) {
+          if (!data || !data.pdfBytes) {
 
             this.handlePdfError();
 
@@ -237,7 +251,7 @@ export class PdfPreview implements OnInit, OnDestroy {
              SET PDF
              ------------------------------------------------- */
 
-          this.setPdf(base64);
+          this.setPdf(data.pdfBytes);
 
         },
 
@@ -283,18 +297,22 @@ export class PdfPreview implements OnInit, OnDestroy {
 
         next: (response: any) => {
 
-          const base64 =
+          const data: PdfPreviewResponse =
             response?.data || response;
+
+
+          /* -------------------------------------------------
+             STORE RESPONSE
+             ------------------------------------------------- */
+
+          this.pdfPreviewResponse = data;
 
 
           /* -------------------------------------------------
              VALIDATE RESPONSE
              ------------------------------------------------- */
 
-          if (
-            !base64 ||
-            typeof base64 !== 'string'
-          ) {
+          if (!data || !data.pdfBytes) {
 
             this.handlePdfError();
 
@@ -306,7 +324,7 @@ export class PdfPreview implements OnInit, OnDestroy {
              SET PDF
              ------------------------------------------------- */
 
-          this.setPdf(base64);
+          this.setPdf(data.pdfBytes);
 
         },
 
@@ -447,21 +465,6 @@ export class PdfPreview implements OnInit, OnDestroy {
 
     try {
 
-      /*
-       * IMPORTANT
-       *
-       * Do NOT use:
-       *
-       * this.pdfViewer.print()
-       *
-       * Do NOT use:
-       *
-       * window.print()
-       *
-       * Use the official ngx-extended-pdf-viewer
-       * service instead.
-       */
-
       this.pdfViewerService.print();
 
     } catch (error) {
@@ -544,6 +547,8 @@ export class PdfPreview implements OnInit, OnDestroy {
   private handlePdfError(): void {
 
     this.pdfBase64 = null;
+
+    this.pdfPreviewResponse = null;
 
     this.clearPdfUrl();
 
