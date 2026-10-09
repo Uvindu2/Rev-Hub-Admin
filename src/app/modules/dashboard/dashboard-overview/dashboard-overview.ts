@@ -105,9 +105,7 @@ export class DashboardOverview implements OnInit {
       jobCardStatus: this.dashboardApi.getAllJobCardStatus().pipe(catchError(() => of(null))),
       recentJobCards: this.dashboardApi.getRecentJobCards().pipe(catchError(() => of(null))),
       recentInvoices: this.dashboardApi.getRecentInvoices().pipe(catchError(() => of(null))),
-      topLaborActivities: this.dashboardApi
-        .getTopLaborActivities()
-        .pipe(catchError(() => of(null))),
+      topLaborActivities: this.dashboardApi.getTopLaborActivities().pipe(catchError(() => of(null))),
       invoicesCount: this.dashboardApi.getInvoicesCount().pipe(catchError(() => of(null))),
       jobCardsCount: this.dashboardApi.getJobCardsCount().pipe(catchError(() => of(null))),
       revenue: this.dashboardApi.getRevenue().pipe(catchError(() => of(null))),
@@ -143,10 +141,10 @@ export class DashboardOverview implements OnInit {
             this.chartOptions = {
               ...this.chartOptions,
               series: [
-                this.jobCardStatus.pendingCount || 0,
-                this.jobCardStatus.inProgressCount || 0,
-                this.jobCardStatus.rejectedCount || 0,
-                this.jobCardStatus.completedCount || 0,
+                Number(this.jobCardStatus.pendingCount ?? 0),
+                Number(this.jobCardStatus.cancelledCount ?? 0),
+                Number(this.jobCardStatus.inProgressCount ?? 0),
+                Number(this.jobCardStatus.completedCount ?? 0),
               ],
             };
           }
@@ -177,70 +175,88 @@ export class DashboardOverview implements OnInit {
   // 2. Chart Configuration
 
   public chartOptions: Partial<ChartOptions> = {
-    series: [],
-    colors: ['#c2410c', '#b30000', '#7c2d12', '#064e3b'],
-    chart: {
-      type: 'donut',
-      width: '325px',
+  series: [0, 0, 0, 0],
+
+  chart: {
+    type: 'donut',
+    width: 325,
+    foreColor: '#ffffff',
+  },
+
+  labels: ['Pending', 'Cancelled', 'In Progress', 'Completed'],
+
+  colors: ['#c2410c', '#b30000', '#7c2d12', '#064e3b'],
+
+  legend: {
+    show: true,
+    position: 'right',
+    fontSize: '13px',
+    labels: {
+      colors: '#ffffff',
     },
-    legend: {
-      show: true,
-      position: 'right',
-      fontSize: '15px',
-      labels: {
-        colors: '#ffffff',
-      },
-      itemMargin: {
-        vertical: 5,
-        horizontal: 10,
-      },
-      markers: {
-        // Replace 'radius' with 'shape'
-        shape: 'square', // Options: 'circle', 'square', 'rect'
-        size: 5, // You can also control the size of the marker here
-      },
+    itemMargin: {
+      vertical: 6,
+      horizontal: 8,
     },
-    dataLabels: {
-      enabled: false,
+    markers: {
+      // Replace 'radius' with 'shape'
+      shape: 'square', // Options: 'circle', 'square', 'rect'
+      size: 5, // You can also control the size of the marker here
     },
-    stroke: {
-      width: 2,
-      colors: ['#121212'],
-    },
-    // Add this block to show the total in the center
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '65%',
-          labels: {
+  },
+
+  dataLabels: {
+    enabled: false,
+  },
+
+  stroke: {
+    width: 2,
+    colors: ['#121212'],
+  },
+
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '60%',
+        labels: {
+          show: true,
+          name: {
             show: true,
-            total: {
-              show: true,
-              label: 'Total',
-              fontSize: '15px',
-              color: '#fff',
-              offsetY: -10,
-            } as any,
-            value: {
-              color: '#fff',
-              fontSize: '22px',
-              offsetY: 20,
-            } as any,
+            color: '#ffffff',
+          },
+          value: {
+            show: true,
+            color: '#ffffff',
+            fontSize: '20px',
+          },
+          total: {
+            show: true,
+            label: 'Total',
+            color: '#ffffff',
+            formatter: (w: any) =>
+              w.globals.seriesTotals
+                .reduce((sum: number, value: number) => sum + value, 0)
+                .toString(),
           },
         },
       },
     },
-    labels: ['Pending', 'Cancelled','In Progress', 'Completed'],
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: { width: 200 },
-          legend: { position: 'bottom' },
+  },
+
+  responsive: [
+    {
+      breakpoint: 600,
+      options: {
+        chart: {
+          width: 280,
+        },
+        legend: {
+          position: 'bottom',
         },
       },
-    ],
-  };
+    },
+  ],
+};
 
   public revenueChartOptions: Partial<ChartOptions> = {
     series: [

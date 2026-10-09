@@ -40,7 +40,6 @@ export class InvoiceView implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
-    private readonly sanitizer: DomSanitizer,
     private readonly router: Router,
   ) {
     this.initFilterForm();
@@ -174,16 +173,16 @@ export class InvoiceView implements OnInit {
     this.router.navigate(['/dashboard/pdf-preview/invoice', invoiceId]);
   }
 
-  // onGen() {
-  //   this.adminService.gen().subscribe({
-  //     next: (res: any) => {
-  //       console.log(res);
-  //       this.notificationService.show(res, 'success');
-  //     },
-  //     error: (err: any) => {
-  //       console.error('Invoice PDF loading error:', err);
-  //       this.notificationService.show('Failed to load invoice PDF.', 'error');
-  //     }
-  //   });
-  // }
+  onGen() {
+    this.adminService.gen().subscribe({
+      next: (res: any) => {
+        console.log(res);
+        this.notificationService.show(res, 'success');
+      },
+      error: (err: any) => {
+        console.error('Invoice PDF loading error:', err);
+        this.notificationService.show('Failed to load invoice PDF.', 'error');
+      }
+    });
+  }
 }

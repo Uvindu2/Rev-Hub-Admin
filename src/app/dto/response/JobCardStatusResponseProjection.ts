@@ -1,6 +1,6 @@
 export interface JobCardStatusResponseProjection {
   pendingCount: number;
   inProgressCount: number;
-  rejectedCount: number;
+  cancelledCount: number;
   completedCount: number;
 }
