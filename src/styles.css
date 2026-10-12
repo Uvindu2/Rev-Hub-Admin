@@ -830,3 +830,74 @@ body {
     text-transform: uppercase;
   }
 }
+
+/* =========================================
+ GLOBAL LOADING OVERLAY
+ ========================================= */
+
+.loader {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  background: rgba(18, 18, 18, 0.75);
+  backdrop-filter: blur(2px);
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+
+  border-radius: 8px;
+}
+
+.loader-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #b30000;
+  border-radius: 50%;
+  animation: dashboard-loader-spin 0.75s linear infinite;
+}
+
+@keyframes loader-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   DISABLED CUSTOM DROPDOWNS
+========================================================= */
+
+.dropdown-input-wrapper.disabled {
+  background-color: #424242;
+  color: #ffffff;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.dropdown-input-wrapper.disabled *,
+.dropdown-input-wrapper.disabled .dropdown-toggle {
+  cursor: not-allowed !important;
+}
+
+/* Global disabled form controls */
+
+input:disabled,
+select:disabled,
+textarea:disabled,
+button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}

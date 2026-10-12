@@ -19,6 +19,7 @@ import {NotificationService} from '../../../services/notificationService';
 })
 export class LaborActivityForm implements OnInit {
 
+  isLoading = true;
   laborActivityForm!: FormGroup;
 
   isSubmitting = false;
@@ -32,7 +33,12 @@ export class LaborActivityForm implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
+
     this.initForm();
+
+    this.isLoading = false;
+    this.cdr.markForCheck();
   }
 
   initForm(): void {

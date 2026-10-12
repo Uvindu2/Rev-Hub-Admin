@@ -54,6 +54,7 @@ export class SearchDropdown implements ControlValueAccessor, OnInit {
   @ViewChild('searchInput')
   searchInput?: ElementRef<HTMLInputElement>;
 
+  disabled = false;
 
   isOpen = false;
 
@@ -136,26 +137,21 @@ export class SearchDropdown implements ControlValueAccessor, OnInit {
   // =========================================
 
   toggleDropdown(): void {
+    if (this.disabled) {
+      return;
+    }
 
     this.isOpen = !this.isOpen;
 
     if (this.isOpen) {
-
       this.searchText = '';
 
-      // Focus search input after panel is rendered
       setTimeout(() => {
-
         this.searchInput?.nativeElement.focus();
-
       });
-
     } else {
-
       this.onTouched();
-
     }
-
   }
 
 
@@ -321,26 +317,19 @@ export class SearchDropdown implements ControlValueAccessor, OnInit {
   // =========================================
 
   selectItem(item: any): void {
+    if (this.disabled) {
+      return;
+    }
 
-    const targetValue =
-      this.getItemValue(item);
-
+    const targetValue = this.getItemValue(item);
 
     this.value = targetValue;
-
-    this.selectedDisplayLabel =
-      this.getItemLabel(item);
-
-
+    this.selectedDisplayLabel = this.getItemLabel(item);
     this.searchText = '';
-
     this.isOpen = false;
 
-
     this.onChange(this.value);
-
     this.onTouched();
-
   }
 
 
@@ -349,21 +338,17 @@ export class SearchDropdown implements ControlValueAccessor, OnInit {
   // =========================================
 
   selectAll(): void {
+    if (this.disabled) {
+      return;
+    }
 
     this.value = null;
-
-    this.selectedDisplayLabel =
-      this.allLabel;
-
+    this.selectedDisplayLabel = this.allLabel;
     this.searchText = '';
-
     this.isOpen = false;
 
-
     this.onChange(null);
-
     this.onTouched();
-
   }
 
 
@@ -400,6 +385,15 @@ export class SearchDropdown implements ControlValueAccessor, OnInit {
 
     });
 
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+
+    if (isDisabled) {
+      this.isOpen = false;
+      this.searchText = '';
+    }
   }
 
 }

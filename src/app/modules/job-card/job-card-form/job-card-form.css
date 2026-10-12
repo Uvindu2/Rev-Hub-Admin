@@ -14,11 +14,16 @@
 /*  color: #cccccc;*/
 /*  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;*/
 /*}*/
+
 .job-card-page {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
   background-color: #151515;
   border: 1px solid #262626;
   border-radius: 8px;
   padding: 20px;
+  box-sizing: border-box;
   color: #e0e0e0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);

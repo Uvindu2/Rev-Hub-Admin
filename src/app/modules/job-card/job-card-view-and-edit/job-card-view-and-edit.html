@@ -1,5 +1,12 @@
 <div class="page-header">
   <div class="job-card-page">
+
+    <!-- INITIAL FORM LOADER -->
+    <div class="loader" *ngIf="isLoading">
+      <div class="loader-spinner"></div>
+      <span>Loading job card form...</span>
+    </div>
+
     <div class="job-card-header">
       <div>
         <h2>EDIT JOB CARD</h2>

@@ -7,25 +7,24 @@
   <!-- =========================================
        CLOSED / SELECTED VALUE
        ========================================= -->
-  <div
-    class="dropdown-input-wrapper"
+
+  <div class="dropdown-input-wrapper"
     [class.invalid-border]="isInvalid"
+    [class.disabled]="disabled"
+    [attr.aria-disabled]="disabled"
     (click)="toggleDropdown()"
   >
-
-    <span
-      class="dropdown-display-text"
-      [class.placeholder]="!selectedDisplayLabel"
-    >
-      {{ selectedDisplayLabel || 'Select option...' }}
-    </span>
+  <span
+    class="dropdown-display-text"
+    [class.placeholder]="!selectedDisplayLabel"
+  >
+    {{ selectedDisplayLabel || 'Select option...' }}
+  </span>
 
     <span class="dropdown-toggle">
-      {{ isOpen ? '▲' : '▼' }}
-    </span>
-
+    {{ isOpen ? '▲' : '▼' }}
+  </span>
   </div>
-
 
   <!-- =========================================
        DROPDOWN PANEL

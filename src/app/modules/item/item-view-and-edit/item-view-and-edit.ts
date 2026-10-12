@@ -19,6 +19,8 @@ import {MultiSelectDropdown} from '../../../shared/components/multi-select-searc
   standalone: true
 })
 export class ItemViewAndEdit implements OnInit {
+  isLoading = true;
+  private initialLoadsRemaining = 2;
 
   itemForm!: FormGroup;
   item?: ItemTableViewResponseProjection;
@@ -46,19 +48,33 @@ export class ItemViewAndEdit implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
+    this.initialLoadsRemaining = 2;
+
     this.isEditMode = this.router.url.includes('/items/edit/');
 
     const id = this.route.snapshot.paramMap.get('id');
 
-    if (!id) {
+    if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
       this.router.navigate(['/dashboard/items']);
       return;
     }
 
     this.itemId = Number(id);
+
     this.initForm();
     this.loadItemNames();
     this.loadItem();
+  }
+
+  private finishInitialLoad(): void {
+    this.initialLoadsRemaining--;
+
+    if (this.initialLoadsRemaining <= 0) {
+      this.isLoading = false;
+    }
+
+    this.cdr.markForCheck();
   }
 
   initForm(): void {
@@ -77,48 +93,60 @@ export class ItemViewAndEdit implements OnInit {
   }
 
   private loadItem(): void {
-    this.adminService.getItemById(this.itemId).subscribe({
-      next: (response: any) => {
-        this.item = response?.data || response;
+    this.adminService.getItemById(this.itemId)
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.item = response?.data || response;
 
-        this.itemForm.patchValue({
-          itemName: this.item?.itemName,
-          balanceQty: this.item?.balanceQty,
-          supplierPrice: this.item?.supplierPrice,
-          sellingPrice: this.item?.sellingPrice,
-          measuringUnitType: this.item?.measuringUnitType,
-          laborActivitiesSelected: this.item?.laborActivities?.map(a => a.laborActivityId) || []
-        }, {emitEvent: false});
+          this.itemForm.patchValue({
+            itemName: this.item?.itemName,
+            balanceQty: this.item?.balanceQty,
+            supplierPrice: this.item?.supplierPrice,
+            sellingPrice: this.item?.sellingPrice,
+            measuringUnitType: this.item?.measuringUnitType,
+            laborActivitiesSelected:
+              this.item?.laborActivities?.map(a => a.laborActivityId) || []
+          }, { emitEvent: false });
 
-        if (this.isEditMode) {
-          this.itemForm.enable();
-        } else {
-          this.itemForm.disable();
+          if (this.isEditMode) {
+            this.itemForm.enable();
+          } else {
+            this.itemForm.disable();
+          }
+
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load item:', err);
+          this.notificationService.show('Failed to load item.', 'error');
+          this.router.navigate(['/dashboard/items']);
         }
-
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        console.error('Failed to load item:', err);
-        this.notificationService.show('Failed to load item.', 'error');
-        this.router.navigate(['/dashboard/items']);
-      }
-    });
+      });
   }
 
   loadItemNames(): void {
-    this.adminService.getLaborActivityNames().subscribe({
-      next: (res: any) => {
-        const data = res?.data || res;
-        this.laborActivityNameProjection = Array.isArray(data) ? data : [];
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load names:', err);
-        this.laborActivityNameProjection = [];
-        this.cdr.markForCheck();
-      }
-    });
+    this.adminService.getLaborActivityNames()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: any) => {
+          const data = res?.data || res;
+
+          this.laborActivityNameProjection =
+            Array.isArray(data) ? data : [];
+
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load names:', err);
+          this.laborActivityNameProjection = [];
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onSubmit(): void {

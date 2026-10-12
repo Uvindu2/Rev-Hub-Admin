@@ -1,21 +1,21 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {finalize} from 'rxjs';
 
-import { AdminService } from '../../../services/admin.service';
-import { NotificationService } from '../../../services/notificationService';
-import { VehicleAndCustomerResponseDTO } from '../../../dto/response/VehicleAndCustomerResponseDTO';
-import { CustomerResponseProjection } from '../../../dto/response/CustomerResponseProjection';
-import { TechnicianNameResponseProjection } from '../../../dto/response/TechnicianNameResponseProjection';
-import { LaborActivityNameResponseProjection } from '../../../dto/response/LaborActivityNameResponseProjection';
-import { VehicleMakeResponseDTO } from '../../../dto/response/VehicleMakeResponseDTO';
-import { VehicleModelResponseDTO } from '../../../dto/response/VehicleModelResponseDTO';
+import {AdminService} from '../../../services/admin.service';
+import {NotificationService} from '../../../services/notificationService';
+import {VehicleAndCustomerResponseDTO} from '../../../dto/response/VehicleAndCustomerResponseDTO';
+import {CustomerResponseProjection} from '../../../dto/response/CustomerResponseProjection';
+import {TechnicianNameResponseProjection} from '../../../dto/response/TechnicianNameResponseProjection';
+import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
+import {VehicleMakeResponseDTO} from '../../../dto/response/VehicleMakeResponseDTO';
+import {VehicleModelResponseDTO} from '../../../dto/response/VehicleModelResponseDTO';
 
-import { MultiSelectDropdown } from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
-import { SearchDropdown } from '../../../shared/components/search-dropdown/search-dropdown';
-import { Dropdown } from '../../../shared/components/dropdown/dropdown';
+import {MultiSelectDropdown} from '../../../shared/components/multi-select-dropdown/multi-select-dropdown';
+import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
+import {Dropdown} from '../../../shared/components/dropdown/dropdown';
 import {PdfPreviewResponse} from '../../../dto/response/PdfPreviewResponse';
 
 @Component({
@@ -27,8 +27,11 @@ import {PdfPreviewResponse} from '../../../dto/response/PdfPreviewResponse';
   imports: [ReactiveFormsModule, FormsModule, CommonModule, MultiSelectDropdown, SearchDropdown, Dropdown],
 })
 export class JobCardForm implements OnInit {
+  isLoading = true;
+  private initialLoadsRemaining = 3;
 
-  vehicleColourList: string[] = ['Black', 'White', 'Silver', 'Grey', 'Red', 'Blue', 'Green', 'Brown', 'Beige', 'Gold', 'Orange', 'Yellow', 'Purple', 'Maroon', 'Other'];
+  vehicleColourList: string[] = ['Black', 'White', 'Silver', 'Grey', 'Red', 'Blue', 'Green', 'Brown', 'Beige', 'Gold',
+    'Orange', 'Yellow', 'Purple', 'Maroon', 'Other'];
 
   jobCardForm!: FormGroup;
 
@@ -58,21 +61,37 @@ export class JobCardForm implements OnInit {
   technicianNameProjection: TechnicianNameResponseProjection[] = [];
   laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
 
-  constructor(private readonly fb: FormBuilder, private readonly adminService: AdminService, private readonly notificationService: NotificationService, private readonly cdr: ChangeDetectorRef, private readonly router: Router) {}
+  constructor(private readonly fb: FormBuilder, private readonly adminService: AdminService, private readonly notificationService: NotificationService, private readonly cdr: ChangeDetectorRef, private readonly router: Router) {
+  }
 
   ngOnInit(): void {
-    this.isExistingVehicle = false;
+    this.isLoading = true;
+    this.initialLoadsRemaining = 3;
+
     this.initForm();
+    this.updateVehicleDropdownState();
+    this.updateCustomerState();
     this.generateVehicleYearOptions();
     this.setupFormListeners();
+
     this.loadItemNames();
     this.loadTechnicianNames();
     this.loadVehicleMakeList();
   }
 
+  private finishInitialLoad(): void {
+    this.initialLoadsRemaining--;
+
+    if (this.initialLoadsRemaining <= 0) {
+      this.isLoading = false;
+    }
+
+    this.cdr.markForCheck();
+  }
+
   generateVehicleYearOptions(): void {
     const currentYear = new Date().getFullYear();
-    this.yearList = Array.from({ length: currentYear - 1980 + 1 }, (_, index) => currentYear - index);
+    this.yearList = Array.from({length: currentYear - 1980 + 1}, (_, index) => currentYear - index);
   }
 
   get isUnregistered(): boolean {
@@ -107,54 +126,79 @@ export class JobCardForm implements OnInit {
       contactNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       drivingLicenseNumber: [''],
-      complaint: ['', Validators.required],
 
       laborActivitiesSelected: [[], Validators.required],
       assignedTechniciansSelected: [[], Validators.required],
       currentMileage: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      complaint: ['', Validators.required],
     });
   }
 
   loadTechnicianNames(): void {
-    this.adminService.getTechnicianNames().subscribe({
-      next: (res: TechnicianNameResponseProjection[]) => {
-        this.technicianNameProjection = res;
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => console.error(err),
-    });
+    this.adminService.getTechnicianNames()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: TechnicianNameResponseProjection[]) => {
+          this.technicianNameProjection = res;
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error(err);
+        },
+      });
   }
 
   loadItemNames(): void {
-    this.adminService.getLaborActivityNames().subscribe({
-      next: (res: LaborActivityNameResponseProjection[]) => {
-        this.laborActivityNameProjection = res;
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => console.error('Failed to load labor activities', err),
-    });
+    this.adminService.getLaborActivityNames()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: LaborActivityNameResponseProjection[]) => {
+          this.laborActivityNameProjection = res;
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load labor activities', err);
+        },
+      });
   }
 
   loadVehicleMakeList(): void {
-    this.adminService.getVehicleMakeList().subscribe({
-      next: (res: any) => {
-        this.makeList = res?.data || [];
+    this.adminService.getVehicleMakeList()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.makeList = res?.data || [];
 
-        if (this.makeList.length === 0) {
-          this.notificationService.show('No vehicle makes found.', 'error');
-        }
+          if (this.makeList.length === 0) {
+            this.notificationService.show(
+              'No vehicle makes found.',
+              'error'
+            );
+          }
 
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load vehicle makes:', err);
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load vehicle makes:', err);
 
-        const serverErrorMessage = err.error?.response || 'Please try again later. If not, please contact System Administrator.';
-        this.notificationService.show('Error: ' + serverErrorMessage, 'error');
+          const serverErrorMessage =
+            err.error?.response ||
+            'Please try again later. If not, please contact System Administrator.';
 
-        this.cdr.markForCheck();
-      },
-    });
+          this.notificationService.show(
+            'Error: ' + serverErrorMessage,
+            'error'
+          );
+
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadVehicleModelsByMakeId(makeId: number): void {
@@ -214,7 +258,7 @@ export class JobCardForm implements OnInit {
 
     this.isSubmitting = true;
 
-    const formValue = this.jobCardForm.value;
+    const formValue = this.jobCardForm.getRawValue();
 
     const vehicleMake = this.makeList.find(x => x.makeId === Number(formValue.make));
 
@@ -335,14 +379,20 @@ export class JobCardForm implements OnInit {
           email: this.customer?.email || '',
           drivingLicenseNumber: this.customer?.drivingLicenseNumber || '',
         });
+
+        // Existing customer: keep details disabled
+        this.updateCustomerState();
       },
       error: () => {
         this.customerNotFound = true;
         this.isExistingCustomer = false;
 
-        this.jobCardForm.patchValue({ contactNumber: value });
+        this.jobCardForm.patchValue({contactNumber: value});
       },
     });
+
+    // New customer: enable details for data entry
+    this.updateCustomerState();
   }
 
   onVehicleSearchClick(): void {
@@ -362,22 +412,32 @@ export class JobCardForm implements OnInit {
     this.isSearchingRegVehicle = true;
 
     this.adminService.getVehicleAndCustomerByVehicleRegNumber(currentSearchValue).pipe(
-      finalize(() => {
-        this.isSearchingRegVehicle = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe({
-      next: (res: any) => {
-        this.vehicleFound = true;
-        this.hasSearchedCustomer = true;
-        this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
-      },
-      error: (err) => {
-        this.vehicleNotFound = true;
-        console.error(err);
-        this.handleVehicleLookupError(currentSearchValue, 'registered');
-      },
-    });
+        finalize(() => {
+          this.isSearchingRegVehicle = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.vehicleFound = true;
+          this.hasSearchedCustomer = true;
+
+          this.handleVehicleLookupSuccess(res, currentSearchValue, 'registered');
+
+          this.updateVehicleDropdownState();
+        },
+        error: (err) => {
+          this.vehicleNotFound = true;
+          console.error(err);
+
+          this.handleVehicleLookupError(
+            currentSearchValue,
+            'registered'
+          );
+
+          this.updateVehicleDropdownState();
+        }
+      });
   }
 
   onUnRegVehicleSearchClick(): void {
@@ -397,22 +457,29 @@ export class JobCardForm implements OnInit {
     this.isSearchingUnRegVehicle = true;
 
     this.adminService.getVehicleAndCustomerByVehicleVinNumber(currentSearchValue).pipe(
-      finalize(() => {
-        this.isSearchingUnRegVehicle = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe({
-      next: (res: any) => {
-        this.vehicleFound = true;
-        this.hasSearchedCustomer = true;
-        this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');
-      },
-      error: (err) => {
-        this.vehicleNotFound = true;
-        console.error(err);
-        this.handleVehicleLookupError(currentSearchValue, 'unregistered');
-      },
-    });
+        finalize(() => {
+          this.isSearchingUnRegVehicle = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.vehicleFound = true;
+          this.hasSearchedCustomer = true;
+
+          this.handleVehicleLookupSuccess(res, currentSearchValue, 'unregistered');
+
+          this.updateVehicleDropdownState();
+        },
+        error: (err) => {
+          this.vehicleNotFound = true;
+          console.error(err);
+
+          this.handleVehicleLookupError(currentSearchValue, 'unregistered');
+
+          this.updateVehicleDropdownState();
+        }
+      });
   }
 
   isInvalid(controlName: string): boolean {
@@ -433,14 +500,14 @@ export class JobCardForm implements OnInit {
           vehicleRegNo: currentRegSearch || 'N/A',
           vehicleVinNo: 'N/A',
           entryMode: 'new',
-        }, { emitEvent: false });
+        }, {emitEvent: false});
       } else {
         this.jobCardForm.patchValue({
           vehicleSearch: '',
           vehicleRegNo: 'N/A',
           vehicleVinNo: currentUnRegSearch || 'N/A',
           entryMode: 'new',
-        }, { emitEvent: false });
+        }, {emitEvent: false});
       }
 
       this.isExistingVehicle = false;
@@ -449,7 +516,7 @@ export class JobCardForm implements OnInit {
 
     this.jobCardForm.get('make')?.valueChanges.subscribe(makeId => {
       this.modelList = [];
-      this.jobCardForm.get('model')?.reset(null, { emitEvent: false });
+      this.jobCardForm.get('model')?.reset(null, {emitEvent: false});
 
       if (makeId) {
         this.loadVehicleModelsByMakeId(Number(makeId));
@@ -485,7 +552,7 @@ export class JobCardForm implements OnInit {
       customerName: this.vehicleAndCustomerDTO?.customerName || '',
       email: this.vehicleAndCustomerDTO?.email || '',
       drivingLicenseNumber: this.vehicleAndCustomerDTO?.drivingLicenseNumber || '',
-    }, { emitEvent: false });
+    }, {emitEvent: false});
 
     if (selectedMake) {
       this.adminService.getVehicleModelListByMakeId(selectedMake.makeId).subscribe({
@@ -496,7 +563,7 @@ export class JobCardForm implements OnInit {
 
           this.jobCardForm.patchValue({
             model: selectedModel?.id || null,
-          }, { emitEvent: false });
+          }, {emitEvent: false});
 
           this.cdr.detectChanges();
         },
@@ -506,7 +573,6 @@ export class JobCardForm implements OnInit {
         },
       });
     }
-
     this.cdr.detectChanges();
   }
 
@@ -543,6 +609,52 @@ export class JobCardForm implements OnInit {
   toUpperCase(controlName: string): void {
     const control = this.jobCardForm.get(controlName);
     const value = control?.value || '';
-    control?.setValue(value.toUpperCase(), { emitEvent: false });
+    control?.setValue(value.toUpperCase(), {emitEvent: false});
+  }
+
+  private updateVehicleDropdownState(): void {
+    const makeControl = this.jobCardForm.get('make');
+    const modelControl = this.jobCardForm.get('model');
+    const yearControl = this.jobCardForm.get('year');
+    const colourControl = this.jobCardForm.get('colour');
+
+    if (!makeControl || !modelControl || !yearControl || !colourControl) {
+      return;
+    }
+
+    const controls = [makeControl, modelControl, yearControl, colourControl];
+
+    if (this.canEditVehicleDetails) {
+      controls.forEach(control => control.enable({ emitEvent: false }));
+    } else {
+      controls.forEach(control => control.disable({ emitEvent: false }));
+    }
+  }
+
+  private updateCustomerState(): void {
+    const customerNameControl = this.jobCardForm.get('customerName');
+    const contactNumberControl = this.jobCardForm.get('contactNumber');
+    const emailControl = this.jobCardForm.get('email');
+    const drivingLicenseNumberControl = this.jobCardForm.get('drivingLicenseNumber');
+
+    if (!customerNameControl || !contactNumberControl || !emailControl || !drivingLicenseNumberControl) {
+      return;
+    }
+
+    const controls = [customerNameControl, contactNumberControl, emailControl, drivingLicenseNumberControl];
+
+    if (this.canEditCustomerDetails) {
+      controls.forEach(control => control.enable({ emitEvent: false }));
+    } else {
+      controls.forEach(control => control.disable({ emitEvent: false }));
+    }
+  }
+
+  get canEditVehicleDetails(): boolean {
+    return this.hasSearchedVehicle && !this.isExistingVehicle;
+  }
+
+  get canEditCustomerDetails(): boolean {
+    return this.hasSearchedCustomer && !this.isExistingCustomer;
   }
 }

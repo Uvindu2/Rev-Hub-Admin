@@ -10,8 +10,9 @@
       </button>
     </div>
 
-    <div *ngIf="isLoading" class="page-loader">
-      <span class="spinner"></span>
+    <!-- INITIAL FORM LOADER -->
+    <div class="loader" *ngIf="isLoading">
+      <div class="loader-spinner"></div>
       <span>Loading Vehicle...</span>
     </div>
 

@@ -16,6 +16,7 @@ import { LaborActivityTableViewResponseProjection } from '../../../dto/response/
 })
 export class LaborActivityViewAndEdit implements OnInit {
 
+  isLoading = true;
   laborActivityForm!: FormGroup;
   laborActivity?: LaborActivityTableViewResponseProjection;
 
@@ -33,11 +34,13 @@ export class LaborActivityViewAndEdit implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
+
     this.isEditMode = this.router.url.includes('/labor-activities/edit/');
 
     const id = this.route.snapshot.paramMap.get('id');
 
-    if (!id) {
+    if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
       this.router.navigate(['/dashboard/labor-activities']);
       return;
     }
@@ -60,35 +63,43 @@ export class LaborActivityViewAndEdit implements OnInit {
   }
 
   private loadLaborActivity(): void {
-    this.adminService.getLaborActivityById(this.laborActivityId).subscribe({
-      next: (response: any) => {
-        this.laborActivity = response?.data || response;
+    this.adminService
+      .getLaborActivityById(this.laborActivityId)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.laborActivity = response?.data || response;
 
-        this.laborActivityForm.patchValue({
-          laborActivityName: this.laborActivity?.activityName,
-          active: this.laborActivity?.active
-        });
+          this.laborActivityForm.patchValue({
+            laborActivityName: this.laborActivity?.activityName,
+            active: this.laborActivity?.active
+          });
 
-        if (this.isEditMode) {
-          this.laborActivityForm.enable();
-        } else {
-          this.laborActivityForm.disable();
+          if (this.isEditMode) {
+            this.laborActivityForm.enable();
+          } else {
+            this.laborActivityForm.disable();
+          }
+
+          this.cdr.markForCheck();
+        },
+
+        error: (err: any) => {
+          console.error('Failed to load labor activity:', err);
+
+          this.notificationService.show(
+            'Failed to load labor activity.',
+            'error'
+          );
+
+          this.router.navigate(['/dashboard/labor-activities']);
         }
-
-        this.cdr.detectChanges();
-      },
-
-      error: (err: any) => {
-        console.error('Failed to load labor activity:', err);
-
-        this.notificationService.show(
-          'Failed to load labor activity.',
-          'error'
-        );
-
-        this.router.navigate(['/dashboard/labor-activities']);
-      }
-    });
+      });
   }
 
   onSubmit(): void {

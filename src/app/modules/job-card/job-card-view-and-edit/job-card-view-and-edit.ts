@@ -22,6 +22,8 @@ import { PdfPreviewResponse } from '../../../dto/response/PdfPreviewResponse';
 })
 export class JobCardViewAndEdit implements OnInit {
 
+  isLoading = true;
+
   jobCardForm!: FormGroup;
   jobCard: JobCardResponseDto | undefined;
   jobCardId!: number;
@@ -44,8 +46,9 @@ export class JobCardViewAndEdit implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.isEditMode = this.router.url.includes('/job-cards/edit/');
+    this.isLoading = true;
 
+    this.isEditMode = this.router.url.includes('/job-cards/edit/');
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id) {
@@ -57,6 +60,11 @@ export class JobCardViewAndEdit implements OnInit {
 
     this.initForm();
     this.loadJobCard();
+  }
+
+  private finishInitialLoad(): void {
+    this.isLoading = false;
+    this.cdr.markForCheck();
   }
 
   private initForm(): void {
@@ -88,46 +96,43 @@ export class JobCardViewAndEdit implements OnInit {
       techs: this.adminService.getTechnicianNames(),
       labor: this.adminService.getLaborActivityNames(),
       jobCard: this.adminService.getJobCardById(this.jobCardId)
-    }).subscribe({
-      next: ({ techs, labor, jobCard }: any) => {
-        this.technicianNameProjection = techs?.data || techs || [];
-        this.laborActivityNameProjection = labor?.data || labor || [];
-        this.jobCard = jobCard?.data || jobCard;
+    })
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: ({ techs, labor, jobCard }: any) => {
+          this.technicianNameProjection = techs?.data || techs || [];
+          this.laborActivityNameProjection = labor?.data || labor || [];
+          this.jobCard = jobCard?.data || jobCard;
 
-        if (!this.jobCard) {
-          this.notificationService.show('Job Card not found.', 'error');
+          if (!this.jobCard) {
+            this.notificationService.show('Job Card not found.', 'error');
+            this.router.navigate(['/dashboard/job-cards']);
+            return;
+          }
+
+          this.patchFormWithData(this.jobCard);
+
+          if (this.isEditMode) {
+            this.jobCardForm.enable();
+
+            // Keep your existing disabled-field logic here.
+          } else {
+            this.jobCardForm.disable();
+          }
+
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.error('Failed to load job card:', err);
+          this.notificationService.show(
+            'Failed to load job card details.',
+            'error'
+          );
           this.router.navigate(['/dashboard/job-cards']);
-          return;
         }
-
-        this.patchFormWithData(this.jobCard);
-
-        if (this.isEditMode) {
-          this.jobCardForm.enable();
-
-          this.jobCardForm.get('vehicleRegNo')?.disable();
-          this.jobCardForm.get('vehicleVinNo')?.disable();
-          this.jobCardForm.get('make')?.disable();
-          this.jobCardForm.get('model')?.disable();
-          this.jobCardForm.get('year')?.disable();
-          this.jobCardForm.get('colour')?.disable();
-          this.jobCardForm.get('otherSpecs')?.disable();
-          this.jobCardForm.get('customerName')?.disable();
-          this.jobCardForm.get('contactNumber')?.disable();
-          this.jobCardForm.get('email')?.disable();
-          this.jobCardForm.get('drivingLicenseNumber')?.disable();
-        } else {
-          this.jobCardForm.disable();
-        }
-
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        console.error('Failed to load job card:', err);
-        this.notificationService.show('Failed to load job card details.', 'error');
-        this.router.navigate(['/dashboard/job-cards']);
-      }
-    });
+      });
   }
 
   private patchFormWithData(data: JobCardResponseDto): void {

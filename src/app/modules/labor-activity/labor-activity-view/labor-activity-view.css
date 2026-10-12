@@ -1,0 +1,10 @@
+.table-header .filter-group {
+  width: 260px;
+  min-width: 260px;
+  max-width: 100%;
+}
+
+.table-header app-search-dropdown {
+  display: block;
+  width: 100%;
+}

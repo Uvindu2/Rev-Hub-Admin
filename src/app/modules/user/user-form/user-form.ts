@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { NgIf } from '@angular/common';
 import {
   FormBuilder,
@@ -27,6 +27,7 @@ import { MultiSelectDropdown } from '../../../shared/components/multi-select-dro
 })
 export class UserForm implements OnInit {
 
+  isLoading = true;
   userForm!: FormGroup;
   rolesList: RoleNameResponseDTO[] = [];
   isSubmitting = false;
@@ -35,10 +36,12 @@ export class UserForm implements OnInit {
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly notificationService: NotificationService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.initForm();
     this.loadRoles();
   }
@@ -71,14 +74,36 @@ export class UserForm implements OnInit {
   }
 
   loadRoles(): void {
-    this.adminService.getRoles().subscribe({
-      next: (res: any) => {
-        this.rolesList = res.data || res;
-      },
-      error: (err: any) => {
-        console.error('Failed to load roles', err);
-      }
-    });
+    this.adminService
+      .getRoles()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          const data = res?.data || res;
+
+          this.rolesList = Array.isArray(data) ? data : [];
+
+          this.cdr.markForCheck();
+        },
+
+        error: (err: any) => {
+          console.error('Failed to load roles:', err);
+
+          this.rolesList = [];
+
+          this.notificationService.show(
+            'Failed to load user roles.',
+            'error'
+          );
+
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onSubmit(): void {

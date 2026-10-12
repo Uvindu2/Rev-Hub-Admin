@@ -1,211 +1,158 @@
+
+<!-- Page Header -->
 <div class="page-header">
-  <div class="card-container user-form-container">
+  <!-- Keep any existing page-header content here -->
+</div>
 
-    <!-- Header -->
-    <div class="filter-card-header user-form-header">
+<!-- Page Loader -->
+<div class="loader" *ngIf="isLoadingPage">
+  <div class="loader-spinner"></div>
+  <span>Loading user details...</span>
+</div>
 
-      <div class="filter-title-wrapper">
-        <span class="filter-title-icon">
-          {{ isViewMode ? '👁️' : '✏️' }}
-        </span>
+<!-- User Form Card -->
+<div
+  class="card-container user-form-container"
+  *ngIf="!isLoadingPage">
 
-        <h3>
-          {{ isViewMode ? 'VIEW USER' : 'EDIT USER' }}
-        </h3>
-      </div>
+  <!-- Header -->
+  <div class="filter-card-header user-form-header">
+    <div class="filter-title-wrapper">
+      <span class="filter-title-icon">
+        {{ isViewMode ? '👁️' : '✏️' }}
+      </span>
 
+      <h3>
+        {{ isViewMode ? 'VIEW USER' : 'EDIT USER' }}
+      </h3>
     </div>
+  </div>
 
-    <!-- Loading -->
-    <div
-      *ngIf="isLoading"
-      class="table-loader">
+  <!-- Form -->
+  <form
+    [formGroup]="userForm"
+    (ngSubmit)="onSubmit()">
 
-      <span class="spinner"></span>
-      <span>Loading user...</span>
+    <div class="user-form-grid">
 
-    </div>
+      <!-- Username -->
+      <div class="filter-group">
+        <label>
+          Username
+          <span *ngIf="!isViewMode" class="required">*</span>
+        </label>
 
-    <!-- Form -->
-    <form
-      *ngIf="!isLoading"
-      [formGroup]="userForm"
-      (ngSubmit)="onSubmit()">
+        <input
+          class="user-form-input"
+          type="text"
+          formControlName="username"
+          placeholder="Username">
 
-      <div class="user-form-grid">
-
-        <!-- Username -->
-        <div class="filter-group">
-
-          <label>
-            Username
-            <span
-              *ngIf="!isViewMode"
-              class="required">
-              *
-            </span>
-          </label>
-
-          <input
-            class="user-form-input"
-            type="text"
-            formControlName="username"
-            placeholder="Username">
-
-          <div
-            *ngIf="isInvalid('username')"
-            class="error-msg">
-
-            <span
-              *ngIf="userForm.get('username')?.hasError('required')">
-              Username is required.
-            </span>
-
-            <span
-              *ngIf="userForm.get('username')?.hasError('minlength')">
-              Username must be at least 3 characters.
-            </span>
-
-            <span
-              *ngIf="userForm.get('username')?.hasError('maxlength')">
-              Username cannot exceed 20 characters.
-            </span>
-
-          </div>
-
-        </div>
-
-        <!-- Password -->
         <div
-          class="filter-group"
-          *ngIf="!isViewMode">
+          *ngIf="isInvalid('username')"
+          class="error-msg">
 
-          <label>
-            Password
-          </label>
-
-          <input
-            class="user-form-input"
-            type="password"
-            formControlName="password"
-            placeholder="Enter new password">
-
-        </div>
-
-        <!-- Full Name -->
-        <div class="filter-group">
-
-          <label>
-            Full Name
-            <span
-              *ngIf="!isViewMode"
-              class="required">
-              *
-            </span>
-          </label>
-
-          <input
-            class="user-form-input"
-            type="text"
-            formControlName="fullName"
-            placeholder="Full Name">
-
-          <div
-            *ngIf="isInvalid('fullName')"
-            class="error-msg">
-
-            Full Name is required.
-
-          </div>
-
-        </div>
-
-        <!-- Speciality -->
-        <div class="filter-group">
-
-          <label>
-            Speciality
-          </label>
-
-          <input
-            class="user-form-input"
-            type="text"
-            formControlName="speciality"
-            placeholder="Speciality">
-
-        </div>
-
-        <!-- User Roles -->
-        <div class="filter-group user-role-field">
-
-          <app-multi-select-dropdown
-            label="User Role:"
-            [formControl]="userRoleSelectedControl"
-            [data]="rolesList"
-            bindLabel="roleName"
-            bindValue="roleId"
-            errorMessage="Please select at least one user role.">
-          </app-multi-select-dropdown>
-
-        </div>
-
-        <!-- Status -->
-        <div class="filter-group active-field">
-
-          <label>
-            Status
-          </label>
-
-          <label class="active-checkbox">
-
-            <input
-              type="checkbox"
-              formControlName="active">
-
-            <span>
-              Active Account
-            </span>
-
-          </label>
-
-        </div>
-
-      </div>
-
-      <!-- Footer -->
-      <div class="user-form-footer">
-
-        <button
-          type="button"
-          class="btn-filter-reset"
-          (click)="onBack()">
-          BACK
-        </button>
-
-        <button
-          *ngIf="isEditMode"
-          type="submit"
-          class="btn-add"
-          [disabled]="isSubmitting">
-
-          <span
-            *ngIf="isSubmitting"
-            class="buttonSpinner">
+          <span *ngIf="userForm.get('username')?.hasError('required')">
+            Username is required.
           </span>
 
-<!--          <span-->
-<!--            *ngIf="!isSubmitting"-->
-<!--            class="icon-plus">-->
-<!--            ✓-->
-<!--          </span>-->
+          <span *ngIf="userForm.get('username')?.hasError('minlength')">
+            Username must be at least 3 characters.
+          </span>
 
-          {{ isSubmitting ? 'UPDATING...' : 'UPDATE' }}
+          <span *ngIf="userForm.get('username')?.hasError('maxlength')">
+            Username cannot exceed 20 characters.
+          </span>
 
-        </button>
-
+          <span *ngIf="userForm.get('username')?.hasError('pattern')">
+            Username can contain letters, numbers, dots, underscores, and hyphens only.
+          </span>
+        </div>
       </div>
 
-    </form>
+      <!-- Full Name -->
+      <div class="filter-group">
+        <label>
+          Full Name
+          <span *ngIf="!isViewMode" class="required">*</span>
+        </label>
 
-  </div>
+        <input
+          class="user-form-input"
+          type="text"
+          formControlName="fullName"
+          placeholder="Full Name">
+
+        <div
+          *ngIf="isInvalid('fullName')"
+          class="error-msg">
+          Full Name is required.
+        </div>
+      </div>
+
+      <!-- Speciality -->
+      <div class="filter-group">
+        <label>Speciality</label>
+
+        <input
+          class="user-form-input"
+          type="text"
+          formControlName="speciality"
+          placeholder="Speciality">
+      </div>
+
+      <!-- User Roles -->
+      <div class="filter-group user-role-field">
+        <app-multi-select-dropdown
+          label="User Role:"
+          [formControl]="userRoleSelectedControl"
+          [data]="rolesList"
+          bindLabel="roleName"
+          bindValue="roleId"
+          errorMessage="Please select at least one user role.">
+        </app-multi-select-dropdown>
+      </div>
+
+      <!-- Status -->
+      <div class="filter-group active-field">
+        <label>Status</label>
+
+        <label class="active-checkbox">
+          <input
+            type="checkbox"
+            formControlName="active">
+
+          <span>Active Account</span>
+        </label>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="user-form-footer">
+
+      <button
+        type="button"
+        class="btn-filter-reset"
+        (click)="onBack()">
+        BACK
+      </button>
+
+      <button
+        *ngIf="isEditMode"
+        type="submit"
+        class="btn-add"
+        [disabled]="isSubmitting">
+
+        <span
+          *ngIf="isSubmitting"
+          class="buttonSpinner">
+        </span>
+
+        {{ isSubmitting ? 'UPDATING...' : 'UPDATE' }}
+      </button>
+
+    </div>
+
+  </form>
 </div>

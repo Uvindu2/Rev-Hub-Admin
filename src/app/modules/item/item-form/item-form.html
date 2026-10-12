@@ -1,4 +1,11 @@
 <div class="page-header">
+
+  <!-- Loading Spinner -->
+  <div class="loader" *ngIf="isLoading">
+    <div class="loader-spinner"></div>
+    <span>Loading item form...</span>
+  </div>
+
   <div class="card-container item-form-container">
 
     <div class="filter-card-header item-form-header">

@@ -27,6 +27,7 @@ import {
 })
 export class ItemForm implements OnInit {
 
+  isLoading = true;
   itemForm!: FormGroup;
 
   laborActivityNameProjection: LaborActivityNameResponseProjection[] = [];
@@ -52,6 +53,7 @@ export class ItemForm implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.initForm();
     this.loadItemNames();
   }
@@ -68,23 +70,41 @@ export class ItemForm implements OnInit {
   }
 
   loadItemNames(): void {
-    this.adminService.getLaborActivityNames().subscribe({
-      next: (res: any) => {
-        const data = res?.data || res;
+    this.adminService
+      .getLaborActivityNames()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          const data = res?.data || res;
 
-        this.laborActivityNameProjection = Array.isArray(data)
-          ? data
-          : [];
+          this.laborActivityNameProjection = Array.isArray(data)
+            ? data
+            : [];
 
-        this.cdr.markForCheck();
-      },
+          this.cdr.markForCheck();
+        },
 
-      error: (err: any) => {
-        console.error('Failed to load labor activity names:', err);
-        this.laborActivityNameProjection = [];
-        this.cdr.markForCheck();
-      }
-    });
+        error: (err: any) => {
+          console.error(
+            'Failed to load labor activity names:',
+            err
+          );
+
+          this.laborActivityNameProjection = [];
+
+          this.notificationService.show(
+            'Failed to load labor activities.',
+            'error'
+          );
+
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onSubmit(): void {

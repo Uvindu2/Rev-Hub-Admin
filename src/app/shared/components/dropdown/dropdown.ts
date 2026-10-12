@@ -54,10 +54,11 @@ export class Dropdown implements ControlValueAccessor {
 
   @Input() allLabel: string = 'All';
 
-
   /* =========================================================
      DROPDOWN STATE
      ========================================================= */
+
+  disabled = false;
 
   isOpen = false;
 
@@ -143,15 +144,19 @@ export class Dropdown implements ControlValueAccessor {
      DROPDOWN OPEN / CLOSE
      ========================================================= */
 
+
   toggleDropdown(): void {
+    if (this.disabled) {
+      return;
+    }
 
     this.isOpen = !this.isOpen;
 
     if (!this.isOpen) {
       this.onTouched();
     }
-
   }
+
 
 
   /* =========================================================
@@ -333,46 +338,46 @@ export class Dropdown implements ControlValueAccessor {
      SELECT ITEM
      ========================================================= */
 
+
   selectItem(item: any): void {
+    if (this.disabled) {
+      return;
+    }
 
-    const targetValue =
-      this.getItemValue(item);
-
+    const targetValue = this.getItemValue(item);
 
     this.value = targetValue;
-
-    this.selectedDisplayLabel =
-      this.getItemLabel(item);
-
-
+    this.selectedDisplayLabel = this.getItemLabel(item);
     this.isOpen = false;
 
-
     this.onChange(this.value);
-
     this.onTouched();
-
   }
-
 
   /* =========================================================
      SELECT ALL
      ========================================================= */
 
   selectAll(): void {
+    if (this.disabled) {
+      return;
+    }
 
     this.value = null;
-
-    this.selectedDisplayLabel =
-      this.allLabel;
-
+    this.selectedDisplayLabel = this.allLabel;
     this.isOpen = false;
 
-
     this.onChange(null);
-
     this.onTouched();
-
   }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+
+    if (isDisabled) {
+      this.isOpen = false;
+    }
+  }
+
 
 }
