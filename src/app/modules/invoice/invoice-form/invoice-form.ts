@@ -22,8 +22,10 @@ import {PdfPreviewResponse} from '../../../dto/response/PdfPreviewResponse';
   styleUrl: './invoice-form.css',
 })
 export class InvoiceForm implements OnInit {
-  @Output() cancel = new EventEmitter<void>();
   @Output() invoiceGenerated = new EventEmitter<SafeResourceUrl>();
+
+  isLoading = true;
+  private initialLoadsRemaining = 3;
 
   invoiceForm!: FormGroup;
   selectedLaborIndex: number = 0;
@@ -55,10 +57,23 @@ export class InvoiceForm implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.isLoading = true;
     this.initForm();
+
     this.loadPendingJobNumbers();
     this.loadItemNames();
     this.loadItemParts();
+  }
+
+  private finishInitialLoad(): void {
+    this.initialLoadsRemaining--;
+
+    if (this.initialLoadsRemaining <= 0) {
+      this.isLoading = false;
+    }
+
+    this.cdr.markForCheck();
   }
 
   initForm() {
@@ -302,37 +317,55 @@ onSubmit(): void {
   }
 
   loadPendingJobNumbers(): void {
-    this.adminService.getPendingJobNumbers().subscribe({
-      next: (res: any) => {
-        const dataPayload = res?.data ? res.data : res;
-        this.pendingJobNumbers = dataPayload || [];
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => console.error('Failed to pending job numbers', err),
-    });
+    this.adminService.getPendingJobNumbers()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.pendingJobNumbers = res?.data ?? res ?? [];
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load pending job numbers:', err);
+        }
+      });
   }
 
   loadItemNames(): void {
-    this.adminService.getLaborActivityNames().subscribe({
-      next: (res: any) => {
-        const dataPayload = res?.data ? res.data : res;
-        this.availableLaborActivities = dataPayload || [];
-        this.filteredLaborActivities = [...this.availableLaborActivities];
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => console.error('Failed to load names', err),
-    });
+    this.adminService.getLaborActivityNames()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.availableLaborActivities = res?.data ?? res ?? [];
+          this.filteredLaborActivities = [
+            ...this.availableLaborActivities
+          ];
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load labor activity names:', err);
+        }
+      });
   }
 
   loadItemParts(): void {
-    this.adminService.getInvoiceItems().subscribe({
-      next: (res: any) => {
-        this.availableItemParts = res?.data || [];
-        this.filteredItemParts = [...this.availableItemParts];
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => console.error('Failed to load item parts', err),
-    });
+    this.adminService.getInvoiceItems()
+      .pipe(
+        finalize(() => this.finishInitialLoad())
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.availableItemParts = res?.data ?? res ?? [];
+          this.filteredItemParts = [...this.availableItemParts];
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load invoice items:', err);
+        }
+      });
   }
 
   onSearchLaborDropdown(event: Event): void {
