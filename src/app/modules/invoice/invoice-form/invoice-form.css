@@ -1,178 +1,180 @@
-/* ==========================================================================
-   1. Window & Overlay Container Layouts (Fully Responsive)
-   ========================================================================== */
+/* =========================================
+   1. MAIN MODAL
+========================================= */
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
+  inset: 0;
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
   box-sizing: border-box;
 }
 
 .revhub-builder-card {
   position: relative;
-  top: auto;
-  left: auto;
-  transform: none;
-  z-index: 1000;
   width: 100%;
   max-width: 1200px;
   max-height: 96vh;
   overflow-y: auto;
-  background-color: #1a1a1a;
+  padding: 20px;
+  background: #1a1a1a;
   color: #d1d5db;
   font-family: Arial, sans-serif;
-  padding: 20px;
   border-radius: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 0 1px #2d2d2d;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
   box-sizing: border-box;
 }
 
-/* ==========================================================================
-   2. Header & Title Component Subsystems
-   ========================================================================== */
+/* =========================================
+   2. HEADER
+========================================= */
 
 .form-title-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;
   gap: 15px;
-  border-bottom: 1px solid #2d2d2d;
   padding-bottom: 12px;
   margin-bottom: 15px;
+  border-bottom: 1px solid #2d2d2d;
 }
 
 .form-title-bar h2 {
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  color: #ffffff;
   margin: 0;
+  color: #fff;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
 }
 
 .actor-tag {
-  background-color: #374151;
-  font-size: 0.75rem;
   padding: 2px 10px;
+  background: #374151;
   border-radius: 4px;
+  font-size: 0.75rem;
 }
 
 .close-btn {
+  position: absolute;
+  top: 1px;
+  right: 10px;
   background: none;
   border: none;
-  color: #666666;
+  color: #666;
   font-size: 30pt;
   cursor: pointer;
-  position: absolute;
-  left: 95%;
-  top: 1pt;
 }
 
-/* ==========================================================================
-   3. Workspace Panel Columns Structure
-   ========================================================================== */
+/* =========================================
+   3. MAIN WORKSPACE
+========================================= */
 
 .split-workspace {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 15px;
   min-height: 450px;
   margin-bottom: 20px;
 }
 
-.left-panel {
-  background-color: #111111;
-  padding: 12px;
+.left-panel,
+.right-panel {
+  background: #111;
   border-radius: 4px;
+  overflow-y: auto;
+}
+
+.left-panel {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   max-height: 450px;
+  padding: 12px;
 }
 
 .right-panel {
-  background-color: #111111;
-  padding: 15px;
-  border-radius: 4px;
-  overflow-y: auto;
   max-height: 450px;
+  min-width: 0;
+  padding: 15px;
 }
 
-/* ==========================================================================
-   4. Sidebar List Components & Search Box
-   ========================================================================== */
-
-/* CHANGE AREA - JOB NUMBER SEARCH */
+/* =========================================
+   4. JOB NUMBER SEARCH
+========================================= */
 
 .search-box {
-  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 8px;
   width: 100%;
   margin-bottom: 10px;
-  box-sizing: border-box;
 }
 
 .search-box .filter-group {
-  flex: 1 1 auto;
+  flex: 1;
   min-width: 0;
 }
 
-/* SEARCH BUTTON */
+.search-box input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.search-box input[type="text"]:focus {
+  border-color: #b91c1c;
+}
 
 .btn-search-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   flex: 0 0 105px;
   width: 105px;
   height: 38px;
   position: relative;
   top: -15px;
   padding: 0 12px;
+  background: #b91c1c;
+  color: #fff;
   border: 1px solid #b91c1c;
   border-radius: 4px;
-  background-color: #b91c1c;
-  color: #ffffff;
   font-size: 0.8rem;
   font-weight: bold;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  box-sizing: border-box;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .btn-search-action:hover:not(:disabled) {
-  background-color: #c92121;
-  border-color: #c92121;
+  background: #c92121;
 }
 
 .btn-search-action:disabled {
-  background-color: #4a2020;
+  background: #4a2020;
   border-color: #542323;
   color: #8c6666;
   cursor: not-allowed;
 }
 
-/* SEARCH BUTTON SPINNER */
+/* Loading spinner */
 
 .buttonSpinner {
-  width: 13px;
-  height: 13px;
   display: inline-block;
   flex-shrink: 0;
+  width: 13px;
+  height: 13px;
   border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #ffffff;
+  border-top-color: #fff;
   border-radius: 50%;
   animation: searchButtonSpin 0.7s linear infinite;
 }
@@ -183,24 +185,9 @@
   }
 }
 
-/* SEARCH DROPDOWN INPUT */
-
-.search-box input[type="text"] {
-  width: 100%;
-  background-color: #222222;
-  border: 1px solid #333333;
-  color: #ffffff;
-  padding: 8px 12px;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.search-box input[type="text"]:focus {
-  border-color: #b91c1c;
-}
+/* =========================================
+   5. LABOR ACTIVITY LIST
+========================================= */
 
 .sidebar-list {
   flex-grow: 1;
@@ -211,19 +198,19 @@
 
 .task-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #222222;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  border: 1px solid transparent;
+  justify-content: space-between;
   gap: 10px;
+  padding: 10px;
+  margin-bottom: 6px;
+  background: #222;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .task-item.active {
-  background-color: #2a2a2a;
+  background: #2a2a2a;
   border-color: #b91c1c;
 }
 
@@ -235,10 +222,10 @@
 }
 
 .task-details .title {
-  color: #ffffff;
+  overflow: hidden;
+  color: #fff;
   font-size: 0.85rem;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -248,16 +235,16 @@
 }
 
 .task-delete-btn {
+  flex-shrink: 0;
+  padding: 4px;
   background: none;
   border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 4px;
   border-radius: 4px;
-  opacity: 0.4;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
+  color: #ef4444;
+  font-size: 0.9rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.2s;
 }
 
 .task-item:hover .task-delete-btn {
@@ -265,70 +252,76 @@
 }
 
 .task-delete-btn:hover {
-  opacity: 1 !important;
-  background-color: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.15);
+  opacity: 1;
   transform: scale(1.1);
 }
 
 .add-labor-btn {
-  background-color: #222222;
-  border: 1px solid #333333;
-  color: #ffffff;
-  padding: 10px;
   width: 100%;
+  padding: 10px;
+  background: #222;
+  border: 1px solid #333;
   border-radius: 4px;
-  cursor: pointer;
+  color: #fff;
   font-size: 0.8rem;
   text-align: left;
+  cursor: pointer;
 }
 
-/* ==========================================================================
-   5. Active Data Workspace Configurations
-   ========================================================================== */
+/* =========================================
+   6. ACTIVE LABOR ACTIVITY
+========================================= */
 
 .active-workspace-header {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
-  background-color: #1e1e1e;
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 15px;
+  justify-content: space-between;
   gap: 12px;
+  padding: 12px;
+  margin-bottom: 15px;
+  background: #1e1e1e;
+  border-radius: 4px;
 }
 
 .task-field,
 .fee-field {
   display: flex;
-  align-items: center;
-  gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  background-color: #1e1e1e;
+  gap: 10px;
+  background: #1e1e1e;
 }
 
 .task-field label,
 .fee-field label {
-  font-size: 0.85rem;
   color: #9ca3af;
+  font-size: 0.85rem;
 }
 
 .static-label {
-  color: #ffffff;
-  font-weight: bold;
+  color: #fff;
   font-size: 0.95rem;
+  font-weight: bold;
 }
+
+/* Common inputs and dropdowns */
 
 .dark-dropdown,
 .dark-input {
-  background-color: #222222;
-  border: 1px solid #333333;
-  color: #ffffff;
   padding: 6px 10px;
+  background: #222;
+  border: 1px solid #333;
   border-radius: 4px;
+  color: #fff;
   outline: none;
 }
+
+/* =========================================
+   7. LABOR ACTIVITY DROPDOWN
+========================================= */
 
 .custom-labor-dropdown {
   position: relative;
@@ -341,13 +334,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #222222;
-  border: 1px solid #333333;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
+  gap: 8px;
   width: 100%;
+  padding: 8px 12px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 4px;
   box-sizing: border-box;
+  cursor: pointer;
   user-select: none;
 }
 
@@ -361,90 +355,91 @@
 }
 
 .dropdown-selected-value-text {
-  font-size: 0.85rem;
-  color: #ffffff;
-  white-space: nowrap;
   overflow: hidden;
+  color: #fff;
+  font-size: 0.85rem;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .dropdown-toggle {
-  color: #666666;
-  font-size: 0.75rem;
   flex-shrink: 0;
+  color: #666;
+  font-size: 0.75rem;
 }
 
 .dropdown-options-box {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
-  background-color: #1a1a1a;
-  border: 1px solid #333333;
-  border-radius: 4px;
-  margin-top: 4px;
   z-index: 2000;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
+  width: 100%;
+  margin-top: 4px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;
 }
 
 .dropdown-search-wrapper {
   padding: 6px;
-  background-color: #111111;
-  border-bottom: 1px solid #222222;
+  background: #111;
+  border-bottom: 1px solid #222;
 }
 
 .dropdown-search-input {
   width: 100%;
-  box-sizing: border-box;
-  background-color: #222222 !important;
-  border: 1px solid #333333 !important;
-  color: #ffffff;
   padding: 6px 10px;
-  font-size: 0.8rem;
+  background: #222 !important;
+  border: 1px solid #333 !important;
   border-radius: 4px;
+  color: #fff;
+  font-size: 0.8rem;
   outline: none;
+  box-sizing: border-box;
 }
 
 .dropdown-results-list {
-  list-style: none;
+  max-height: 180px;
   margin: 0;
   padding: 0;
-  max-height: 180px;
   overflow-y: auto;
+  list-style: none;
 }
 
 .dropdown-results-list li {
   padding: 8px 12px;
-  font-size: 0.85rem;
   color: #d1d5db;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s;
 }
 
 .dropdown-results-list li:hover {
-  background-color: #b91c1c;
-  color: #ffffff;
+  background: #b91c1c;
+  color: #fff;
 }
 
 .dropdown-results-list li.selected {
-  background-color: #2d0b0f;
+  background: #2d0b0f;
   color: #ef4444;
   font-weight: bold;
 }
 
 .no-results {
-  color: #555555;
+  padding: 12px;
+  color: #555;
+  font-size: 0.85rem;
   font-style: italic;
   text-align: center;
-  padding: 12px;
-  font-size: 0.85rem;
 }
 
-/* ==========================================================================
-   6. Tabular Dynamic Matrix Configuration
-   ========================================================================== */
+/* =========================================
+   8. PARTS TABLE
+========================================= */
 
 .parts-container {
   width: 100%;
@@ -452,61 +447,39 @@
 
 .matrix-table {
   width: 100%;
-  border-collapse: collapse;
   min-width: 600px;
+  border-collapse: collapse;
 }
 
 .matrix-table th {
-  background-color: #1e1e1e;
+  padding: 8px;
+  background: #1e1e1e;
   color: #f87171;
   font-size: 0.75rem;
-  text-transform: uppercase;
   text-align: left;
-  padding: 8px;
+  text-transform: uppercase;
 }
 
 .matrix-table td {
   padding: 6px;
-  border-bottom: 1px solid #222222;
+  border-bottom: 1px solid #222;
   font-size: 0.85rem;
   vertical-align: middle;
 }
 
 .cell-input {
   width: 100%;
-  box-sizing: border-box;
   min-width: 60px;
+  box-sizing: border-box;
 }
 
 .total-output {
-  color: #ffffff;
+  color: #fff;
   font-weight: bold;
   white-space: nowrap;
 }
 
-.row-delete-btn {
-  background: none;
-  border: 1px solid #ef4444;
-  color: #ef4444;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.row-delete-btn:hover {
-  background-color: #ef4444;
-  color: #fff;
-}
-
-.add-part-link {
-  background: none;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 0.85rem;
-  margin-top: 12px;
-  padding: 0;
-}
+/* Part selection dropdown */
 
 .custom-matrix-dropdown {
   position: relative;
@@ -515,69 +488,80 @@
 }
 
 .custom-matrix-dropdown .dropdown-input-wrapper {
-  background-color: #222222;
-  border: 1px solid #333333;
-  border-radius: 4px;
   padding: 6px 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .custom-matrix-dropdown .dropdown-options-box {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 250px;
-  background-color: #1a1a1a;
-  border: 1px solid #333333;
-  border-radius: 4px;
-  margin-top: 4px;
   z-index: 3000;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+  width: 250px;
 }
 
-/* ==========================================================================
-   7. Payment Interface Layout Components
-   ========================================================================== */
+/* Table buttons */
+
+.row-delete-btn {
+  padding: 4px 8px;
+  background: none;
+  border: 1px solid #ef4444;
+  border-radius: 4px;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+.row-delete-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.add-part-link {
+  padding: 0;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* =========================================
+   9. PAYMENT METHOD
+========================================= */
 
 .payment-selection-container {
-  background-color: #111111;
   padding: 10px;
-  border-radius: 4px;
   margin-bottom: 15px;
-  border: 1px solid #222222;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 4px;
 }
 
 .payment-selection-container .section-label {
   display: inline-block;
-  font-size: 0.85rem;
-  color: #9ca3af;
   margin-bottom: 10px;
+  color: #9ca3af;
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
 .payment-options {
   display: flex;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: 12px;
 }
 
 .payment-radio-tile {
-  flex: 1;
-  min-width: 110px;
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #1e1e1e;
-  border: 1px solid #333333;
+  min-width: 110px;
   padding: 10px;
+  background: #1e1e1e;
+  border: 1px solid #333;
   border-radius: 6px;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .payment-radio-tile input[type="radio"] {
@@ -589,40 +573,73 @@
 }
 
 .payment-radio-tile .tile-text {
+  color: #fff;
   font-size: 0.8rem;
-  color: #ffffff;
   font-weight: 500;
 }
 
 .payment-radio-tile:has(input:checked) {
-  background-color: #2d0b0f;
+  background: #2d0b0f;
   border-color: #b91c1c;
   box-shadow: 0 0 8px rgba(185, 28, 28, 0.2);
 }
 
 .payment-radio-tile:hover {
-  border-color: #444444;
-  background-color: #252525;
+  background: #252525;
+  border-color: #444;
 }
 
-/* ==========================================================================
-   8. System Summary Calculation Footer Components & Textarea
-   ========================================================================== */
+/* =========================================
+   10. NOTES AND TOTALS
+========================================= */
 
 .summary-footer-bar {
-  border-top: 1px solid #2d2d2d;
   padding-top: 5px;
+  border-top: 1px solid #2d2d2d;
 }
+
+.additionalNote {
+  margin-bottom: 15px;
+}
+
+.additionalNote .section-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.additionalNote textarea.summary-input {
+  width: 100%;
+  min-height: 50px;
+  padding: 5px 10px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.additionalNote textarea.summary-input:focus {
+  border-color: #b91c1c;
+}
+
+/* Invoice totals */
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  background-color: #111111;
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 15px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
   gap: 15px;
+  padding: 12px;
+  margin-bottom: 15px;
+  background: #111;
+  border-radius: 4px;
 }
 
 .summary-node {
@@ -637,9 +654,9 @@
 }
 
 .summary-node span {
-  color: #ffffff;
-  font-weight: bold;
+  color: #fff;
   font-size: 0.95rem;
+  font-weight: bold;
 }
 
 .inline-input-node .summary-input {
@@ -649,9 +666,9 @@
 }
 
 .accent-total {
-  background-color: #2d0b0f;
-  border: 1px solid #b91c1c;
   padding: 6px 12px;
+  background: #2d0b0f;
+  border: 1px solid #b91c1c;
   border-radius: 4px;
 }
 
@@ -664,66 +681,54 @@
   font-size: 1rem;
 }
 
-.additionalNote textarea.summary-input {
-  resize: vertical;
-  min-height: 50px;
-  width: 100%;
-  font-family: Arial, sans-serif;
-  box-sizing: border-box;
-  padding: 5px 10px;
-  font-size: 0.85rem;
-  color: #ffffff;
-  background-color: #222222;
-  border: 1px solid #333333;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.additionalNote textarea.summary-input:focus {
-  border-color: #b91c1c;
-}
+/* =========================================
+   11. BACK AND GENERATE BUTTONS
+========================================= */
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 10px;
 }
 
 .btn-cancel,
 .btn-submit {
   padding: 8px 16px;
   border-radius: 4px;
+  font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
-  font-size: 0.85rem;
 }
 
 .btn-cancel {
-  background-color: transparent;
+  background: transparent;
   border: 1px solid #4b5563;
   color: #9ca3af;
 }
 
 .btn-submit {
-  background-color: #b91c1c;
-  border: none;
-  color: #ffffff;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  background: #b91c1c;
+  border: none;
+  color: #fff;
 }
 
-/* ==========================================================================
-   9. Media Queries (Responsive Breakpoints)
-   ========================================================================== */
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-@media screen and (max-width: 992px) {
+/* =========================================
+   12. TABLET RESPONSIVE DESIGN
+========================================= */
 
+@media (max-width: 992px) {
   .split-workspace {
-    grid-template-columns: 1fr;
-    height: auto;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
   }
 
   .left-panel,
@@ -732,35 +737,26 @@
   }
 
   .summary-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* CHANGE AREA - TABLET SEARCH */
-
-  .search-box {
-    gap: 8px;
-    align-items: flex-end;
-  }
-
-  .search-box .filter-group {
-    flex: 1 1 auto;
-    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .btn-search-action {
-    flex: 0 0 100px;
+    flex-basis: 100px;
     width: 100px;
   }
 }
 
-@media screen and (max-width: 600px) {
+/* =========================================
+   13. MOBILE RESPONSIVE DESIGN
+========================================= */
 
+@media (max-width: 600px) {
   .revhub-builder-card {
     padding: 12px;
   }
 
   .summary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .active-workspace-header {
@@ -772,22 +768,9 @@
     max-width: 100%;
   }
 
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .btn-cancel,
-  .btn-submit {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* CHANGE AREA - MOBILE SEARCH */
-
   .search-box {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
   }
 
   .search-box .filter-group {
@@ -796,9 +779,19 @@
   }
 
   .btn-search-action {
+    top: 0;
     width: 100%;
     height: 40px;
     flex: 0 0 40px;
-    top: 0;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+    justify-content: center;
   }
 }

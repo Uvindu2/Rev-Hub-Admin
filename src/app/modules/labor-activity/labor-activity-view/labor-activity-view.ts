@@ -7,7 +7,6 @@ import {debounceTime, distinctUntilChanged, finalize, Subject, takeUntil} from '
 import {AdminService} from '../../../services/admin.service';
 import {LaborActivityTableViewResponseProjection} from '../../../dto/response/LaborActivityTableViewResponseProjection';
 import {LaborActivityNameResponseProjection} from '../../../dto/response/LaborActivityNameResponseProjection';
-
 import {SearchDropdown} from '../../../shared/components/search-dropdown/search-dropdown';
 
 @Component({

@@ -1,0 +1,90 @@
+
+<label *ngIf="label">{{ label }}</label>
+
+<div class="dropdown-container">
+
+  <!-- Selected value -->
+  <div
+    class="dropdown-input-wrapper"
+    [class.invalid-border]="isInvalid"
+    [class.disabled]="disabled"
+    (click)="toggleDropdown()">
+
+    <span
+      class="dropdown-display-text"
+      [class.placeholder]="!selectedDisplayLabel">
+      {{ selectedDisplayLabel || placeholder }}
+    </span>
+
+    <span class="dropdown-toggle">
+      {{ isOpen ? '▲' : '▼' }}
+    </span>
+  </div>
+
+  <!-- Dropdown panel -->
+  <div
+    class="dropdown-options-box"
+    *ngIf="isOpen"
+    (click)="$event.stopPropagation()">
+
+    <!-- Search -->
+    <div class="dropdown-search-wrapper">
+      <span class="dropdown-search-icon">🔍</span>
+
+      <input
+        #searchInput
+        type="text"
+        [(ngModel)]="searchText"
+        [ngModelOptions]="{standalone: true}"
+      [placeholder]="searchPlaceholder"
+      class="dropdown-search-input"
+      autocomplete="off"
+      [disabled]="disabled">
+    </div>
+
+    <div class="dropdown-items-container">
+
+      <!-- Add new item -->
+      <div
+        *ngIf="showAddNewOption"
+        class="checkbox-option add-new-option"
+        (click)="addNewItemManually()">
+        <span class="option-text">+ Add New Item</span>
+      </div>
+
+      <!-- All option -->
+      <div
+        *ngIf="showAllOption"
+        class="checkbox-option all-option"
+        [class.option]="value === null"
+        (click)="selectAll()">
+        <span class="option-text">{{ allLabel }}</span>
+      </div>
+
+      <!-- Existing items -->
+      <div
+        *ngFor="let item of filteredItems"
+        class="checkbox-option"
+        [class.option]="isSelected(item)"
+        (click)="selectItem(item)">
+        <span class="option-text">
+          {{ getItemLabel(item) }}
+        </span>
+      </div>
+
+      <!-- No results -->
+      <div
+        *ngIf="filteredItems.length === 0"
+        class="no-results">
+        No matching items found
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Validation -->
+  <div *ngIf="isInvalid" class="dropdown-error-msg">
+    {{ errorMessage }}
+  </div>
+
+</div>

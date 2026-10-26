@@ -1,0 +1,227 @@
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: #aaa;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.dropdown-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.dropdown-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 38px 0 12px;
+  box-sizing: border-box;
+  background: #2b2b2b;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.dropdown-input-wrapper:hover {
+  background: #303030;
+  border-color: #555;
+}
+
+.dropdown-input-wrapper:focus-within {
+  border-color: #666;
+}
+
+.dropdown-input-wrapper.invalid-border {
+  border-color: #dc2626;
+}
+
+.dropdown-input-wrapper.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dropdown-display-text {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+}
+
+.dropdown-display-text.placeholder {
+  color: #888;
+}
+
+.dropdown-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: #aaa;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.dropdown-options-box {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+}
+
+.dropdown-search-wrapper {
+  position: relative;
+  padding: 8px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #303030;
+}
+
+.dropdown-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.dropdown-search-input {
+  width: 100%;
+  height: 38px;
+  box-sizing: border-box;
+  padding: 7px 12px 7px 40px;
+  background: #282828;
+  border: 1px solid #444;
+  border-radius: 5px;
+  outline: none;
+  color: #ddd;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.dropdown-search-input::placeholder {
+  color: #888;
+}
+
+.dropdown-search-input:focus {
+  background: #2c2c2c;
+  border-color: #666;
+}
+
+.dropdown-search-input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.dropdown-items-container {
+  max-height: 150px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: #fff #1e1e1e;
+  scrollbar-width: auto;
+}
+
+.dropdown-items-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dropdown-items-container::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.dropdown-items-container::-webkit-scrollbar-thumb {
+  background: #fff;
+  border: 2px solid #1e1e1e;
+  border-radius: 5px;
+}
+
+.dropdown-items-container::-webkit-scrollbar-thumb:hover {
+  background: #dcdcdc;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 9px 14px;
+  box-sizing: border-box;
+  background: #1e1e1e;
+  color: #ddd;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.checkbox-option:hover {
+  background: #2b2b2b;
+  color: #fff;
+}
+
+.checkbox-option.option {
+  background: #383838;
+  color: #fff;
+  font-weight: 500;
+}
+
+.checkbox-option.option:hover {
+  background: #424242;
+}
+
+.option-text {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.all-option {
+  border-bottom: 1px solid #303030;
+}
+
+.no-results {
+  padding: 18px 14px;
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+}
+
+.dropdown-error-msg {
+  margin-top: 5px;
+  color: #dc3545;
+  font-size: 13px;
+}
+
+.add-new-option {
+  color: #f59e0b;
+  font-weight: 600;
+  border-bottom: 1px solid #383838;
+}
+
+.add-new-option:hover {
+  background: #383024;
+  color: #fbbf24;
+}
