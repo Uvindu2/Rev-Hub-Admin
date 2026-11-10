@@ -30,6 +30,7 @@
             <select formControlName="vehicleRegStatus" class="dropdown-search-input">
               <option value="registered">Registered Vehicle</option>
               <option value="unregistered">Unregistered Vehicle</option>
+              <option value="unregVinUnknown">Unregistered Vehicle (VIN Unknown)</option>
             </select>
           </div>
 
@@ -56,7 +57,7 @@
             </div>
           </div>
 
-          <div class="form-group search-transition" *ngIf="!isUnregistered">
+          <div class="form-group search-transition" *ngIf="isRegistered">
             <label>Search Vehicle (Reg No):</label>
 
             <div class="search-input-wrapper">
@@ -214,6 +215,26 @@
 
               <div *ngIf="jobCardForm.get('currentMileage')?.hasError('pattern') && jobCardForm.get('currentMileage')?.touched" class="error-msg">
                 Current mileage must contain numbers only.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Vehicle Brought By <span class="required">*</span></label>
+
+              <input type="text" formControlName="vehicleBroughtBy">
+
+              <div *ngIf="jobCardForm.get('vehicleBroughtBy')?.hasError('required') && jobCardForm.get('vehicleBroughtBy')?.touched" class="error-msg">
+                Vehicle Brought By is required.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Contact No <span class="required">*</span></label>
+
+              <input type="text" formControlName="broughtByContactNo">
+
+              <div *ngIf="jobCardForm.get('broughtByContactNo')?.hasError('required') && jobCardForm.get('broughtByContactNo')?.touched" class="error-msg">
+                Contact No is required.
               </div>
             </div>
 

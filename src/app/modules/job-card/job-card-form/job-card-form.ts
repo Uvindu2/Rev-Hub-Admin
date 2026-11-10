@@ -98,6 +98,14 @@ export class JobCardForm implements OnInit {
     return this.jobCardForm.get('vehicleRegStatus')?.value === 'unregistered';
   }
 
+  get isRegistered(): boolean {
+    return this.jobCardForm.get('vehicleRegStatus')?.value === 'registered';
+  }
+
+  get isUnregisteredVinUnknown(): boolean {
+    return this.jobCardForm.get('vehicleRegStatus')?.value === 'unregVinUnknown';
+  }
+
   get repairLaborActivitiesSelectedControl(): FormControl {
     return this.jobCardForm?.get('laborActivitiesSelected') as FormControl;
   }
@@ -126,7 +134,8 @@ export class JobCardForm implements OnInit {
       contactNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       drivingLicenseNumber: [''],
-
+      vehicleBroughtBy:['', Validators.required],
+      broughtByContactNo:['', Validators.required],
       laborActivitiesSelected: [[], Validators.required],
       assignedTechniciansSelected: [[], Validators.required],
       currentMileage: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
@@ -228,7 +237,7 @@ export class JobCardForm implements OnInit {
   onSubmit(): void {
     if (this.isSubmitting) return;
 
-    if (!this.hasSearchedVehicle) {
+    if (!this.isUnregisteredVinUnknown && !this.hasSearchedVehicle) {
       this.notificationService.show('Please search and verify the vehicle number before submitting the job card.', 'warning');
       return;
     }
@@ -247,7 +256,7 @@ export class JobCardForm implements OnInit {
       return;
     }
 
-    const customerAndJobCardFields = ['customerName', 'email', 'contactNumber', 'complaint', 'laborActivitiesSelected', 'currentMileage', 'assignedTechniciansSelected'];
+    const customerAndJobCardFields = ['customerName', 'email', 'contactNumber', 'complaint', 'laborActivitiesSelected', 'currentMileage','vehicleBroughtBy','broughtByContactNo', 'assignedTechniciansSelected'];
     const isCustomerAndJobCardInvalid = customerAndJobCardFields.some(field => this.jobCardForm.get(field)?.invalid);
 
     if (isCustomerAndJobCardInvalid) {
@@ -282,6 +291,8 @@ export class JobCardForm implements OnInit {
       status: 'PENDING',
       customerComplaintText: formValue.complaint,
       currentMileage: formValue.currentMileage,
+      vehicleBroughtBy:formValue.vehicleBroughtBy,
+      broughtByContactNo:formValue.broughtByContactNo,
       existVehicle: formValue.entryMode === 'existing',
 
       customerSaveRequestDTO: {
@@ -512,6 +523,7 @@ export class JobCardForm implements OnInit {
 
       this.isExistingVehicle = false;
       this.isExistingCustomer = false;
+      this.updateVehicleDropdownState();
     });
 
     this.jobCardForm.get('make')?.valueChanges.subscribe(makeId => {
@@ -651,7 +663,7 @@ export class JobCardForm implements OnInit {
   }
 
   get canEditVehicleDetails(): boolean {
-    return this.hasSearchedVehicle && !this.isExistingVehicle;
+    return (this.hasSearchedVehicle && !this.isExistingVehicle) || this.isUnregisteredVinUnknown;
   }
 
   get canEditCustomerDetails(): boolean {
