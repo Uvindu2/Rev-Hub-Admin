@@ -1,13 +1,8 @@
-<div class="modal-overlay">
-
-  <div class="modal-card enhanced-wide-modal">
+<div class="page-header">
+  <div class="card-container vehicle-page-container">
 
     <div class="modal-header">
-      <h3>{{ isEditMode ? 'Edit Vehicle Profile' : 'Vehicle Profile' }}</h3>
-
-      <button type="button" class="close-header-btn" (click)="onBack()">
-        &times;
-      </button>
+      <h2>{{ isEditMode ? 'EDIT VEHICLE' : 'VEHICLE DETAILS' }}</h2>
     </div>
 
     <!-- INITIAL FORM LOADER -->
@@ -18,9 +13,9 @@
 
     <form *ngIf="!isLoading && vehicle" [formGroup]="vehicleForm" (ngSubmit)="submitForm()">
 
-      <div class="modal-body">
+      <div class="modal-body vehicle-form-body">
 
-        <div class="form-row">
+        <div class="vehicle-form-grid">
 
           <div class="form-group">
             <label>Registration Number</label>
@@ -28,29 +23,29 @@
           </div>
 
           <div class="form-group">
-            <label>Make</label>
+            <label>Make <span class="required">*</span></label>
             <input type="text" formControlName="vehicleMake" class="form-control">
+            <div *ngIf="isInvalid('vehicleMake')" class="error-msg">Vehicle make is required.</div>
           </div>
 
         </div>
 
-        <div class="form-row">
+        <div class="vehicle-form-grid">
 
           <div class="form-group">
-            <label>Year</label>
+            <label>Year <span class="required">*</span></label>
             <input type="text" formControlName="vehicleYear" class="form-control">
+            <div *ngIf="isInvalid('vehicleYear')" class="error-msg">Vehicle year is required.</div>
           </div>
-
           <div class="form-group">
-            <label>Model</label>
+            <label>Model <span class="required">*</span></label>
             <input type="text" formControlName="vehicleModel" class="form-control">
+            <div *ngIf="isInvalid('vehicleModel')" class="error-msg">Vehicle model is required.</div>
           </div>
-
           <div class="form-group">
             <label>Colour</label>
             <input type="text" formControlName="colour" class="form-control">
           </div>
-
         </div>
 
         <div class="customers-management-section">
@@ -121,14 +116,16 @@
 
       </div>
 
-      <div *ngIf="isEditMode" class="modal-footer">
+      <div class="modal-footer">
 
-        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+        <button type="button" class="btn-secondary" (click)="onBack()">BACK</button>
+
+        <button *ngIf="isEditMode" type="submit" class="btn-primary" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting" class="buttonSpinner"></span>
           {{ isSubmitting ? 'SUBMITTING...' : 'SUBMIT' }}
         </button>
 
-        <button type="button" class="btn-secondary" (click)="onCancelEdit()">
+        <button *ngIf="isEditMode" type="button" class="btn-secondary" (click)="onCancelEdit()">
           CANCEL
         </button>
 
@@ -137,7 +134,6 @@
     </form>
 
   </div>
-
 </div>
 
 <app-add-customer-form

@@ -507,6 +507,147 @@
   }
 }
 
+/* Page form styling shared with the item view/edit page. */
+.vehicle-page-container {
+  width: 100%;
+  color: #ccc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.vehicle-page-container .modal-header {
+  justify-content: flex-start;
+  padding: 0 0 15px;
+  margin-bottom: 20px;
+  background: transparent;
+  border-bottom-color: #3a3a3a;
+}
+
+.vehicle-page-container .modal-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+.vehicle-page-container .vehicle-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0;
+  overflow: visible;
+}
+
+.vehicle-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 30px;
+}
+
+.vehicle-page-container .form-group {
+  min-width: 0;
+  margin: 0;
+}
+
+.vehicle-page-container .form-group label {
+  margin-bottom: 5px;
+  color: #ccc;
+  font-size: 0.85rem;
+}
+
+.vehicle-page-container .form-control {
+  height: 40px;
+  padding: 10px 12px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.vehicle-page-container .form-control:focus {
+  border-color: #555;
+}
+
+.vehicle-page-container .form-control:disabled {
+  background: #2a2a2a;
+  border-color: #3a3a3a;
+  color: #999;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vehicle-page-container .customers-management-section {
+  margin: 0;
+  padding: 18px;
+  background: #222;
+  border-color: #3a3a3a;
+}
+
+.vehicle-page-container .modal-footer {
+  justify-content: center;
+  padding: 20px 0 0;
+  margin-top: 20px;
+  background: transparent;
+  border-top-color: #3a3a3a;
+}
+
+.vehicle-page-container .btn-primary,
+.vehicle-page-container .btn-secondary {
+  min-width: 100px;
+  height: 42px;
+  padding: 0 25px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.vehicle-page-container .btn-primary {
+  background: #a61c1c;
+  border: 1px solid #a61c1c;
+}
+
+.vehicle-page-container .btn-primary:hover:not(:disabled) {
+  background: #c42323;
+}
+
+.vehicle-page-container .btn-secondary {
+  background: #2e2e2e;
+  border: 1px solid #3a3a3a;
+  color: #fff;
+}
+
+.vehicle-page-container .btn-secondary:hover {
+  background: #3e3e3e;
+}
+
+.vehicle-page-container .required {
+  color: #dc3545;
+}
+
+.vehicle-page-container .error-msg {
+  margin-top: 4px;
+  color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .vehicle-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .vehicle-page-container .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .vehicle-page-container .modal-footer button {
+    width: 100%;
+  }
+
+  .vehicle-page-container .modal-embedded-table {
+    min-width: 600px;
+  }
+}
+
 
 /* =========================================================
    RESPONSIVE

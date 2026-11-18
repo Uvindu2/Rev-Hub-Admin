@@ -77,12 +77,12 @@
             <fa-icon [icon]="faUser"></fa-icon>
           </div>
 
-          <span class="username">Admin</span>
+          <span class="username">{{ currentUsername }}</span>
           <fa-icon [icon]="faChevronDown"></fa-icon>
 
           <div class="dropdown-menu" *ngIf="isDropdownOpen">
             <ul>
-              <li>Profile</li>
+              <li (click)="openProfile()">Profile</li>
               <li routerLink="/dashboard/change-password">Change Password</li>
               <li (click)="logout()">Logout</li>
             </ul>

@@ -34,6 +34,7 @@ export class Dashboard implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
   isDropdownOpen = false;
   currentTitle = 'Dashboard';
+  currentUsername = 'Admin';
   private routerSubscription?: Subscription;
 
   pageTitles: Record<string, string> = {
@@ -45,12 +46,14 @@ export class Dashboard implements OnInit, OnDestroy {
     vehicles: 'VEHICLES',
     items: 'ITEMS',
     users: 'USERS',
-    'labor-activities': 'LABOR ACTIVITIES'
+    'labor-activities': 'LABOR ACTIVITIES',
+    profile: 'MY PROFILE'
   };
 
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
+    this.currentUsername = this.authService.getCurrentUsername() || 'Admin';
     this.routerSubscription = this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe(event => this.updatePageTitle(event.urlAfterRedirects));
@@ -143,6 +146,11 @@ export class Dashboard implements OnInit, OnDestroy {
 
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  openProfile(): void {
+    this.isDropdownOpen = false;
+    this.router.navigate(['/dashboard/profile']);
   }
 
   logout(): void {
